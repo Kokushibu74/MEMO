@@ -1,250 +1,59 @@
-# 🤖 MEMO v1.5
+# 🤖 MEMO — Multi-AI WhatsApp Assistant
 
-<div align="center">
+> **A powerful multi-AI WhatsApp assistant for Android + Termux with automatic AI fallback, conversation memory, Bangla/Banglish support, and local configuration.**
 
-\`\`\`text
-███╗   ███╗███████╗███╗   ███╗ ██████╗
-████╗ ████║██╔════╝████╗ ████║██╔═══██╗
-██╔████╔██║█████╗  ██╔████╔██║██║   ██║
-██║╚██╔╝██║██╔══╝  ██║╚██╔╝██║██║   ██║
-██║ ╚═╝ ██║███████╗██║ ╚═╝ ██║╚██████╔╝
-╚═╝     ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝
-                 v1.5
-\`\`\`
+[![Platform](https://img.shields.io/badge/Platform-Android-green?style=for-the-badge)](https://github.com/Kokushibu74/MEMO)
+[![Termux](https://img.shields.io/badge/Termux-Supported-blue?style=for-the-badge)](https://termux.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-Required-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![WhatsApp](https://img.shields.io/badge/WhatsApp-AI%20Assistant-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://www.whatsapp.com/)
 
-**A multi-AI WhatsApp assistant with automatic fallback, memory, and Bangla/Banglish support.**
+---
 
-![Version](https://img.shields.io/badge/version-1.5-blue)
-![Node.js](https://img.shields.io/badge/Node.js-24.x-green)
-![WhatsApp](https://img.shields.io/badge/WhatsApp-AI%20Assistant-25D366)
-![AI](https://img.shields.io/badge/Multi--AI-6%20Providers-purple)
-![Platform](https://img.shields.io/badge/Platform-Termux%20%7C%20Android-black)
-![Language](https://img.shields.io/badge/Language-Bangla%20%7C%20Banglish-orange)
+## ✨ What is MEMO?
 
-</div>
+**MEMO** is a personal WhatsApp AI assistant designed to run directly on **Android using Termux**.
 
-## ✨ MEMO v1.5 Features
+It connects WhatsApp with multiple AI providers and can automatically switch between them when one provider is unavailable, rate-limited, timed out, or reaches its quota.
 
-> A smart, modular and privacy-focused **AI WhatsApp Assistant** built for Android & Termux.
+MEMO is designed with a focus on:
+
+- 🧠 Intelligent AI conversations
+- 🔄 Automatic provider fallback
+- 💾 Conversation memory
+- 💬 Bangla, Banglish & English
+- ✍️ Typo and follow-up understanding
+- 📱 WhatsApp automation
+- ⚙️ Local configuration
+- 🎨 Multiple UI themes
+
+---
+
+## 🚀 Core Features
 
 | Feature | Status |
 |---|---|
-| 💬 WhatsApp Auto Reply | ✅ |
-| 🧠 Gemini AI | ✅ |
-| 🔄 Ollama AI Fallback | ✅ |
-| 🤖 Qwen3 Support | ✅ |
-| 🧠 Conversation Memory | ✅ |
-| 🇧🇩 Bangla & Banglish | ✅ |
-| 🔗 Follow-up Understanding | ✅ |
+| 🤖 Google Gemini | ✅ |
+| 🧠 OpenAI / ChatGPT | ✅ |
+| 🧩 Claude | ✅ |
+| ⚡ Grok | ✅ |
+| 🔎 DeepSeek | ✅ |
+| 🚀 Groq | ✅ |
+| 🔄 Automatic AI Fallback | ✅ |
+| 💾 Conversation Memory | ✅ |
+| 💬 Bangla / Banglish / English | ✅ |
+| 🧠 Follow-up Understanding | ✅ |
 | ✍️ Typo Understanding | ✅ |
-| 👤 Owner / Creator Identity | ✅ |
-| 🧩 Modular AI Providers | ✅ |
-| 🎨 MEMO UI & Themes | ✅ |
-| 🔐 Local Private Data | ✅ |
-
-### 🧠 Multi-AI Architecture
-
-MEMO can work with multiple AI providers and use a fallback architecture to maintain reliable responses.
-
-**Gemini → Ollama → Qwen3**
-
-This makes MEMO flexible, extensible and suitable for different environments.
-
-
-## 📦 Installation
-
-> Get **MEMO** up and running on Android with Termux in just **3 simple steps**.
-
-### 01 · Clone MEMO
-
-Download the latest version from GitHub:
-
-```bash
-git clone https://github.com/Kokushibu74/MEMO.git
-cd MEMO
-```
-
-### 02 · Run Setup
-
-Install and configure the required dependencies:
-
-```bash
-bash requirements.txt
-```
-
-> ⚙️ The custom setup script automatically prepares everything MEMO needs.
-
-### 03 · Start MEMO
-
-Launch your MEMO AI assistant:
-
-```bash
-bash memo
-```
-
-> 🚀 Follow the on-screen instructions to connect WhatsApp and configure your AI provider.
+| 📱 WhatsApp AI Reply | ✅ |
+| 🎨 Multiple Themes | ✅ |
+| 🔐 Local API Configuration | ✅ |
 
 ---
 
-**💡 Updating MEMO**
+## 🧠 Intelligent AI Fallback
 
-Already installed? Update to the latest version with:
-
-```bash
-git pull
-```
-
-
-## ⚙️ Main Menu
-
-\`\`\`text
-╔════════════════════════════╗
-║        M E M O 1.5        ║
-║   WhatsApp AI Assistant   ║
-╚════════════════════════════╝
-
-1. Start MEMO 1.5
-2. Add or Remove Brain 🧠 API
-3. Recent Chat History
-4. Change Theme
-5. Reset MEMO 1.5
-6. About MEMO 1.5
-\`\`\`
-
-## 🔑 AI Providers
-
-Configure API keys locally from the MEMO menu.
-
-| Provider | Status |
-|---|---|
-| Gemini | ✅ |
-| ChatGPT | ✅ |
-| Claude | ✅ |
-| Grok | ✅ |
-| DeepSeek | ✅ |
-| Groq | ✅ |
-
-**Never commit API keys, WhatsApp sessions, or private configuration to GitHub.**
-
-## 📱 Requirements
-
-- Android
-- Termux
-- Node.js
-- WhatsApp account
-- At least one supported AI API key
-
-## 🛠️ Tech Stack
-
-- Node.js
-- Baileys
-- Termux
-- Multiple AI APIs
-- Local JSON configuration
-- Conversation memory
-
-## 👨‍💻 Creator
-
-**Shihab**
-
-Built for WhatsApp AI automation with Bangla/Banglish support.
-
-## 📄 License
-
-This project is provided for personal and educational use.
-
----
-
-⭐ If you find MEMO useful, consider starring the repository.
-
----
-
-## ❤️ Support MEMO
-
-If MEMO is useful to you and you would like to support its continued development, you can make a donation using USDT on the TRON (TRC20) network.
-
-### 💎 Donate with USDT
-
-**Network:** `TRX Tron (TRC20)`
-
-**USDT Deposit Address:**
+MEMO can use multiple AI providers in a priority-based fallback system.
 
 ```text
-TVFZWJe4sxwC1gcFB4P68SLBygmWNjFpSc
-```
-
-> ⚠️ **Important:** Send USDT only through the **TRON (TRC20)** network. Sending funds through another network may result in permanent loss.
-
-Your support helps with:
-
-- 🧠 AI development
-- ⚡ New MEMO features
-- 🐛 Bug fixes
-- 📱 Android/Termux compatibility
-- 🔧 Development and infrastructure costs
-
-**Thank you for supporting MEMO ❤️**## 🚀 Installation
-
-Get **MEMO** running on Android with Termux in a few simple steps.
-
-### 📋 1. Clone MEMO
-
-```bash
-git clone https://github.com/Kokushibu74/MEMO.git
-cd MEMO
-```
-
-### ⚙️ 2. Install Dependencies
-
-Run the custom MEMO requirements installer:
-
-```bash
-bash requirements.txt
-```
-
-This automatically prepares the required packages and dependencies for MEMO.
-
-### ▶️ 3. Start MEMO
-
-Start MEMO with:
-
-```bash
-bash memo
-```
-
-### 📱 4. Connect WhatsApp
-
-On the first launch, follow the WhatsApp pairing instructions displayed by MEMO. Your WhatsApp authentication data is stored locally on your device.
-
-### 🔐 5. Privacy & Security
-
-MEMO keeps your **API keys, WhatsApp session, private configuration, and conversation memory** on your device. Private data is excluded from Git tracking.
-
-> 💡 **Tip:** To update MEMO later, run `git pull` from the MEMO directory.
-
-
-## ✨ Features
-
-- 🤖 Gemini
-- 🧠 ChatGPT
-- 🧩 Claude
-- ⚡ Grok
-- 🔎 DeepSeek
-- 🚀 Groq
-- 🔄 Automatic AI fallback
-- 💾 Conversation memory
-- 💬 Bangla, Banglish & English
-- 🧠 Follow-up understanding
-- ✍️ Typo understanding
-- 📱 WhatsApp AI assistant
-- 🎨 Multiple themes
-- 🔐 Local API/session configuration
-
-## 🧠 AI Fallback
-
-MEMO automatically tries configured providers by priority:
-
-\`\`\`text
 Gemini
    ↓
 ChatGPT
@@ -257,118 +66,268 @@ DeepSeek
    ↓
 Groq
    ↓
-Fallback message
-\`\`\`
+Fallback Response
+```
 
-If one provider reaches quota, rate limit, timeout, or fails, MEMO automatically moves to the next configured provider.
+If the current provider fails because of:
 
-## 📦 Installation
+- API error
+- Rate limit
+- Quota
+- Timeout
+- Temporary service failure
 
-### 1. Clone
+MEMO can automatically try the next configured provider.
 
-\`\`\`bash
-git clone https://github.com/Kokushibu74/MEMO.git
-cd MEMO
-\`\`\`
+---
 
-### 2. Run setup
+## 📱 Platform
 
-\`\`\`bash
-bash requirements.txt
-\`\`\`
-
-### 3. Start MEMO
-
-\`\`\`bash
-memo
-\`\`\`
-
-## ⚙️ Main Menu
-
-\`\`\`text
-╔════════════════════════════╗
-║        M E M O 1.5        ║
-║   WhatsApp AI Assistant   ║
-╚════════════════════════════╝
-
-1. Start MEMO 1.5
-2. Add or Remove Brain 🧠 API
-3. Recent Chat History
-4. Change Theme
-5. Reset MEMO 1.5
-6. About MEMO 1.5
-\`\`\`
-
-## 🔑 AI Providers
-
-Configure API keys locally from the MEMO menu.
-
-| Provider | Status |
-|---|---|
-| Gemini | ✅ |
-| ChatGPT | ✅ |
-| Claude | ✅ |
-| Grok | ✅ |
-| DeepSeek | ✅ |
-| Groq | ✅ |
-
-**Never commit API keys, WhatsApp sessions, or private configuration to GitHub.**
-
-## 📱 Requirements
+MEMO is primarily designed for:
 
 - Android
 - Termux
 - Node.js
-- WhatsApp account
-- At least one supported AI API key
+- WhatsApp
+- AI APIs
+
+No dedicated server is required for the basic setup.
+
+---
+
+## 📦 Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Kokushibu74/MEMO.git
+cd MEMO
+```
+
+### 2. Install dependencies
+
+```npm install```
+
+### 3. Configure your AI providers
+
+Start MEMO and configure your API providers locally.
+
+```bash
+node memo.js
+```
+
+> API credentials should remain on your device and should **never** be committed to GitHub.
+
+---
+
+## ⚙️ MEMO Menu
+
+The project includes a menu-driven interface for managing MEMO.
+
+```text
+╔════════════════════════════╗
+║          M E M O           ║
+║    WhatsApp AI Assistant   ║
+╚════════════════════════════╝
+
+1. Start MEMO
+2. Add / Remove AI Brain
+3. Recent Chat History
+4. Change Theme
+5. Reset MEMO
+6. About MEMO
+```
+
+---
+
+## 🔑 AI Provider Configuration
+
+MEMO supports multiple AI providers.
+
+Configure only the providers you want to use.
+
+```text
+Gemini      → AI Provider
+ChatGPT     → AI Provider
+Claude      → AI Provider
+Grok        → AI Provider
+DeepSeek    → AI Provider
+Groq        → AI Provider
+Ollama      → Local fallback / optional
+```
+
+### 🔐 Security
+
+**Never upload or commit:**
+
+- API keys
+- WhatsApp session files
+- Personal credentials
+- Private configuration
+- Local secrets
+
+Keep sensitive configuration files local and protected with `.gitignore`.
+
+---
+
+## 💬 Language Support
+
+MEMO is optimized for natural conversations in:
+
+- 🇧🇩 Bangla
+- 💬 Banglish
+- 🇬🇧 English
+
+It also supports conversational context such as follow-up questions and common typing mistakes.
+
+---
+
+## 🧠 Conversation Memory
+
+MEMO can maintain conversational context so that follow-up messages feel more natural.
+
+Example:
+
+```text
+You: Amar naam Shihab.
+
+MEMO: Nice to meet you, Shihab!
+
+You: Amar naam ki?
+
+MEMO: Tomar naam Shihab.
+```
+
+---
+
+## 🏗️ Project Structure
+
+```text
+MEMO/
+├── config/
+├── providers/
+├── whisper.cpp/
+├── memo.js
+├── memo_engine.js
+├── memo_router.js
+├── memo_ui.js
+├── memo_menu.js
+├── memo_login.js
+├── whatsapp.js
+├── voice_brain.js
+├── memo_watchdog.sh
+├── start-memo.sh
+├── package.json
+├── package-lock.json
+├── requirements.txt
+└── README.md
+```
+
+---
 
 ## 🛠️ Tech Stack
 
-- Node.js
-- Baileys
-- Termux
-- Multiple AI APIs
-- Local JSON configuration
-- Conversation memory
+- **Node.js**
+- **Termux**
+- **WhatsApp**
+- **Baileys**
+- **Google Gemini**
+- **OpenAI**
+- **Claude**
+- **Grok**
+- **DeepSeek**
+- **Groq**
+- **Ollama**
+- **Local JSON configuration**
+- **Conversation memory**
+
+---
+
+## 🔄 Architecture
+
+```text
+              ┌──────────────┐
+              │   WhatsApp   │
+              └──────┬───────┘
+                     │
+                     ▼
+              ┌──────────────┐
+              │     MEMO     │
+              │    Router    │
+              └──────┬───────┘
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+       Gemini     ChatGPT     Claude
+          │          │          │
+          └──────────┼──────────┘
+                     ▼
+              Fallback System
+                     │
+                     ▼
+              Memory / Reply
+                     │
+                     ▼
+                 WhatsApp
+```
+
+---
+
+## 🎯 Project Goals
+
+MEMO is being developed as a personal AI automation system with the goal of creating a flexible assistant that can:
+
+- Understand natural conversations
+- Respond automatically on WhatsApp
+- Remember conversation context
+- Use multiple AI models
+- Recover automatically when an AI provider fails
+- Run locally on Android
+- Support Bangla and Banglish naturally
+
+---
 
 ## 👨‍💻 Creator
 
 **Shihab**
 
-Built for WhatsApp AI automation with Bangla/Banglish support.
+Built with ❤️ for personal AI automation, WhatsApp integration, and multi-model experimentation.
+
+---
+
+## 📌 Project Status
+
+**Active Development 🚧**
+
+MEMO is continuously evolving with new AI providers, better conversation handling, improved fallback logic, UI improvements, and automation features.
+
+---
+
+## ⭐ Support the Project
+
+If you find MEMO useful:
+
+⭐ **Star the repository**
+
+🍴 **Fork it**
+
+🐛 **Report issues**
+
+💡 **Suggest improvements**
+
+---
 
 ## 📄 License
 
-This project is provided for personal and educational use.
+This project is intended primarily for **personal and educational use**.
 
 ---
 
-⭐ If you find MEMO useful, consider starring the repository.
+<div align=center>
 
----
+### 🤖 MEMO
+**Your WhatsApp. Your AI. Your Assistant.**
 
-## ❤️ Support MEMO
+Made with ❤️ by **Shihab**
 
-If MEMO is useful to you and you would like to support its continued development, you can make a donation using USDT on the TRON (TRC20) network.
-
-### 💎 Donate with USDT
-
-**Network:** `TRX Tron (TRC20)`
-
-**USDT Deposit Address:**
-
-```text
-TVFZWJe4sxwC1gcFB4P68SLBygmWNjFpSc
-```
-
-> ⚠️ **Important:** Send USDT only through the **TRON (TRC20)** network. Sending funds through another network may result in permanent loss.
-
-Your support helps with:
-
-- 🧠 AI development
-- ⚡ New MEMO features
-- 🐛 Bug fixes
-- 📱 Android/Termux compatibility
-- 🔧 Development and infrastructure costs
-
-**Thank you for supporting MEMO ❤️**
+</div>
