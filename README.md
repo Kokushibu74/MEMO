@@ -23,6 +23,34 @@
 
 </div>
 
+## ✨ MEMO v1.5 Features
+
+> A smart, modular and privacy-focused **AI WhatsApp Assistant** built for Android & Termux.
+
+| Feature | Status |
+|---|---|
+| 💬 WhatsApp Auto Reply | ✅ |
+| 🧠 Gemini AI | ✅ |
+| 🔄 Ollama AI Fallback | ✅ |
+| 🤖 Qwen3 Support | ✅ |
+| 🧠 Conversation Memory | ✅ |
+| 🇧🇩 Bangla & Banglish | ✅ |
+| 🔗 Follow-up Understanding | ✅ |
+| ✍️ Typo Understanding | ✅ |
+| 👤 Owner / Creator Identity | ✅ |
+| 🧩 Modular AI Providers | ✅ |
+| 🎨 MEMO UI & Themes | ✅ |
+| 🔐 Local Private Data | ✅ |
+
+### 🧠 Multi-AI Architecture
+
+MEMO can work with multiple AI providers and use a fallback architecture to maintain reliable responses.
+
+**Gemini → Ollama → Qwen3**
+
+This makes MEMO flexible, extensible and suitable for different environments.
+
+
 ## 📦 Installation
 
 > Get **MEMO** up and running on Android with Termux in just **3 simple steps**.
