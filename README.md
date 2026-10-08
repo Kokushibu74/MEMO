@@ -317,6 +317,24 @@ If you find MEMO useful:
 
 ---
 
+## 💖 Support MEMO
+
+If MEMO is useful to you and you would like to support the project, you can make a crypto donation.
+
+### 🪙 Donate with USDT
+
+**Network:** TRON (TRC20)
+
+**USDT Deposit Address:**
+
+
+
+> ⚠️ **Important:** Send **USDT only on the TRON (TRC20) network**. Sending assets through another network may result in permanent loss.
+
+Thank you for supporting MEMO ❤️
+
+---
+
 ## 📄 License
 
 This project is intended primarily for **personal and educational use**.
