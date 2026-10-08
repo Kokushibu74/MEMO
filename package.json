@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@google/genai": "^2.27.0",
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "^6.7.24",
+    "blessed": "^0.1.81",
+    "pino": "^10.4.0"
+  },
+  "allowScripts": {
+    "@whiskeysockets/baileys@7.0.0-rc14": true,
+    "protobufjs@7.6.6": true
+  },
+  "type": "module"
+}

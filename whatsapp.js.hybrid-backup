@@ -1,0 +1,650 @@
+const {
+  default: makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+  fetchLatestWaWebVersion,
+  Browsers
+} = require('@whiskeysockets/baileys');
+
+const P = require('pino');
+const fs = require('fs');
+const readline = require('readline');
+
+const SESSION = './session';
+const MEMORY = './memory.json';
+const MODEL = 'qwen3:1.7b';
+const OLLAMA = 'http://127.0.0.1:11434/api/generate';
+
+let sock = null;
+let reconnectTimer = null;
+let isStarting = false;
+let pairingStarted = false;
+
+function banner() {
+  console.clear();
+  console.log('================================================');
+  console.log('              MEMO AI ASSISTANT');
+  console.log('          WHATSAPP - OLLAMA - AI');
+  console.log('================================================');
+  console.log('');
+}
+
+function loadMemory() {
+  try {
+    if (!fs.existsSync(MEMORY)) {
+      fs.writeFileSync(MEMORY, '[]');
+      return [];
+    }
+
+    const data = JSON.parse(
+      fs.readFileSync(MEMORY, 'utf8')
+    );
+
+    if (!Array.isArray(data)) {
+      fs.writeFileSync(MEMORY, '[]');
+      return [];
+    }
+
+    return data;
+  } catch (error) {
+    try {
+      fs.writeFileSync(MEMORY, '[]');
+    } catch {}
+    return [];
+  }
+}
+
+function saveMemory(memory) {
+  try {
+    fs.writeFileSync(
+      MEMORY,
+      JSON.stringify(memory, null, 2)
+    );
+  } catch {}
+}
+
+function detectLanguage(text) {
+  const hasBangla = /[\u0980-\u09FF]/.test(text);
+  const hasEnglish = /[a-zA-Z]/.test(text);
+
+  if (hasBangla && hasEnglish) {
+    return 'Mixed Bangla-English';
+  }
+
+  if (hasBangla) {
+    return 'Bangla';
+  }
+
+  if (hasEnglish) {
+    return 'English or Banglish';
+  }
+
+  return 'Unknown';
+}
+
+function cleanAnswer(text) {
+  let answer = String(text || '').trim();
+
+  answer = answer.replace(
+    /^MEMO\s*ASSISTANT\s*:?\s*/i,
+    ''
+  );
+
+  answer = answer.replace(
+    /^[-_=\u2500]+\s*/g,
+    ''
+  );
+
+  return answer.trim();
+}
+
+async function askOllama(userText, history) {
+  const language = detectLanguage(userText);
+
+  const recentConversation = history
+    .slice(-10)
+    .map(function(item) {
+      return item.role + ': ' + item.text;
+    })
+    .join('\n');
+
+  const promptLines = [
+    'You are Memo, a natural conversational WhatsApp AI assistant.',
+    '',
+    'Your job is to understand what the user means and give a direct conversational reply.',
+    'You are NOT a translator.',
+    'You are NOT an echo bot.',
+    'Never translate the users message unless the user explicitly asks for translation.',
+    'Never repeat or rewrite the users question as the answer.',
+    '',
+    'LANGUAGE:',
+    'Understand Bangla, Banglish, English, and mixed language.',
+    'Reply in the same language style used by the user.',
+    'Banglish means Bangla written using English letters.',
+    'Examples: Kothay?, Ki korcho?, Khaiso?, Tumi kmn acho?, Ajke ki korba?',
+    'If the user writes Banglish, reply in natural Banglish.',
+    'Do not convert Banglish into English or Bengali script unless requested.',
+    'If the user writes Bengali script, reply in natural Bangla.',
+    'If the user writes English, reply in natural English.',
+    'For mixed messages, naturally match the users mixed style.',
+    '',
+    'CONVERSATION RULE:',
+    'Answer the meaning of the message directly.',
+    'Example: User says Kothay? Reply with a conversational answer such as Basay achi. or Ekhanei achi.',
+    'Example: User says কোথায়? Reply with a conversational answer such as বাসায় আছি। or এখানেই আছি।',
+    'Example: User says Where are you? Reply with a direct conversational answer, not a translation.',
+    'If you do not know the real answer, do not invent personal facts. Say that you do not know.',
+    'Do not explain the language or meaning of the users message.',
+    'Do not start every reply with an introduction.',
+    'Use 0 to 2 natural emojis when appropriate.',
+    'Keep simple conversation short and natural.',
+    'For complex questions, provide a useful answer.',
+    'Never write MEMO ASSISTANT because the program adds that header.',
+    '',
+    'Previous conversation:',
+    recentConversation || 'No previous conversation.',
+    '',
+    'Incoming user message:',
+    userText,
+    '',
+    'Return ONLY the direct conversational reply.'
+  ];
+
+  const prompt = promptLines.join('\\n');
+
+  try {
+    const response = await fetch(OLLAMA, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        prompt: prompt,
+        stream: false,
+        think: false,
+        keep_alive: '10m',
+        options: {
+          temperature: 0.4,
+          top_p: 0.85,
+          num_predict: 80
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        'Ollama HTTP ' + response.status
+      );
+    }
+
+    const data = await response.json();
+
+    return cleanAnswer(data.response);
+  } catch (error) {
+    console.log(
+      'Ollama error:',
+      error.message
+    );
+
+    return 'Sorry, ekhon ektu problem hocche. Pore abar try koro.';
+  }
+}
+
+function saveConversation(jid, userText, answer) {
+  const memory = loadMemory();
+
+  memory.push({
+    jid: jid,
+    role: 'user',
+    text: userText,
+    time: new Date().toISOString()
+  });
+
+  memory.push({
+    jid: jid,
+    role: 'assistant',
+    text: answer,
+    time: new Date().toISOString()
+  });
+
+  if (memory.length > 500) {
+    memory.splice(
+      0,
+      memory.length - 500
+    );
+  }
+
+  saveMemory(memory);
+}
+
+function getConversation(jid) {
+  return loadMemory()
+    .filter(function(item) {
+      return item.jid === jid;
+    })
+    .slice(-6);
+}
+
+async function getWAVersion() {
+  try {
+    console.log(
+      'Fetching LIVE WhatsApp Web version...'
+    );
+
+    const result =
+      await fetchLatestWaWebVersion();
+
+    if (
+      result &&
+      result.version
+    ) {
+      console.log(
+        'WA Web: ' +
+        result.version.join('.')
+      );
+
+      return result.version;
+    }
+  } catch (error) {
+    console.log(
+      'Live version fetch failed:',
+      error.message
+    );
+  }
+
+  return undefined;
+}
+
+function scheduleReconnect(statusCode) {
+  if (reconnectTimer) {
+    return;
+  }
+
+  let delay = 5000;
+
+  if (statusCode === 428) {
+    delay = 15000;
+  }
+
+  if (statusCode === 515) {
+    delay = 3000;
+  }
+
+  console.log(
+    'Reconnecting in ' +
+    Math.round(delay / 1000) +
+    ' seconds...'
+  );
+
+  reconnectTimer = setTimeout(
+    function() {
+      reconnectTimer = null;
+
+      start().catch(
+        function(error) {
+          console.log(
+            'Restart error:',
+            error.message
+          );
+
+          scheduleReconnect(
+            'unknown'
+          );
+        }
+      );
+    },
+    delay
+  );
+}
+
+async function start() {
+  if (isStarting) {
+    return;
+  }
+
+  isStarting = true;
+
+  try {
+    const auth =
+      await useMultiFileAuthState(
+        SESSION
+      );
+
+    const state = auth.state;
+    const saveCreds = auth.saveCreds;
+
+    const version =
+      await getWAVersion();
+
+    const options = {
+      auth: state,
+      logger: P({
+        level: 'silent'
+      }),
+      browser:
+        Browsers.macOS('Chrome'),
+      markOnlineOnConnect: false,
+      syncFullHistory: false
+    };
+
+    if (version) {
+      options.version = version;
+    }
+
+    sock = makeWASocket(options);
+
+    sock.ev.on(
+      'creds.update',
+      saveCreds
+    );
+
+    sock.ev.on(
+      'connection.update',
+      async function(update) {
+        const connection =
+          update.connection;
+
+        const lastDisconnect =
+          update.lastDisconnect;
+
+        if (connection === 'open') {
+          isStarting = false;
+          pairingStarted = false;
+
+          console.log('');
+          console.log(
+            '================================================'
+          );
+          console.log(
+            '             WHATSAPP CONNECTED'
+          );
+          console.log(
+            '================================================'
+          );
+          console.log(
+            'AI Model : ' + MODEL
+          );
+          console.log(
+            'Memory   : ' + MEMORY
+          );
+          console.log(
+            'Groups   : OFF'
+          );
+          console.log(
+            'Auto AI  : ON'
+          );
+          console.log('');
+        }
+
+        if (connection === 'close') {
+          isStarting = false;
+
+          const statusCode =
+            lastDisconnect &&
+            lastDisconnect.error &&
+            lastDisconnect.error.output &&
+            lastDisconnect.error.output.statusCode
+              ? lastDisconnect.error.output.statusCode
+              : lastDisconnect &&
+                lastDisconnect.error &&
+                lastDisconnect.error.statusCode
+                ? lastDisconnect.error.statusCode
+                : 'unknown';
+
+          console.log('');
+          console.log(
+            'WhatsApp disconnected'
+          );
+          console.log(
+            'Status:',
+            statusCode
+          );
+
+          if (
+            statusCode ===
+            DisconnectReason.loggedOut
+          ) {
+            console.log(
+              'Session logged out.'
+            );
+            console.log(
+              'New pairing required.'
+            );
+            return;
+          }
+
+          if (statusCode === 428) {
+            console.log(
+              '428 connection close.'
+            );
+          }
+
+          if (statusCode === 515) {
+            console.log(
+              '515 restart requested.'
+            );
+          }
+
+          scheduleReconnect(
+            statusCode
+          );
+        }
+
+        if (
+          connection === 'connecting' &&
+          !state.creds.registered &&
+          !pairingStarted
+        ) {
+          pairingStarted = true;
+
+          setTimeout(
+            async function() {
+              try {
+                const rl =
+                  readline.createInterface({
+                    input: process.stdin,
+                    output: process.stdout
+                  });
+
+                rl.question(
+                  '\nWhatsApp number (+880...): ',
+                  async function(number) {
+                    rl.close();
+
+                    const phone =
+                      number.replace(
+                        /\D/g,
+                        ''
+                      );
+
+                    if (!phone) {
+                      console.log(
+                        'Invalid number.'
+                      );
+                      pairingStarted = false;
+                      return;
+                    }
+
+                    try {
+                      const code =
+                        await sock.requestPairingCode(
+                          phone
+                        );
+
+                      console.log('');
+                      console.log(
+                        'PAIRING CODE: ' + code
+                      );
+                      console.log('');
+                      console.log(
+                        'WhatsApp > Linked Devices > Link with phone number'
+                      );
+                    } catch (error) {
+                      console.log(
+                        'Pairing error:',
+                        error.message
+                      );
+                      pairingStarted = false;
+                    }
+                  }
+                );
+              } catch (error) {
+                console.log(
+                  'Pairing setup error:',
+                  error.message
+                );
+                pairingStarted = false;
+              }
+            },
+            2500
+          );
+        }
+      }
+    );
+
+    sock.ev.on(
+      'messages.upsert',
+      async function(data) {
+        const messages =
+          data.messages || [];
+
+        for (const msg of messages) {
+          try {
+            if (!msg.message) {
+              continue;
+            }
+
+            if (msg.key.fromMe) {
+              continue;
+            }
+
+            const jid =
+              msg.key.remoteJid;
+
+            if (!jid) {
+              continue;
+            }
+
+            if (
+              jid.endsWith('@g.us')
+            ) {
+              continue;
+            }
+
+            const text =
+              msg.message.conversation ||
+              (
+                msg.message.extendedTextMessage &&
+                msg.message.extendedTextMessage.text
+              ) ||
+              (
+                msg.message.imageMessage &&
+                msg.message.imageMessage.caption
+              ) ||
+              (
+                msg.message.videoMessage &&
+                msg.message.videoMessage.caption
+              ) ||
+              '';
+
+            if (!text.trim()) {
+              continue;
+            }
+
+            console.log('');
+            console.log(
+              'MESSAGE'
+            );
+            console.log(
+              'From:',
+              jid
+            );
+            console.log(
+              'Text:',
+              text
+            );
+
+            console.log(
+              'Memo is thinking...'
+            );
+
+            const history =
+              getConversation(jid);
+
+            const answer =
+              await askOllama(
+                text,
+                history
+              );
+
+            const reply =
+              'MEMO ASSISTANT :\n' +
+              '---------------\n' +
+              answer;
+
+            await sock.sendMessage(
+              jid,
+              {
+                text: reply
+              }
+            );
+
+            saveConversation(
+              jid,
+              text,
+              answer
+            );
+
+            console.log(
+              'Reply sent'
+            );
+
+          } catch (error) {
+            console.log(
+              'Message error:',
+              error.message
+            );
+          }
+        }
+      }
+    );
+
+  } catch (error) {
+    isStarting = false;
+
+    console.log(
+      'Start error:',
+      error.message
+    );
+
+    scheduleReconnect(
+      'unknown'
+    );
+  }
+}
+
+banner();
+
+console.log(
+  'Starting Memo...'
+);
+
+console.log(
+  'AI Model: ' + MODEL
+);
+
+console.log(
+  'Memory: ' + MEMORY
+);
+
+console.log('');
+
+start().catch(
+  function(error) {
+    console.log(
+      'Fatal error:',
+      error.message
+    );
+  }
+);

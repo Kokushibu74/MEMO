@@ -1,0 +1,272 @@
+import path from "path";
+import fs from "fs";
+
+const THEME_FILE = path.join(process.cwd(), "config", "themes.json");
+
+const ANSI = {
+  cyan: "\x1b[36m",
+  brightCyan: "\x1b[96m",
+  green: "\x1b[32m",
+  brightGreen: "\x1b[92m",
+  yellow: "\x1b[33m",
+  brightYellow: "\x1b[93m",
+  red: "\x1b[31m",
+  brightRed: "\x1b[91m",
+  magenta: "\x1b[35m",
+  brightMagenta: "\x1b[95m",
+  blue: "\x1b[34m",
+  brightBlue: "\x1b[94m",
+  white: "\x1b[37m",
+  brightWhite: "\x1b[97m",
+  gray: "\x1b[90m",
+  reset: "\x1b[0m"
+};
+
+function getTheme() {
+  const fallback = {
+    primary: "cyan",
+    secondary: "white",
+    accent: "green"
+  };
+
+  try {
+    if (!fs.existsSync(THEME_FILE)) return fallback;
+
+    const config = JSON.parse(fs.readFileSync(THEME_FILE, "utf8"));
+    const selected = config.selected || config.current || "MEMO v1.5";
+
+    return config.themes?.[selected] || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function getColors() {
+  const t = getTheme();
+
+  return {
+    primary: ANSI[t.primary] || ANSI.cyan,
+    secondary: ANSI[t.secondary] || ANSI.white,
+    accent: ANSI[t.accent] || ANSI.green,
+    reset: ANSI.reset,
+    gray: ANSI.gray,
+    red: ANSI.red,
+    yellow: ANSI.yellow,
+    magenta: ANSI.magenta,
+    white: ANSI.white,
+    green: ANSI.green,
+    cyan: ANSI.cyan
+  };
+}
+
+const history = [];
+const MAX_HISTORY = 60;
+
+const state = {
+  wa: false,
+  gemini: false,
+  ollama: false,
+  engine: "AUTO",
+  current: "Waiting",
+  percent: 0,
+  active: "",
+  completed: new Set(),
+  failed: ""
+};
+
+function now() {
+  return new Date().toLocaleTimeString("en-GB", { hour12: false });
+}
+
+function clip(s, n = 68) {
+  s = String(s ?? "").replace(/\n/g, " ");
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
+function bar(p, width = 42) {
+  const n = Math.round(Math.max(0, Math.min(100, p)) / 100 * width);
+  return "█".repeat(n) + "░".repeat(width - n);
+}
+
+function status(id, label) {
+  if (state.failed === id)
+    return `${C.red}✗${C.reset} ${label}`;
+
+  if (state.completed.has(id))
+    return `${C.green}✓${C.reset} ${label}`;
+
+  if (state.active === id)
+    return `${C.yellow}●${C.reset} ${label}`;
+
+  return `${C.gray}○${C.reset} ${label}`;
+}
+
+// LIVE_ENGINE_SYNC
+function syncLiveEngine() {
+  const live = String(
+    globalThis.MEMO_ENGINE || state.engine || "AUTO"
+  ).toUpperCase();
+
+  if (state.engine !== live) {
+    state.engine = live;
+  }
+}
+
+export function render() {
+  syncLiveEngine();
+
+  const C = getColors();
+  const o = [];
+
+  o.push(`${C.cyan}╭──────────────────────────────────────────────────────────────╮${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}                       ${C.cyan}M E M O  1 . 5${C.reset}                        ${C.cyan}│${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}                  WhatsApp AI Assistant                       ${C.cyan}│${C.reset}`);
+  o.push(`${C.cyan}├──────────────────────────────────────────────────────────────┤${C.reset}`);
+
+  o.push(`${C.cyan}│${C.reset}  ${state.wa ? C.green + "● ONLINE" : C.red + "● OFFLINE"}${C.reset}     ${state.engine}     ${C.green}MEMORY ON${C.reset}     ${history.length} CHATS`);
+  o.push(`${C.cyan}│${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}  ${C.yellow}${state.current}${C.reset}                         ${String(state.percent).padStart(3)}%`);
+  o.push(`${C.cyan}│${C.reset}  ${C.yellow}${bar(state.percent)}${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}`);
+
+  o.push(`${C.cyan}│${C.reset}  ${status("message","MESSAGE")}   ${status("router","ROUTER")}   ${status("memory","MEMORY")}`);
+  o.push(`${C.cyan}│${C.reset}  ${status("brain","BRAIN")}   ${status("clean","CLEAN")}   ${status("reply","REPLY")}   ${status("save","SAVE")}`);
+
+  o.push(`${C.cyan}├──────────────────────────────────────────────────────────────┤${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}  ${C.cyan}⚡ PROCESS FLOW${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}`);
+
+  const stages = [
+    ["message", "MESSAGE RECEIVED", "Reading incoming WhatsApp message..."],
+    ["router", "ROUTER", "Selecting AI route..."],
+    ["memory", "MEMORY", "Loading conversation context..."],
+    ["brain", "BRAIN", state.engine + " processing..."],
+    ["clean", "RESPONSE CLEAN", "Cleaning AI response..."],
+    ["reply", "WHATSAPP REPLY", "Sending reply..."],
+    ["save", "MEMORY SAVE", "Saving conversation..."]
+  ];
+
+  for (const [id, label, detail] of stages) {
+    o.push(`${C.cyan}│${C.reset}  ${status(id, label)}`);
+
+    if (state.active === id) {
+      o.push(`${C.cyan}│${C.reset}     └─→ ${C.yellow}${detail}${C.reset}`);
+    }
+  }
+
+  o.push(`${C.cyan}│${C.reset}`);
+  o.push(`${C.cyan}├──────────────────────────────────────────────────────────────┤${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}  ${C.cyan}LIVE CHAT STREAM${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}`);
+
+  if (!history.length) {
+    o.push(`${C.cyan}│${C.reset}  ${C.gray}Waiting for WhatsApp messages...${C.reset}`);
+  } else {
+    for (const h of history.slice(0, 50)) {
+      if (h.type === "user") {
+        o.push(`${C.cyan}│${C.reset}  ${C.gray}${h.time}${C.reset}  👤  ${C.white}${clip(h.sender,34)}${C.reset}`);
+        o.push(`${C.cyan}│${C.reset}            └─→  ${C.white}${clip(h.text)}${C.reset}`);
+      } else {
+        o.push(`${C.cyan}│${C.reset}  ${C.gray}${h.time}${C.reset}  🤖  ${C.magenta}MEMO${C.reset}`);
+        o.push(`${C.cyan}│${C.reset}            └─→  ${C.white}${clip(h.text)}${C.reset}`);
+      }
+      o.push(`${C.cyan}│${C.reset}`);
+    }
+  }
+
+  o.push(`${C.cyan}├──────────────────────────────────────────────────────────────┤${C.reset}`);
+  o.push(`${C.cyan}│${C.reset}  ENGINE: ${state.engine} │ WA: ${state.wa ? "ONLINE" : "OFFLINE"} │ MEMO 1.5`);
+  o.push(`${C.cyan}╰──────────────────────────────────────────────────────────────╯${C.reset}`);
+
+  process.stdout.write("\x1b[2J\x1b[H" + o.join("\n") + "\n");
+}
+
+export function start() {
+  render();
+}
+
+export function whatsapp(v = true) {
+  state.wa = v;
+  render();
+}
+
+export function gemini(v = true) {
+  state.gemini = v;
+  if (v) state.engine = String(globalThis.MEMO_ENGINE || "AUTO").toUpperCase();
+  render();
+}
+
+export function ollama(v = true) {
+  state.ollama = v;
+  render();
+}
+
+export function stage(id, percent, text = "") {
+  state.active = id;
+  state.current = text || id.toUpperCase();
+  state.percent = percent;
+  state.failed = "";
+  render();
+}
+
+export function done(id) {
+  state.completed.add(id);
+  if (state.active === id) state.active = "";
+  render();
+}
+
+export function fail(id, text = "ERROR") {
+  state.failed = id;
+  state.active = "";
+  state.current = text;
+  state.percent = 0;
+  render();
+}
+
+export function incoming(sender, text) {
+  history.unshift({
+    type: "user",
+    sender,
+    text,
+    time: now()
+  });
+
+  if (history.length > MAX_HISTORY)
+    history.length = MAX_HISTORY;
+
+  render();
+}
+
+export function outgoing(text) {
+  history.unshift({
+    type: "bot",
+    sender: "MEMO",
+    text,
+    time: now()
+  });
+
+  if (history.length > MAX_HISTORY)
+    history.length = MAX_HISTORY;
+
+  render();
+}
+
+
+export function setEngine(engine = "FALLBACK") {
+  globalThis.MEMO_ENGINE = String(engine || "FALLBACK").toUpperCase();
+}
+
+export function getEngine() {
+  return String(globalThis.MEMO_ENGINE || "FALLBACK").toUpperCase();
+}
+
+
+/* LIVE ENGINE POLLER */
+setInterval(() => {
+  const before = state.engine;
+  syncLiveEngine();
+
+  if (state.engine !== before) {
+    render();
+  }
+}, 250);

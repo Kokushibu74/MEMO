@@ -1,0 +1,1670 @@
+[
+  {
+    "message": "k",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "kk",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "ok",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "okay",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "okk",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "okayy",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "acha",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "accha",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "achha",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "alright",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "right",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "got it",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "bujhlam",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "bujhsi",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "thik",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "ঠিক আছে",
+    "replies": [
+      "আচ্ছা 👍",
+      "ঠিক আছে 😄",
+      "বুঝলাম।"
+    ],
+    "type": "ack"
+  },
+  {
+    "message": "hm",
+    "replies": [
+      "হুম 😄",
+      "হুম, বুঝছি।",
+      "হুম, বলো।"
+    ],
+    "type": "thinking"
+  },
+  {
+    "message": "hmm",
+    "replies": [
+      "হুম 😄",
+      "হুম, বুঝছি।",
+      "হুম, বলো।"
+    ],
+    "type": "thinking"
+  },
+  {
+    "message": "hmmm",
+    "replies": [
+      "হুম 😄",
+      "হুম, বুঝছি।",
+      "হুম, বলো।"
+    ],
+    "type": "thinking"
+  },
+  {
+    "message": "hmm ok",
+    "replies": [
+      "হুম 😄",
+      "হুম, বুঝছি।",
+      "হুম, বলো।"
+    ],
+    "type": "thinking"
+  },
+  {
+    "message": "hmm right",
+    "replies": [
+      "হুম 😄",
+      "হুম, বুঝছি।",
+      "হুম, বলো।"
+    ],
+    "type": "thinking"
+  },
+  {
+    "message": "hmm yeah",
+    "replies": [
+      "হুম 😄",
+      "হুম, বুঝছি।",
+      "হুম, বলো।"
+    ],
+    "type": "thinking"
+  },
+  {
+    "message": "bro",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "bruh",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "bhai",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "vai",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "dude",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "broo",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "bhaiya",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "boss",
+    "replies": [
+      "হ্যাঁ bro 😄",
+      "বলো ভাই।",
+      "কী খবর? 😎"
+    ],
+    "type": "casual"
+  },
+  {
+    "message": "yo",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "yoo",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "hey",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "heyy",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "sup",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "wassup",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "what's up",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "ki obostha",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "কি অবস্থা",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "kemon",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "কেমন",
+    "replies": [
+      "এই তো 😄 তুমি কেমন?",
+      "বলো bro 😎",
+      "ভালোই, তুমি?"
+    ],
+    "type": "greeting"
+  },
+  {
+    "message": "u there",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "you there",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "seen?",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "busy?",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "u busy",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "free?",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "u free",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "koi",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "কই",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "আছো",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "আছিস",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "কোথায়",
+    "replies": [
+      "হ্যাঁ, আছি 👀",
+      "এই তো আছি 😄",
+      "বলো, কী দরকার?"
+    ],
+    "type": "presence"
+  },
+  {
+    "message": "yes",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "yeah",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "yea",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "yep",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "yup",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "yess",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "fr",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "frfr",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "real",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "same",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "same bro",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "exactly",
+    "replies": [
+      "একদম 😄",
+      "হুম, ঠিক বলেছো।",
+      "Exactly 😎"
+    ],
+    "type": "agreement"
+  },
+  {
+    "message": "no",
+    "replies": [
+      "আচ্ছা 😄",
+      "বুঝলাম।",
+      "ঠিক আছে।"
+    ],
+    "type": "negative"
+  },
+  {
+    "message": "nope",
+    "replies": [
+      "আচ্ছা 😄",
+      "বুঝলাম।",
+      "ঠিক আছে।"
+    ],
+    "type": "negative"
+  },
+  {
+    "message": "nah",
+    "replies": [
+      "আচ্ছা 😄",
+      "বুঝলাম।",
+      "ঠিক আছে।"
+    ],
+    "type": "negative"
+  },
+  {
+    "message": "na",
+    "replies": [
+      "আচ্ছা 😄",
+      "বুঝলাম।",
+      "ঠিক আছে।"
+    ],
+    "type": "negative"
+  },
+  {
+    "message": "না",
+    "replies": [
+      "আচ্ছা 😄",
+      "বুঝলাম।",
+      "ঠিক আছে।"
+    ],
+    "type": "negative"
+  },
+  {
+    "message": "nah bro",
+    "replies": [
+      "আচ্ছা 😄",
+      "বুঝলাম।",
+      "ঠিক আছে।"
+    ],
+    "type": "negative"
+  },
+  {
+    "message": "not really",
+    "replies": [
+      "আচ্ছা 😄",
+      "বুঝলাম।",
+      "ঠিক আছে।"
+    ],
+    "type": "negative"
+  },
+  {
+    "message": "idk",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "idkk",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "dunno",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "maybe",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "mayb",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "perhaps",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "not sure",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "jani na",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "জানি না",
+    "replies": [
+      "সমস্যা নেই 😄",
+      "চাইলে একসাথে বের করি।",
+      "হুম, বুঝলাম।"
+    ],
+    "type": "uncertain"
+  },
+  {
+    "message": "lol",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "loll",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "lolll",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "lmao",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "lmfao",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "haha",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "hahaha",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "hehe",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "rofl",
+    "replies": [
+      "😂😂",
+      "হাহা 😂",
+      "ভাই, শেষ 😂"
+    ],
+    "type": "laugh"
+  },
+  {
+    "message": "bruh what",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "wtf",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "omg",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "omfg",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "damn",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "sheesh",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "ayo",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "sus",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "sussy",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "bro what",
+    "replies": [
+      "😂 কী হলো আবার?",
+      "আরে ভাই 😂",
+      "ওহো 😳"
+    ],
+    "type": "reaction"
+  },
+  {
+    "message": "why",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "y",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "what",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "wat",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "who",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "where",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "when",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "how",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "কেন",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "কি",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "কী",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "কে",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "কখন",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "কিভাবে",
+    "replies": [
+      "কোন ব্যাপারটা বলছো?",
+      "একটু context দাও 😄",
+      "বলো, কী জানতে চাও?"
+    ],
+    "type": "question"
+  },
+  {
+    "message": "help",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "hlp",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "please",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "plz",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "pls",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "help me",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "হেল্প",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "সাহায্য",
+    "replies": [
+      "অবশ্যই। কী হয়েছে?",
+      "বলো, কীভাবে help করব?",
+      "আছি, বলো।"
+    ],
+    "type": "request"
+  },
+  {
+    "message": "ty",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "thx",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "tnx",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "thanks",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "thank you",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "thankss",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "ধন্যবাদ",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "thanks bro",
+    "replies": [
+      "Welcome 😄",
+      "কোনো সমস্যা নেই।",
+      "Anytime! 🤝"
+    ],
+    "type": "thanks"
+  },
+  {
+    "message": "nice",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "noice",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "cool",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "great",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "awesome",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "joss",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "জোস",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "fire",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "lit",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "goat",
+    "replies": [
+      "দারুণ তো! 🔥",
+      "Nice 😎",
+      "একদম আগুন! 🔥"
+    ],
+    "type": "positive"
+  },
+  {
+    "message": "😭",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "😭😭",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "😂",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "😂😂",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "🤣",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "💀",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "💀💀",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "❤️",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "🔥",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "😳",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "😅",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "🥲",
+    "replies": [
+      "😂😭",
+      "ভাই শেষ 😂",
+      "হাহা 😄",
+      "বুঝতে পারছি 😂"
+    ],
+    "type": "emoji"
+  },
+  {
+    "message": "gm",
+    "replies": [
+      "সুপ্রভাত ☀️😄",
+      "Good morning!",
+      "সকালটা ভালো যাক 🌤️"
+    ],
+    "type": "morning"
+  },
+  {
+    "message": "good morning",
+    "replies": [
+      "সুপ্রভাত ☀️😄",
+      "Good morning!",
+      "সকালটা ভালো যাক 🌤️"
+    ],
+    "type": "morning"
+  },
+  {
+    "message": "morning",
+    "replies": [
+      "সুপ্রভাত ☀️😄",
+      "Good morning!",
+      "সকালটা ভালো যাক 🌤️"
+    ],
+    "type": "morning"
+  },
+  {
+    "message": "শুভ সকাল",
+    "replies": [
+      "সুপ্রভাত ☀️😄",
+      "Good morning!",
+      "সকালটা ভালো যাক 🌤️"
+    ],
+    "type": "morning"
+  },
+  {
+    "message": "gn",
+    "replies": [
+      "শুভরাত্রি 😴🌙",
+      "Good night 😴",
+      "ঘুমাও, কাল কথা হবে 😄"
+    ],
+    "type": "night"
+  },
+  {
+    "message": "good night",
+    "replies": [
+      "শুভরাত্রি 😴🌙",
+      "Good night 😴",
+      "ঘুমাও, কাল কথা হবে 😄"
+    ],
+    "type": "night"
+  },
+  {
+    "message": "nite",
+    "replies": [
+      "শুভরাত্রি 😴🌙",
+      "Good night 😴",
+      "ঘুমাও, কাল কথা হবে 😄"
+    ],
+    "type": "night"
+  },
+  {
+    "message": "শুভ রাত্রি",
+    "replies": [
+      "শুভরাত্রি 😴🌙",
+      "Good night 😴",
+      "ঘুমাও, কাল কথা হবে 😄"
+    ],
+    "type": "night"
+  },
+  {
+    "message": "শুভরাত্রি",
+    "replies": [
+      "শুভরাত্রি 😴🌙",
+      "Good night 😴",
+      "ঘুমাও, কাল কথা হবে 😄"
+    ],
+    "type": "night"
+  },
+  {
+    "message": "wyd",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "wbu",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "what you doing",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "ki koros",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "কি করিস",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "কি করো",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "কি করতেছ",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "কী করো",
+    "replies": [
+      "এই তো, আছি 😄 তুমি?",
+      "তোমার সাথে কথা বলছি 😂",
+      "বলো, কী খবর?"
+    ],
+    "type": "casual_question"
+  },
+  {
+    "message": "ashos?",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "ashbi?",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "jabi?",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "khabi?",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "ghumabi?",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "asbi",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "jabi",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "khabi",
+    "replies": [
+      "দেখি 😄",
+      "হুম, সম্ভবত।",
+      "কী plan তোমার?"
+    ],
+    "type": "banglish"
+  },
+  {
+    "message": "huh",
+    "replies": [
+      "হুম? 😄",
+      "কী হলো?",
+      "বলো।"
+    ],
+    "type": "short_reply"
+  },
+  {
+    "message": "eh",
+    "replies": [
+      "হুম? 😄",
+      "কী হলো?",
+      "বলো।"
+    ],
+    "type": "short_reply"
+  },
+  {
+    "message": "uh",
+    "replies": [
+      "হুম? 😄",
+      "কী হলো?",
+      "বলো।"
+    ],
+    "type": "short_reply"
+  },
+  {
+    "message": "oh",
+    "replies": [
+      "হুম? 😄",
+      "কী হলো?",
+      "বলো।"
+    ],
+    "type": "short_reply"
+  },
+  {
+    "message": "ohh",
+    "replies": [
+      "হুম? 😄",
+      "কী হলো?",
+      "বলো।"
+    ],
+    "type": "short_reply"
+  },
+  {
+    "message": "ohhh",
+    "replies": [
+      "হুম? 😄",
+      "কী হলো?",
+      "বলো।"
+    ],
+    "type": "short_reply"
+  },
+  {
+    "message": "okay then",
+    "replies": [
+      "হুম? 😄",
+      "কী হলো?",
+      "বলো।"
+    ],
+    "type": "short_reply"
+  }
+]

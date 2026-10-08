@@ -1,0 +1,9 @@
+{
+  "version": "1.5",
+  "memoRun": true,
+  "debounceMs": 1500,
+  "maxHistory": 100,
+  "maxContext": 20,
+  "providerTimeout": 4000,
+  "autoFallback": true
+}

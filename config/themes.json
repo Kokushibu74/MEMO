@@ -1,0 +1,81 @@
+{
+  "current": "Crimson Red",
+  "selected": "Crimson Red",
+  "themes": {
+    "MEMO v1.5": {
+      "primary": "cyan",
+      "secondary": "white",
+      "accent": "green"
+    },
+    "Cyber Cyan": {
+      "primary": "cyan",
+      "secondary": "brightCyan",
+      "accent": "green"
+    },
+    "Matrix Green": {
+      "primary": "green",
+      "secondary": "brightGreen",
+      "accent": "cyan"
+    },
+    "Neon Purple": {
+      "primary": "magenta",
+      "secondary": "brightMagenta",
+      "accent": "cyan"
+    },
+    "Ocean Blue": {
+      "primary": "blue",
+      "secondary": "brightBlue",
+      "accent": "cyan"
+    },
+    "Crimson Red": {
+      "primary": "red",
+      "secondary": "brightRed",
+      "accent": "yellow"
+    },
+    "AMOLED Black": {
+      "primary": "white",
+      "secondary": "gray",
+      "accent": "cyan"
+    },
+    "Midnight": {
+      "primary": "blue",
+      "secondary": "white",
+      "accent": "magenta"
+    },
+    "Sunset": {
+      "primary": "yellow",
+      "secondary": "red",
+      "accent": "magenta"
+    },
+    "Arctic Blue": {
+      "primary": "brightCyan",
+      "secondary": "white",
+      "accent": "blue"
+    },
+    "Royal Purple": {
+      "primary": "magenta",
+      "secondary": "white",
+      "accent": "blue"
+    },
+    "Toxic Green": {
+      "primary": "brightGreen",
+      "secondary": "green",
+      "accent": "yellow"
+    },
+    "Gold": {
+      "primary": "yellow",
+      "secondary": "white",
+      "accent": "brightYellow"
+    },
+    "Monochrome": {
+      "primary": "white",
+      "secondary": "gray",
+      "accent": "brightWhite"
+    },
+    "Custom": {
+      "primary": "cyan",
+      "secondary": "white",
+      "accent": "magenta"
+    }
+  }
+}

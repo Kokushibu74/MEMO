@@ -1,0 +1,323 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+set -u
+
+APP="$HOME/memo"
+FAIL=0
+
+echo
+echo "╔══════════════════════════════════════╗"
+echo "║       M E M O  1 . 5  SETUP         ║"
+echo "║        WhatsApp AI Assistant         ║"
+echo "╚══════════════════════════════════════╝"
+echo
+
+# ─────────────────────────────────────
+# 1. Environment
+# ─────────────────────────────────────
+echo "▸ Checking environment..."
+
+if ! command -v node >/dev/null 2>&1; then
+    echo "✗ Node.js missing"
+    echo "↻ Installing Node.js..."
+    pkg install -y nodejs-lts || FAIL=1
+else
+    echo "✓ Node.js $(node --version)"
+fi
+
+if ! command -v npm >/dev/null 2>&1; then
+    echo "✗ npm missing"
+    FAIL=1
+else
+    echo "✓ npm $(npm --version)"
+fi
+
+# ─────────────────────────────────────
+# 2. Project directory
+# ─────────────────────────────────────
+echo
+echo "▸ Checking MEMO directory..."
+
+if [ ! -d "$APP" ]; then
+    mkdir -p "$APP"
+    echo "✓ Created $APP"
+else
+    echo "✓ $APP"
+fi
+
+cd "$APP" || exit 1
+
+# ─────────────────────────────────────
+# 3. Required directories
+# ─────────────────────────────────────
+echo
+echo "▸ Creating required directories..."
+
+mkdir -p config
+mkdir -p providers
+mkdir -p auth_info
+
+echo "✓ config/"
+echo "✓ providers/"
+echo "✓ auth_info/"
+
+# ─────────────────────────────────────
+# 4. Required source files
+# ─────────────────────────────────────
+echo
+echo "▸ Checking MEMO source..."
+
+FILES=(
+    "memo.js"
+    "memo_menu.js"
+    "memo_ui.js"
+    "memo_engine.js"
+    "memo_router.js"
+    "memo_login.js"
+    "package.json"
+    "providers/index.js"
+    "providers/gemini.js"
+    "providers/groq.js"
+    "config/ai.json"
+    "config/themes.json"
+)
+
+for f in "${FILES[@]}"; do
+    if [ -f "$APP/$f" ]; then
+        echo "✓ $f"
+    else
+        echo "✗ MISSING: $f"
+        FAIL=1
+    fi
+done
+
+# ─────────────────────────────────────
+# 5. NPM dependencies
+# ─────────────────────────────────────
+echo
+echo "▸ Checking npm dependencies..."
+
+if [ -f "$APP/package.json" ]; then
+    if [ ! -d "$APP/node_modules" ]; then
+        echo "↻ Installing npm dependencies..."
+        npm install || FAIL=1
+    else
+        echo "✓ node_modules exists"
+
+        # Verify dependency tree without changing source
+        if ! npm ls --depth=0 >/dev/null 2>&1; then
+            echo "⚠ Dependencies need repair"
+            echo "↻ Running npm install..."
+            npm install || FAIL=1
+        else
+            echo "✓ npm dependencies healthy"
+        fi
+    fi
+else
+    echo "✗ package.json missing"
+    FAIL=1
+fi
+
+# ─────────────────────────────────────
+# 6. JSON configuration
+# ─────────────────────────────────────
+echo
+echo "▸ Checking configuration..."
+
+for f in "$APP"/config/*.json; do
+    [ -f "$f" ] || continue
+
+    if node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$f" >/dev/null 2>&1; then
+        echo "✓ $(basename "$f")"
+    else
+        echo "✗ Invalid JSON: $(basename "$f")"
+        FAIL=1
+    fi
+done
+
+# ─────────────────────────────────────
+# 7. JavaScript syntax
+# ─────────────────────────────────────
+echo
+echo "▸ Checking JavaScript syntax..."
+
+while IFS= read -r -d '' f; do
+    if node --check "$f" >/dev/null 2>&1; then
+        echo "✓ ${f#$APP/}"
+    else
+        echo "✗ Syntax error: ${f#$APP/}"
+        node --check "$f"
+        FAIL=1
+    fi
+done < <(find "$APP" \
+    -path "$APP/node_modules" -prune -o \
+    -name "*.js" -print0)
+
+# ─────────────────────────────────────
+# 8. Ollama removal verification
+# ─────────────────────────────────────
+echo
+echo "▸ Checking active AI architecture..."
+
+if grep -RniE \
+    'OLLAMA_URL|OLLAMA_MODEL|askOllama|ensureOllama|qwen3' \
+    "$APP/memo.js" \
+    "$APP/providers" \
+    "$APP/memo_engine.js" \
+    "$APP/memo_router.js" \
+    2>/dev/null | grep -q .; then
+
+    echo "⚠ Ollama references detected"
+    echo "   Active architecture should use Gemini/ChatGPT/Claude/Grok/DeepSeek/Groq"
+else
+    echo "✓ Ollama not detected in active source"
+fi
+
+# ─────────────────────────────────────
+# 9. Provider configuration
+# ─────────────────────────────────────
+echo
+echo "▸ Checking AI provider configuration..."
+
+if [ -f "$APP/config/ai.json" ]; then
+    node --input-type=module <<'NODE'
+import fs from "fs";
+
+const file = "config/ai.json";
+const cfg = JSON.parse(fs.readFileSync(file, "utf8"));
+
+const providers = [
+  ["gemini", "Gemini"],
+  ["chatgpt", "ChatGPT"],
+  ["claude", "Claude"],
+  ["grok", "Grok"],
+  ["deepseek", "DeepSeek"],
+  ["groq", "Groq"]
+];
+
+for (const [id, name] of providers) {
+  const p = cfg[id];
+
+  if (!p) {
+    console.log(`⚠ ${name}: NOT CONFIGURED`);
+    continue;
+  }
+
+  const enabled = p.enabled === true;
+  const key = typeof p.apiKey === "string" && p.apiKey.trim() !== "";
+
+  if (enabled && key) {
+    console.log(`✓ ${name}: READY`);
+  } else if (enabled && !key) {
+    console.log(`⚠ ${name}: ENABLED but API KEY missing`);
+  } else {
+    console.log(`○ ${name}: disabled/unconfigured`);
+  }
+}
+NODE
+else
+    echo "✗ config/ai.json missing"
+    FAIL=1
+fi
+
+# ─────────────────────────────────────
+# 10. Theme configuration
+# ─────────────────────────────────────
+echo
+echo "▸ Checking theme system..."
+
+if [ -f "$APP/config/themes.json" ]; then
+    if grep -q '"MEMO v1.5"' "$APP/config/themes.json"; then
+        echo "✓ MEMO v1.5 theme exists"
+    else
+        echo "⚠ MEMO v1.5 theme not found"
+    fi
+else
+    echo "✗ themes.json missing"
+    FAIL=1
+fi
+
+# ─────────────────────────────────────
+# 11. WhatsApp session
+# ─────────────────────────────────────
+echo
+echo "▸ Checking WhatsApp session..."
+
+if [ -d "$APP/auth_info" ] && [ "$(find "$APP/auth_info" -type f 2>/dev/null | head -1)" ]; then
+    echo "✓ WhatsApp session exists"
+else
+    echo "! WhatsApp session not paired"
+    echo "  Pairing will be required on first start"
+fi
+
+# ─────────────────────────────────────
+# 12. Memory
+# ─────────────────────────────────────
+echo
+echo "▸ Checking memory..."
+
+if [ -f "$APP/memo_memory.json" ]; then
+    echo "✓ Conversation memory exists"
+else
+    echo "! Memory file will be created automatically"
+fi
+
+# ─────────────────────────────────────
+# 13. Menu alias
+# ─────────────────────────────────────
+echo
+echo "▸ Checking MEMO command..."
+
+if grep -q 'alias memo=' "$HOME/.bashrc" 2>/dev/null; then
+    echo "✓ memo command exists"
+else
+    echo 'alias memo="cd ~/memo && node memo_menu.js"' >> "$HOME/.bashrc"
+    echo "✓ memo command created"
+fi
+
+# ─────────────────────────────────────
+# 14. Permissions
+# ─────────────────────────────────────
+echo
+echo "▸ Fixing permissions..."
+
+chmod +x "$APP/start-memo.sh" 2>/dev/null || true
+chmod +x "$APP/requirements.txt" 2>/dev/null || true
+
+echo "✓ Permissions checked"
+
+# ─────────────────────────────────────
+# 15. Final result
+# ─────────────────────────────────────
+echo
+
+if [ "$FAIL" -eq 0 ]; then
+
+    echo "╔══════════════════════════════════════╗"
+    echo "║        MEMO 1.5 READY ✓             ║"
+    echo "╚══════════════════════════════════════╝"
+    echo
+    echo "Start MEMO 1.5:"
+    echo
+    echo "    memo"
+    echo
+    echo "Or:"
+    echo "    cd ~/memo && node memo_menu.js"
+    echo
+    echo "Direct WhatsApp engine:"
+    echo "    cd ~/memo && node memo.js"
+    echo
+    echo "Setup completed successfully."
+    echo
+
+else
+
+    echo "╔══════════════════════════════════════╗"
+    echo "║    MEMO 1.5 NEEDS ATTENTION ⚠       ║"
+    echo "╚══════════════════════════════════════╝"
+    echo
+    echo "Some required components have problems."
+    echo "Fix the reported items before starting MEMO."
+    echo
+    exit 1
+fi

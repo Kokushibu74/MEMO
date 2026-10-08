@@ -1,0 +1,636 @@
+import fs from "fs";
+import path from "path";
+import readline from "readline";
+import { listProviders, setProvider, removeProviderKey } from "./providers/index.js";
+
+const APP_DIR = process.cwd();
+const AI_CONFIG = path.join(APP_DIR, "config", "ai.json");
+const THEME_CONFIG = path.join(APP_DIR, "config", "themes.json");
+const MEMORY_FILES = [
+  "memo_memory.json",
+  "memo_contexts.json",
+  "memory.json"
+];
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+const ask = q =>
+  new Promise(resolve => rl.question(q, resolve));
+
+function clear() {
+  process.stdout.write("\x1b[2J\x1b[H");
+}
+
+function pause() {
+  return ask("\nPress Enter to continue...");
+}
+
+function loadJSON(file, fallback = {}) {
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJSON(file, data) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+}
+
+function maskKey(key) {
+  if (!key) return "Not configured";
+  if (key.length <= 8) return "••••••••";
+  return key.slice(0, 4) + "••••••••" + key.slice(-4);
+}
+
+function providerStatus() {
+  const config = loadJSON(AI_CONFIG, { providers: {} });
+  const providers = Object.entries(config.providers || {});
+
+  console.log("\n🧠 AI PROVIDERS\n");
+
+  if (!providers.length) {
+    console.log("  No providers found.");
+    return;
+  }
+
+  providers
+    .sort(([, a], [, b]) =>
+      Number(a.priority ?? 999) - Number(b.priority ?? 999)
+    )
+    .forEach(([id, p], i) => {
+      const status =
+        p.enabled === true && p.apiKey
+          ? "● ACTIVE"
+          : "○ OFF";
+
+      console.log(
+        `  ${i + 1}. ${p.name || id} — ${status}`
+      );
+      console.log(
+        `     Priority: ${p.priority ?? "-"}`
+      );
+      console.log(
+        `     Model: ${p.model || "-"}`
+      );
+      console.log(
+        `     Key: ${maskKey(p.apiKey)}`
+      );
+    });
+}
+
+async function addProvider() {
+  clear();
+
+  console.log("╔════════════════════════════╗");
+  console.log("║       ADD AI BRAIN 🧠      ║");
+  console.log("╚════════════════════════════╝\n");
+
+  console.log("1. ChatGPT");
+  console.log("2. Gemini");
+  console.log("3. Claude");
+  console.log("4. Grok");
+  console.log("5. DeepSeek");
+  console.log("6. Groq");
+  console.log("0. Back\n");
+
+  const choice = (await ask("Select: ")).trim();
+
+  const map = {
+    "1": "chatgpt",
+    "2": "gemini",
+    "3": "claude",
+    "4": "grok",
+    "5": "deepseek, groq"
+  };
+
+  const id = map[choice];
+
+  if (!id) return;
+
+  const key = (await ask("\nAPI Key: ")).trim();
+
+  if (!key) {
+    console.log("❌ API key cannot be empty.");
+    await pause();
+    return;
+  }
+
+  const current = loadJSON(AI_CONFIG, {
+    providers: {}
+  });
+
+  const existing = current.providers?.[id] || {};
+
+  setProvider(id, {
+    ...existing,
+    apiKey: key,
+    enabled: true,
+    priority: existing.priority || 99
+  });
+
+  console.log(`\n✅ ${id} API configured.`);
+  await pause();
+}
+
+async function removeProvider() {
+  clear();
+
+  providerStatus();
+
+  const id = (
+    await ask("\nProvider ID to remove (or 0): ")
+  ).trim();
+
+  if (id === "0") return;
+
+  const valid = [
+    "gemini",
+    "chatgpt",
+    "claude",
+    "grok",
+    "deepseek"
+  ];
+
+  if (!valid.includes(id)) {
+    console.log("❌ Invalid provider.");
+    await pause();
+    return;
+  }
+
+  const confirm = (
+    await ask(`Remove ${id}? (yes/no): `)
+  ).trim().toLowerCase();
+
+  if (confirm !== "yes") {
+    console.log("Cancelled.");
+    await pause();
+    return;
+  }
+
+  removeProviderKey(id);
+
+  console.log(`\n✅ ${id} removed.`);
+  await pause();
+}
+
+async function reorderProviders() {
+  clear();
+
+  const config = loadJSON(AI_CONFIG, {
+    providers: {}
+  });
+
+  const providers = Object.entries(
+    config.providers || {}
+  ).filter(([, p]) => p?.apiKey);
+
+  if (!providers.length) {
+    console.log("No configured providers.");
+    await pause();
+    return;
+  }
+
+  console.log("╔════════════════════════════╗");
+  console.log("║      AI PRIORITY ORDER     ║");
+  console.log("╚════════════════════════════╝\n");
+
+  providers
+    .sort(
+      ([, a], [, b]) =>
+        Number(a.priority ?? 99) -
+        Number(b.priority ?? 99)
+    )
+    .forEach(([id, p], i) => {
+      console.log(`${i + 1}. ${id} — ${p.model || ""}`);
+    });
+
+  console.log(
+    "\nEnter provider IDs in desired order."
+  );
+  console.log(
+    "Example: gemini,chatgpt,claude,grok,deepseek\n"
+  );
+
+  const input = (
+    await ask("New order: ")
+  ).trim();
+
+  if (!input) return;
+
+  const order = input
+    .split(",")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  order.forEach((id, index) => {
+    if (config.providers?.[id]) {
+      config.providers[id].priority = index + 1;
+    }
+  });
+
+  saveJSON(AI_CONFIG, config);
+
+  console.log("\n✅ AI priority updated.");
+  await pause();
+}
+
+async function apiMenu() {
+  while (true) {
+    clear();
+
+    console.log("╔════════════════════════════╗");
+    console.log("║     AI BRAIN MANAGER 🧠    ║");
+    console.log("╚════════════════════════════╝\n");
+
+    console.log("1. Add API");
+    console.log("2. Remove API");
+    console.log("3. List APIs");
+    console.log("4. Change AI Priority");
+    console.log("0. Back\n");
+
+    const choice = (
+      await ask("Select: ")
+    ).trim();
+
+    if (choice === "1") await addProvider();
+    else if (choice === "2") await removeProvider();
+    else if (choice === "3") {
+      clear();
+      providerStatus();
+      await pause();
+    }
+    else if (choice === "4") await reorderProviders();
+    else if (choice === "0") return;
+  }
+}
+
+function themes() {
+  return [
+    "Default Dark",
+    "Cyber Cyan",
+    "Matrix Green",
+    "Neon Purple",
+    "Ocean Blue",
+    "Crimson Red",
+    "AMOLED Black",
+    "Midnight",
+    "Sunset",
+    "Arctic Blue",
+    "Royal Purple",
+    "Toxic Green",
+    "Gold",
+    "Monochrome",
+    "Custom"
+  ];
+}
+
+async function themeMenu() {
+  clear();
+
+  console.log("╔════════════════════════════╗");
+  console.log("║       MEMO THEMES 🎨       ║");
+  console.log("╚════════════════════════════╝\n");
+
+  const list = themes();
+
+  list.forEach((theme, i) => {
+    console.log(`${i + 1}. ${theme}`);
+  });
+
+  console.log("0. Back\n");
+
+  const choice = (
+    await ask("Select theme: ")
+  ).trim();
+
+  const number = Number(choice);
+
+  if (
+    !Number.isInteger(number) ||
+    number < 1 ||
+    number > list.length
+  ) {
+    return;
+  }
+
+  const selected = list[number - 1];
+
+  let config = loadJSON(THEME_CONFIG, {});
+
+  config.selected = selected;
+
+  if (selected === "Custom") {
+    const custom = (
+      await ask("Custom theme name: ")
+    ).trim();
+
+    if (custom) config.custom = custom;
+  }
+
+  saveJSON(THEME_CONFIG, config);
+
+  console.log(`\n✅ Theme: ${selected}`);
+  await pause();
+}
+
+function showHistory() {
+  clear();
+
+  console.log("╔════════════════════════════╗");
+  console.log("║      RECENT CHAT HISTORY   ║");
+  console.log("╚════════════════════════════╝\n");
+
+  let memory = {};
+
+  for (const file of MEMORY_FILES) {
+    const data = loadJSON(
+      path.join(APP_DIR, file),
+      {}
+    );
+
+    if (Object.keys(data).length) {
+      memory = data;
+      break;
+    }
+  }
+
+  const chats = Object.entries(memory);
+
+  if (!chats.length) {
+    console.log("No conversation history found.");
+    return;
+  }
+
+  chats.forEach(([jid, messages], i) => {
+    console.log(`\n[${i + 1}] ${jid}`);
+
+    if (!Array.isArray(messages)) return;
+
+    messages
+      .slice(-5)
+      .forEach(item => {
+        const role =
+          item.role === "user"
+            ? "USER"
+            : "MEMO";
+
+        console.log(
+          `  ${role}: ${String(item.text || "").slice(0, 120)}`
+        );
+      });
+  });
+}
+
+async function resetMemo() {
+  clear();
+
+  console.log("╔════════════════════════════╗");
+  console.log("║       RESET MEMO 1.5       ║");
+  console.log("╚════════════════════════════╝\n");
+
+  console.log(
+    "This removes:"
+  );
+
+  console.log("• WhatsApp session");
+  console.log("• AI API configuration");
+  console.log("• Conversation memory");
+  console.log("• Theme/settings cache");
+
+  console.log(
+    "\nSource code will NOT be deleted.\n"
+  );
+
+  const confirm = (
+    await ask("Type RESET to continue: ")
+  ).trim();
+
+  if (confirm !== "RESET") {
+    console.log("\n❌ Reset cancelled.");
+    await pause();
+    return;
+  }
+
+  for (const file of MEMORY_FILES) {
+    const target = path.join(APP_DIR, file);
+
+    if (fs.existsSync(target)) {
+      fs.writeFileSync(target, "{}");
+    }
+  }
+
+  if (fs.existsSync(AI_CONFIG)) {
+    saveJSON(AI_CONFIG, {
+      version: "1.5",
+      timeout_ms: 12000,
+      auto_failover: true,
+      providers: {
+        gemini: {
+          name: "Google Gemini",
+          enabled: false,
+          priority: 1,
+          model: "gemini-2.5-flash",
+          apiKey: ""
+        },
+        chatgpt: {
+          name: "ChatGPT / OpenAI",
+          enabled: false,
+          priority: 2,
+          model: "gpt-4o-mini",
+          apiKey: ""
+        },
+        claude: {
+          name: "Anthropic Claude",
+          enabled: false,
+          priority: 3,
+          model: "claude-3-5-haiku-latest",
+          apiKey: ""
+        },
+        grok: {
+          name: "xAI Grok",
+          enabled: false,
+          priority: 4,
+          model: "grok-3-mini",
+          apiKey: ""
+        },
+        deepseek: {
+          name: "DeepSeek",
+          enabled: false,
+          priority: 5,
+          model: "deepseek-chat",
+          apiKey: ""
+        }
+      }
+    });
+  }
+
+  if (fs.existsSync(THEME_CONFIG)) {
+    saveJSON(THEME_CONFIG, {
+      selected: "Default Dark"
+    });
+  }
+
+  const authDir = path.join(APP_DIR, "auth_info");
+
+  if (fs.existsSync(authDir)) {
+    fs.rmSync(authDir, {
+      recursive: true,
+      force: true
+    });
+  }
+
+  fs.mkdirSync(authDir, {
+    recursive: true
+  });
+
+  console.log("\n✅ MEMO 1.5 reset complete.");
+  console.log("Source code preserved.");
+  await pause();
+}
+
+function about() {
+  clear();
+
+  console.log(`
+╔══════════════════════════════════╗
+║          M E M O  1 . 5         ║
+║       WhatsApp AI Assistant     ║
+╚══════════════════════════════════╝
+
+Model:
+  Multi-AI Provider Router
+
+Creator:
+  Shihab
+
+AI Brains:
+  • Gemini
+  • ChatGPT
+  • Claude
+  • Grok
+  • DeepSeek
+  • Groq
+
+Core Capabilities:
+  ✓ Multi-AI fallback
+  ✓ Conversation memory
+  ✓ Follow-up understanding
+  ✓ Bangla / Banglish / English
+  ✓ Typo understanding
+  ✓ Owner / Creator identity
+  ✓ Message queue
+  ✓ 1.5 second debounce
+  ✓ Duplicate protection
+  ✓ Automatic WhatsApp reply
+  ✓ Persistent WhatsApp session
+  ✓ AI priority routing
+  ✓ Provider failure recovery
+  ✓ Safe fallback response
+
+Architecture:
+  WhatsApp
+      ↓
+  Message Queue
+      ↓
+  Context + Memory
+      ↓
+  Multi-AI Router
+      ↓
+  AI Provider
+      ↓
+  Clean Response
+      ↓
+  WhatsApp Reply
+      ↓
+  Memory Save
+
+        MEMO 1.5 ⚡
+  Coded & Built by Shihab
+`);
+
+}
+
+async function mainMenu() {
+  while (true) {
+    clear();
+
+    console.log(`
+╔════════════════════════════╗
+║        M E M O 1.5        ║
+║   WhatsApp AI Assistant   ║
+╚════════════════════════════╝
+
+1. Start MEMO 1.5
+2. Add or Remove Brain 🧠 API
+3. Recent Chat History
+4. Change Theme
+5. Reset MEMO 1.5
+6. About MEMO 1.5
+
+0. Exit
+`);
+
+    const choice = (
+      await ask("Select: ")
+    ).trim();
+
+    if (choice === "1") {
+      rl.close();
+
+      const { spawn } = await import("child_process");
+
+      spawn(
+        process.execPath,
+        ["memo.js"],
+        {
+          stdio: "inherit",
+          cwd: APP_DIR
+        }
+      );
+
+      return;
+    }
+
+    if (choice === "2") {
+      await apiMenu();
+      continue;
+    }
+
+    if (choice === "3") {
+      showHistory();
+      await pause();
+      continue;
+    }
+
+    if (choice === "4") {
+      await themeMenu();
+      continue;
+    }
+
+    if (choice === "5") {
+      await resetMemo();
+      continue;
+    }
+
+    if (choice === "6") {
+      about();
+      await pause();
+      continue;
+    }
+
+    if (choice === "0") {
+      rl.close();
+      return;
+    }
+  }
+}
+
+mainMenu().catch(error => {
+  rl.close();
+  console.error("\n❌ MEMO MENU ERROR:", error.message);
+});
