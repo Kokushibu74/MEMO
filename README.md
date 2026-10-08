@@ -23,65 +23,49 @@
 
 </div>
 
-## ✨ Features
-
-- 🤖 Gemini
-- 🧠 ChatGPT
-- 🧩 Claude
-- ⚡ Grok
-- 🔎 DeepSeek
-- 🚀 Groq
-- 🔄 Automatic AI fallback
-- 💾 Conversation memory
-- 💬 Bangla, Banglish & English
-- 🧠 Follow-up understanding
-- ✍️ Typo understanding
-- 📱 WhatsApp AI assistant
-- 🎨 Multiple themes
-- 🔐 Local API/session configuration
-
-## 🧠 AI Fallback
-
-MEMO automatically tries configured providers by priority:
-
-\`\`\`text
-Gemini
-   ↓
-ChatGPT
-   ↓
-Claude
-   ↓
-Grok
-   ↓
-DeepSeek
-   ↓
-Groq
-   ↓
-Fallback message
-\`\`\`
-
-If one provider reaches quota, rate limit, timeout, or fails, MEMO automatically moves to the next configured provider.
-
 ## 📦 Installation
 
-### 1. Clone
+> Get **MEMO** up and running on Android with Termux in just **3 simple steps**.
 
-\`\`\`bash
+### 01 · Clone MEMO
+
+Download the latest version from GitHub:
+
+```bash
 git clone https://github.com/Kokushibu74/MEMO.git
 cd MEMO
-\`\`\`
+```
 
-### 2. Run setup
+### 02 · Run Setup
 
-\`\`\`bash
+Install and configure the required dependencies:
+
+```bash
 bash requirements.txt
-\`\`\`
+```
 
-### 3. Start MEMO
+> ⚙️ The custom setup script automatically prepares everything MEMO needs.
 
-\`\`\`bash
-memo
-\`\`\`
+### 03 · Start MEMO
+
+Launch your MEMO AI assistant:
+
+```bash
+bash memo
+```
+
+> 🚀 Follow the on-screen instructions to connect WhatsApp and configure your AI provider.
+
+---
+
+**💡 Updating MEMO**
+
+Already installed? Update to the latest version with:
+
+```bash
+git pull
+```
+
 
 ## ⚙️ Main Menu
 
