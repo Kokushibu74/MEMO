@@ -1,37 +1,146 @@
-# MEMO v1.5
-A multi-AI WhatsApp assistant with automatic fallback, memory, and Bangla/Banglish support.
+# 🤖 MEMO v1.5
 
-## Features
-- Gemini
-- ChatGPT
-- Claude
-- Grok
-- DeepSeek
-- Groq
-- Automatic AI fallback
-- Conversation memory
-- Bangla, Banglish and English support
-- WhatsApp AI assistant
+<div align="center">
 
-## Installation
+\`\`\`text
+███╗   ███╗███████╗███╗   ███╗ ██████╗
+████╗ ████║██╔════╝████╗ ████║██╔═══██╗
+██╔████╔██║█████╗  ██╔████╔██║██║   ██║
+██║╚██╔╝██║██╔══╝  ██║╚██╔╝██║██║   ██║
+██║ ╚═╝ ██║███████╗██║ ╚═╝ ██║╚██████╔╝
+╚═╝     ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝
+                 v1.5
+\`\`\`
 
-```bash
-bash ~/memo/requirements.txt
-```
+**A multi-AI WhatsApp assistant with automatic fallback, memory, and Bangla/Banglish support.**
 
-## Start
+![Version](https://img.shields.io/badge/version-1.5-blue)
+![Node.js](https://img.shields.io/badge/Node.js-24.x-green)
+![WhatsApp](https://img.shields.io/badge/WhatsApp-AI%20Assistant-25D366)
+![AI](https://img.shields.io/badge/Multi--AI-6%20Providers-purple)
+![Platform](https://img.shields.io/badge/Platform-Termux%20%7C%20Android-black)
+![Language](https://img.shields.io/badge/Language-Bangla%20%7C%20Banglish-orange)
 
-```bash
+</div>
+
+## ✨ Features
+
+- 🤖 Gemini
+- 🧠 ChatGPT
+- 🧩 Claude
+- ⚡ Grok
+- 🔎 DeepSeek
+- 🚀 Groq
+- 🔄 Automatic AI fallback
+- 💾 Conversation memory
+- 💬 Bangla, Banglish & English
+- 🧠 Follow-up understanding
+- ✍️ Typo understanding
+- 📱 WhatsApp AI assistant
+- 🎨 Multiple themes
+- 🔐 Local API/session configuration
+
+## 🧠 AI Fallback
+
+MEMO automatically tries configured providers by priority:
+
+\`\`\`text
+Gemini
+   ↓
+ChatGPT
+   ↓
+Claude
+   ↓
+Grok
+   ↓
+DeepSeek
+   ↓
+Groq
+   ↓
+Fallback message
+\`\`\`
+
+If one provider reaches quota, rate limit, timeout, or fails, MEMO automatically moves to the next configured provider.
+
+## 📦 Installation
+
+### 1. Clone
+
+\`\`\`bash
+git clone https://github.com/Kokushibu74/MEMO.git
+cd MEMO
+\`\`\`
+
+### 2. Run setup
+
+\`\`\`bash
+bash requirements.txt
+\`\`\`
+
+### 3. Start MEMO
+
+\`\`\`bash
 memo
-```
+\`\`\`
 
-## AI Providers
-- Gemini
-- ChatGPT
-- Claude
-- Grok
-- DeepSeek
-- Groq
+## ⚙️ Main Menu
 
-## Creator
-Shihab
+\`\`\`text
+╔════════════════════════════╗
+║        M E M O 1.5        ║
+║   WhatsApp AI Assistant   ║
+╚════════════════════════════╝
+
+1. Start MEMO 1.5
+2. Add or Remove Brain 🧠 API
+3. Recent Chat History
+4. Change Theme
+5. Reset MEMO 1.5
+6. About MEMO 1.5
+\`\`\`
+
+## 🔑 AI Providers
+
+Configure API keys locally from the MEMO menu.
+
+| Provider | Status |
+|---|---|
+| Gemini | ✅ |
+| ChatGPT | ✅ |
+| Claude | ✅ |
+| Grok | ✅ |
+| DeepSeek | ✅ |
+| Groq | ✅ |
+
+**Never commit API keys, WhatsApp sessions, or private configuration to GitHub.**
+
+## 📱 Requirements
+
+- Android
+- Termux
+- Node.js
+- WhatsApp account
+- At least one supported AI API key
+
+## 🛠️ Tech Stack
+
+- Node.js
+- Baileys
+- Termux
+- Multiple AI APIs
+- Local JSON configuration
+- Conversation memory
+
+## 👨‍💻 Creator
+
+**Shihab**
+
+Built for WhatsApp AI automation with Bangla/Banglish support.
+
+## 📄 License
+
+This project is provided for personal and educational use.
+
+---
+
+⭐ If you find MEMO useful, consider starring the repository.

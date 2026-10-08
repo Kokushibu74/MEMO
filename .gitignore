@@ -1,53 +1,52 @@
-auth_info/
-auth_info/**
-*.session
-config/ai.json
+# Dependencies
+node_modules/
+
+# Secrets
 .env
 .env.*
 *.key
 *.pem
-memo_memory.json
-memory/
-memory/**
-node_modules/
-*.log
-*.tmp
-*.temp
-*.cache
-logs/
-logs/**
-*.bak
-*.backup
-backup/
-backups/
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# WhatsApp session data
-session/
-session*/
-*.session
-
-# Private AI configuration
+.gemini_key
 config/ai.json
 config/ai.json.*
-.env
-.env.*
+config/*secret*
+config/*token*
 
-# Local backups / old working copies
+# WhatsApp sessions
+auth_info/
+session/
+sessions/
+*session*
+creds.json
+
+# Memory and local data
+memory/
+data/
+cache/
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups and temporary files
 *.backup
-*.backup-*
+*.bak
+*.tmp
+*.old
+*.orig
 *.before-*
 *.broken-*
-*.owner-backup
 *.context-backup
-*.error-backup-*
+*.error-backup
+*.owner-backup
 *.syntax-error-backup
 *.working-backup
+*~
+.DS_Store
 
-# Local secret files
-.gemini_key
+# Logs
+*.log
+logs/
+
+# Editor
+.vscode/
+.idea/
