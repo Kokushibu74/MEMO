@@ -73,3 +73,6 @@ session/
 .env.*
 *.log
 node_modules/
+
+config/ai.json
+config/ai.json.*
