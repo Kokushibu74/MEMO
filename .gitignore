@@ -50,3 +50,26 @@ logs/
 # Editor
 .vscode/
 .idea/
+
+# ===== MEMO PRIVATE DATA - NEVER COMMIT =====
+memory.json
+memo_memory.json
+memo_contexts.json
+config.json
+config.json.save
+memo_config.json
+brain_config.json
+config/ai.json
+config/ai.json.*
+.gemini_key
+auth_info/
+session/
+*.session
+*.auth
+*.token
+*.key
+*.secret
+.env
+.env.*
+*.log
+node_modules/
