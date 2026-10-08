@@ -144,3 +144,31 @@ This project is provided for personal and educational use.
 ---
 
 ⭐ If you find MEMO useful, consider starring the repository.
+
+---
+
+## ❤️ Support MEMO
+
+If MEMO is useful to you and you would like to support its continued development, you can make a donation using USDT on the TRON (TRC20) network.
+
+### 💎 Donate with USDT
+
+**Network:** `TRX Tron (TRC20)`
+
+**USDT Deposit Address:**
+
+```text
+TVFZWJe4sxwC1gcFB4P68SLBygmWNjFpSc
+```
+
+> ⚠️ **Important:** Send USDT only through the **TRON (TRC20)** network. Sending funds through another network may result in permanent loss.
+
+Your support helps with:
+
+- 🧠 AI development
+- ⚡ New MEMO features
+- 🐛 Bug fixes
+- 📱 Android/Termux compatibility
+- 🔧 Development and infrastructure costs
+
+**Thank you for supporting MEMO ❤️**
