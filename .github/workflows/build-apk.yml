@@ -17,28 +17,24 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Java JDK 17 for Android Gradle
+      - name: Setup Java JDK 21 for Capacitor 6
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Capacitor & Generate Android Native Project
+      - name: Install Capacitor & Generate Android Project
         run: |
           npm install
-          if [ ! -d "android" ]; then
-            npx cap add android
-          fi
+          rm -rf android
+          npx cap add android
           npx cap sync android
 
       - name: Compile Debug APK via Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload Ready-to-Install APK Artifact
         uses: actions/upload-artifact@v4
