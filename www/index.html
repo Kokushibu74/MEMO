@@ -3,497 +3,563 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MEMO Pro — Kokushibu74</title>
+  <title>MEMO 1.5 — Multi-AI Assistant</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * { -webkit-tap-highlight-color: transparent; }
-    body { background-color: #090d16; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
-    .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); }
+    body { background-color: #050811; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
+    .cyber-card { background: rgba(12, 19, 34, 0.9); border: 1px solid rgba(34, 211, 238, 0.18); }
+    .stage-pill { transition: all 0.25s ease; }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24">
+<body class="h-screen flex flex-col overflow-hidden select-none">
 
-  <!-- Top App Bar -->
-  <header class="sticky top-0 z-30 glass border-b border-slate-800/80 px-4 py-3.5 flex items-center justify-between">
-    <div class="flex items-center gap-2.5">
-      <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center font-black text-slate-950 shadow-lg shadow-indigo-500/20">
-        M
+  <!-- Top Status Header (Mirrors memo_ui.js) -->
+  <header class="bg-slate-950/95 border-b border-cyan-500/20 px-4 py-3 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-500 flex items-center justify-center text-slate-950 font-black text-base shadow-lg shadow-cyan-500/20">
+        🤖
       </div>
       <div>
-        <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
-          MEMO Pro
-          <span id="sync-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Local Ready</span>
-        </h1>
-        <p class="text-[11px] text-slate-400" id="stats-line">0 memos • Kokushibu74/MEMO</p>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm font-black tracking-wider text-cyan-400">M E M O 1.5</h1>
+          <span id="active-engine-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">● MULTI-AI</span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-mono" id="header-sub">Owner: Shihab • Memory: ON • 0 Chats</p>
       </div>
     </div>
-
-    <div class="flex items-center gap-2">
-      <button onclick="syncWithGitHub()" id="btn-sync" title="Sync with GitHub" class="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition">
-        🔄
-      </button>
-      <button onclick="openSettings()" title="GitHub & Backup Settings" class="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
-        ⚙️
-      </button>
-    </div>
+    <button onclick="switchTab('brains')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold">
+      🧠 Brains
+    </button>
   </header>
 
-  <!-- Search & Category Filter Bar -->
-  <section class="px-4 pt-3 space-y-3">
-    <div class="relative">
-      <input id="search-input" type="text" oninput="renderMemos()" placeholder="মেমো, ট্যাগ বা কোড খুঁজুন..." class="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition" />
-      <span class="absolute left-3.5 top-2.5 text-slate-500">🔍</span>
+  <!-- Live 7-Stage Pipeline Bar (Exact stages from memo_ui.js) -->
+  <div class="bg-slate-900/80 border-b border-slate-800 px-3 py-2 shrink-0">
+    <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1.5">
+      <span id="pipeline-status" class="text-amber-400 font-semibold">⚡ PROCESS FLOW: Waiting for message...</span>
+      <span id="detected-brain-tag" class="text-cyan-400">ROUTER: AUTO</span>
     </div>
-
-    <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar" id="category-tabs">
-      <button onclick="setFilter('all')" data-cat="all" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shrink-0">All Memos</button>
-      <button onclick="setFilter('pinned')" data-cat="pinned" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 shrink-0">📌 Pinned</button>
-      <button onclick="setFilter('idea')" data-cat="idea" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 shrink-0">💡 Ideas</button>
-      <button onclick="setFilter('code')" data-cat="code" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 shrink-0">💻 Code / Termux</button>
-      <button onclick="setFilter('task')" data-cat="task" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 shrink-0">✅ Tasks</button>
-      <button onclick="setFilter('personal')" data-cat="personal" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 shrink-0">🔒 Personal</button>
-    </div>
-  </section>
-
-  <!-- Memos Grid -->
-  <main id="memo-list" class="px-4 pt-3 grid grid-cols-1 md:grid-cols-2 gap-3 flex-1"></main>
-
-  <!-- Floating Action Button -->
-  <button onclick="openEditor()" class="fixed bottom-6 right-5 z-30 h-14 px-5 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-slate-950 font-extrabold text-sm shadow-xl shadow-indigo-500/30 flex items-center gap-2 active:scale-95 transition">
-    <span class="text-lg">＋</span> New Memo
-  </button>
-
-  <!-- Create / Edit Memo Modal -->
-  <div id="editor-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-slate-900 border-t sm:border border-slate-800 w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] flex flex-col">
-      <div class="flex items-center justify-between">
-        <h2 id="modal-title" class="text-sm font-bold text-indigo-400 uppercase tracking-wider">New Memo</h2>
-        <div class="flex items-center gap-2">
-          <button type="button" id="btn-pin-toggle" onclick="toggleEditorPin()" class="px-2.5 py-1 rounded-lg text-xs border border-slate-700 text-slate-400">📌 Pin</button>
-          <button onclick="closeEditor()" class="text-slate-400 hover:text-white text-lg px-2">✕</button>
-        </div>
-      </div>
-
-      <input id="memo-title" type="text" placeholder="মেমোর শিরোনাম (Title)..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-base font-bold text-white outline-none focus:border-indigo-500" />
-
-      <div class="flex gap-2">
-        <select id="memo-category" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none">
-          <option value="idea">💡 Idea</option>
-          <option value="code">💻 Code / Termux</option>
-          <option value="task">✅ Task / Checklist</option>
-          <option value="personal">🔒 Personal</option>
-        </select>
-        <input id="memo-tags" type="text" placeholder="Tags (কমা দিয়ে লিখুন: ai, python)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none" />
-      </div>
-
-      <textarea id="memo-content" rows="8" placeholder="এখানে বিস্তারিত নোট, কমান্ড বা চেকলিস্ট লিখুন..." class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-sm text-slate-200 font-mono leading-relaxed outline-none focus:border-indigo-500 resize-none"></textarea>
-
-      <div class="flex justify-between items-center pt-1">
-        <button id="btn-delete" onclick="deleteCurrentMemo()" class="hidden px-3.5 py-2.5 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/30 text-xs font-semibold">🗑️ Delete</button>
-        <div class="flex gap-2 ml-auto">
-          <button onclick="copyMemoContent()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold">📋 Copy</button>
-          <button onclick="saveMemo()" class="px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-slate-950 font-bold text-xs">💾 Save Memo</button>
-        </div>
-      </div>
+    <div class="grid grid-cols-7 gap-1 text-[9px] font-mono text-center">
+      <div id="st-message" class="stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800">MSG</div>
+      <div id="st-router" class="stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800">ROUTE</div>
+      <div id="st-memory" class="stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800">MEM</div>
+      <div id="st-brain" class="stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800">BRAIN</div>
+      <div id="st-clean" class="stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800">CLEAN</div>
+      <div id="st-reply" class="stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800">REPLY</div>
+      <div id="st-save" class="stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800">SAVE</div>
     </div>
   </div>
 
-  <!-- GitHub Cloud Sync & Backup Settings Modal -->
-  <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider">GitHub Cloud Sync & Backup</h2>
-        <button onclick="closeSettings()" class="text-slate-400 hover:text-white">✕</button>
+  <!-- Main Content Views -->
+  <main class="flex-1 overflow-y-auto relative">
+
+    <!-- TAB 1: LIVE AI AGENT CHAT (With Router, QuickReply, Owner Brain & Multi-AI Fallback) -->
+    <section id="tab-chat" class="h-full flex flex-col justify-between">
+      <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+
+      <div class="p-3 bg-slate-950 border-t border-slate-800/90 flex items-center gap-2">
+        <input id="chat-input" type="text" onkeydown="if(event.key==='Enter') sendUserMessage()" placeholder="Bangla, Banglish বা English-এ মেসেজ লিখুন..." class="flex-1 bg-slate-900 border border-slate-700/80 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none" />
+        <button onclick="sendUserMessage()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-cyan-500/20 active:scale-95 transition">
+          Send ➤
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 2: AI BRAINS & FALLBACK PRIORITY (Mirrors memo_menu.js & config/ai.json) -->
+    <section id="tab-brains" class="hidden p-4 space-y-4 pb-10">
+      <div class="cyber-card rounded-2xl p-4 space-y-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono">🧠 Multi-AI Fallback Priority</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          একটি AI প্রোভাইডার রেট-লিমিট বা এরর দিলে MEMO স্বয়ংক্রিয়ভাবে পরের সক্রিয় প্রোভাইডারে চলে যাবে (Gemini ➔ ChatGPT ➔ Claude ➔ Grok ➔ DeepSeek ➔ Groq)।
+        </p>
       </div>
 
-      <p class="text-xs text-slate-400 leading-relaxed">
-        তোমার মেমোগুলো সরাসরি <strong>Kokushibu74/MEMO</strong> রিপোজিটরিতে ব্যাকআপ ও সিঙ্ক করতে নিচে তোমার GitHub Personal Access Token (PAT) দাও।
-      </p>
+      <div id="providers-list" class="space-y-3"></div>
 
-      <div class="space-y-2.5">
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">GitHub Repo (owner/repo)</label>
-          <input id="cfg-repo" type="text" value="Kokushibu74/MEMO" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono" />
+      <div class="flex gap-2 pt-2">
+        <button onclick="exportAiJson()" class="flex-1 py-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold">
+          📥 Export config/ai.json
+        </button>
+        <button onclick="clearConversationMemory()" class="flex-1 py-2.5 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/30 text-xs font-mono font-bold">
+          🧹 Reset Memory
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 3: WHATSAPP & TERMUX BRIDGE (Mirrors memo_login.js, whatsapp.js, memo_watchdog.sh) -->
+    <section id="tab-wa" class="hidden p-4 space-y-4 pb-10">
+      <div class="cyber-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-400 font-mono">📱 WhatsApp + Termux Daemon</h2>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Baileys v6.7.24</span>
         </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">GitHub Personal Access Token (classic/fine-grained)</label>
-          <input id="cfg-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono" />
+        <p class="text-xs text-slate-300 leading-relaxed">
+          তোমার WhatsApp বট (`memo.js` / `whatsapp.js`) এবং `whisper.cpp` ভয়েস ব্রেন Termux-এ ব্যাকগ্রাউন্ডে চালানোর জন্য নিচের কুইক কমান্ডগুলো এক ক্লিকে কপি করে ব্যবহার করো:
+        </p>
+
+        <div class="space-y-2.5 font-mono text-xs">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-cyan-400">1. Start MEMO 1.5 Multi-AI WhatsApp Bot</div>
+              <code class="text-slate-200">cd ~/memo && node memo.js</code>
+            </div>
+            <button onclick="copyCmd('cd ~/memo && node memo.js')" class="px-2.5 py-1 rounded bg-slate-800 text-cyan-300 text-[10px]">Copy</button>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-emerald-400">2. Link WhatsApp via 8-Digit Pairing Code</div>
+              <code class="text-slate-200">cd ~/memo && node memo_login.js</code>
+            </div>
+            <button onclick="copyCmd('cd ~/memo && node memo_login.js')" class="px-2.5 py-1 rounded bg-slate-800 text-emerald-300 text-[10px]">Copy</button>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-amber-400">3. Open Interactive Terminal Menu</div>
+              <code class="text-slate-200">cd ~/memo && node memo_menu.js</code>
+            </div>
+            <button onclick="copyCmd('cd ~/memo && node memo_menu.js')" class="px-2.5 py-1 rounded bg-slate-800 text-amber-300 text-[10px]">Copy</button>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-purple-400">4. Start 24/7 Auto-Restart Watchdog</div>
+              <code class="text-slate-200">cd ~/memo && bash memo_watchdog.sh</code>
+            </div>
+            <button onclick="copyCmd('cd ~/memo && bash memo_watchdog.sh')" class="px-2.5 py-1 rounded bg-slate-800 text-purple-300 text-[10px]">Copy</button>
+          </div>
         </div>
       </div>
 
-      <div class="flex gap-2 pt-1">
-        <button onclick="saveSettings()" class="flex-1 py-2.5 bg-cyan-500 text-slate-950 font-bold text-xs rounded-xl">Save Config</button>
-        <button onclick="pullFromGitHub()" class="flex-1 py-2.5 bg-slate-800 text-cyan-300 border border-slate-700 font-semibold text-xs rounded-xl">⬇️ Pull from Repo</button>
+      <!-- Owner Identity Card from memo_router.js -->
+      <div class="cyber-card rounded-2xl p-4 space-y-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono">👑 Personal Brain Owner Identity</h3>
+        <div class="text-xs text-slate-300 space-y-1 font-mono">
+          <div><span class="text-slate-500">Creator/Boss:</span> <strong>Shihab</strong></div>
+          <div><span class="text-slate-500">Phone:</span> <strong class="text-emerald-400">+8801620107233</strong></div>
+          <div><span class="text-slate-500">Facebook:</span> <span class="text-cyan-400 break-all">https://www.facebook.com/shihabul.islam.74/</span></div>
+        </div>
       </div>
+    </section>
 
-      <hr class="border-slate-800" />
-
-      <div class="flex justify-between gap-2">
-        <button onclick="exportJSON()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs text-slate-300">📤 Export JSON</button>
-        <label class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs text-slate-300 text-center cursor-pointer">
-          📥 Import JSON
-          <input type="file" accept=".json" onchange="importJSON(event)" class="hidden" />
-        </label>
+    <!-- TAB 4: CONTEXT DICTIONARY (From memo_contexts.json) -->
+    <section id="tab-context" class="hidden p-4 space-y-3 pb-10">
+      <div class="cyber-card rounded-2xl p-4 space-y-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono">📚 Banglish & Gen-Z Context Engine</h2>
+        <p class="text-xs text-slate-400">MEMO-র বিল্ট-ইন বাংলিশ, স্ল্যাং এবং কুইক-রিপ্লাই ইন্টেন্ট টেস্টার।</p>
+        <input id="ctx-search" type="text" oninput="renderContextList()" placeholder="Search slang/Banglish (e.g. fr, ngl, ki kros, koi aso)..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none" />
       </div>
-    </div>
-  </div>
+      <div id="ctx-list" class="space-y-2"></div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bg-slate-950 border-t border-slate-800/90 grid grid-cols-4 py-2 px-2 shrink-0 text-[11px] font-mono">
+    <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center py-1 text-cyan-400 font-bold">
+      <span class="text-base">💬</span>
+      <span>AI Agent</span>
+    </button>
+    <button onclick="switchTab('brains')" id="nav-brains" class="flex flex-col items-center py-1 text-slate-500">
+      <span class="text-base">🧠</span>
+      <span>AI Brains</span>
+    </button>
+    <button onclick="switchTab('wa')" id="nav-wa" class="flex flex-col items-center py-1 text-slate-500">
+      <span class="text-base">📱</span>
+      <span>WhatsApp</span>
+    </button>
+    <button onclick="switchTab('context')" id="nav-context" class="flex flex-col items-center py-1 text-slate-500">
+      <span class="text-base">⚡</span>
+      <span>Contexts</span>
+    </button>
+  </nav>
 
   <script>
-    const STORAGE_KEY = 'kokushibu74_memo_pro_v1';
-    const CFG_KEY = 'kokushibu74_memo_cfg_v1';
+    // ============================================================================
+    // EXACT MEMO 1.5 ENGINE, ROUTER, OWNER BRAIN & MULTI-AI FALLBACK IN ANDROID
+    // ============================================================================
+    const MEMO_OWNER = {
+      name: "Shihab",
+      phone: "+8801620107233",
+      facebook: "https://www.facebook.com/shihabul.islam.74/"
+    };
 
-    let memos = [];
-    let currentFilter = 'all';
-    let editingId = null;
-    let editorPinned = false;
+    const DEFAULT_PROVIDERS = {
+      gemini:   { name: "Google Gemini", enabled: true,  priority: 1, model: "gemini-2.5-flash", apiKey: "" },
+      groq:     { name: "Groq (Ultra Fast)", enabled: true, priority: 2, model: "llama-3.3-70b-versatile", apiKey: "" },
+      chatgpt:  { name: "OpenAI ChatGPT", enabled: true, priority: 3, model: "gpt-4o-mini", apiKey: "" },
+      deepseek: { name: "DeepSeek AI", enabled: true, priority: 4, model: "deepseek-chat", apiKey: "" },
+      grok:     { name: "xAI Grok", enabled: true, priority: 5, model: "grok-3-mini", apiKey: "" },
+      claude:   { name: "Anthropic Claude", enabled: true, priority: 6, model: "claude-3-5-haiku-latest", apiKey: "" }
+    };
 
-    // Load initial memos
-    function initApp() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        memos = JSON.parse(saved);
-      } else {
-        memos = [
-          {
-            id: 'welcome-1',
-            title: 'Welcome to MEMO Pro 🚀',
-            category: 'idea',
-            tags: ['github', 'android', 'memo'],
-            content: 'তোমার Kokushibu74/MEMO প্রজেক্টের ফুল-ফাংশনাল অ্যান্ড্রয়েড এবং ওয়েব অ্যাপ রেডি!\n\n- অফলাইনে সব নোট সেভ থাকবে।\n- উপরে ⚙️ আইকনে গিয়ে তোমার GitHub Token দিলে 🔄 বাটনে চাপ দিলেই সব নোট সরাসরি তোমার MEMO রিপোজিটরিতে ব্যাকআপ হয়ে যাবে।',
-            pinned: true,
-            updatedAt: new Date().toISOString()
-          },
-          {
-            id: 'termux-cmd-2',
-            title: 'Termux Quick Git Push Commands',
-            category: 'code',
-            tags: ['termux', 'git'],
-            content: 'git status\ngit add .\ngit commit -m "Update memos"\ngit push origin main',
-            pinned: false,
-            updatedAt: new Date().toISOString()
-          }
-        ];
-        persistMemos();
+    const BUILTIN_CONTEXTS = [
+      { category: "banglish", input: "ki kros / ki korcho", meaning: "কী করছো? ➔ Tomar sathe kotha bolchi 😄" },
+      { category: "banglish", input: "koi aso / ekhon kothay", meaning: "কোথায় আছো? ➔ Ei to, ekhanei achi 😊" },
+      { category: "banglish", input: "kmn acho / kemon acho", meaning: "কেমন আছো? ➔ Valo achi bhai 😊 Tumi kemon acho?" },
+      { category: "owner", input: "tomar boss ke / shihab number", meaning: "Personal Brain ➔ +8801620107233" },
+      { category: "owner", input: "shihab fb id / boss facebook", meaning: "Personal Brain ➔ facebook.com/shihabul.islam.74/" },
+      { category: "gen_z", input: "fr / fr fr", meaning: "for real / সত্যি বলছি" },
+      { category: "gen_z", input: "ngl", meaning: "not gonna lie / সত্যি বলতে" },
+      { category: "gen_z", input: "no cap", meaning: "সত্যি, মিথ্যা বলছি না" },
+      { category: "gen_z", input: "wyd / wya", meaning: "what are you doing / where are you" },
+      { category: "gen_z", input: "goated / slay / W", meaning: "অসাধারণ / সেরা / Win" }
+    ];
+
+    const STORAGE_AI = "memo15_ai_config";
+    const STORAGE_MEM = "memo15_chat_memory";
+
+    let aiConfig = JSON.parse(localStorage.getItem(STORAGE_AI) || "null") || { version: "1.5", timeout: 12000, providers: DEFAULT_PROVIDERS };
+    let chatMemory = JSON.parse(localStorage.getItem(STORAGE_MEM) || "[]");
+
+    // --- 1. Detect Brain (Exact port from memo_router.js) ---
+    function detectBrain(text) {
+      const s = String(text || "").toLowerCase().trim();
+      if (/\b(shihab|owner|malik|boss|contact|phone|number|mobile|facebook|fb|fb id|facebook id|my|amar|amr|tmr boss|tomar boss|your boss|id)\b/i.test(s) ||
+          /শিহাব|মালিক|বস|যোগাযোগ|নাম্বার|নম্বর|ফোন|মোবাইল|ফেসবুক|ফেসবুক আইডি|আমার|তোমার বস|আইডি/.test(s)) {
+        return "personal";
       }
-      updateSyncBadge();
-      renderMemos();
+      if (/\b(code|coding|program|programming|javascript|python|node|npm|termux|api|json|html|css|bash|script|debug|error)\b/i.test(s) ||
+          /কোড|প্রোগ্রাম|স্ক্রিপ্ট|বাগ|এরর/.test(s)) {
+        return "coding";
+      }
+      if (/\b(prompt|cinematic|creative|story|image|animation|video|design|poster|logo)\b/i.test(s) ||
+          /প্রম্পট|গল্প|ছবি|এনিমেশন|ভিডিও|ডিজাইন|পোস্টার|লোগো/.test(s)) {
+        return "creative";
+      }
+      if (/\b(research|latest|news|compare|comparison|why|explain|analysis|analyze|information)\b/i.test(s) ||
+          /রিসার্চ|সাম্প্রতিক|খবর|তুলনা|কেন|ব্যাখ্যা|বিশ্লেষণ|তথ্য/.test(s)) {
+        return "research";
+      }
+      return "chat";
     }
 
-    function persistMemos() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
-      document.getElementById('stats-line').textContent = `${memos.length} memos • Kokushibu74/MEMO`;
+    // --- 2. Direct Owner Reply & Quick Reply (Exact port from memo.js & whatsapp.js) ---
+    function getDirectOrQuickReply(text) {
+      const original = String(text || "").trim();
+      const low = original.toLowerCase().trim();
+
+      const numberWords = ["number", "num", "phone", "mobile", "মোবাইল", "নাম্বার", "নম্বর"];
+      const bossWords = ["boss", "owner", "creator", "created", "built", "maker", "malik", "মালিক", "বস", "ক্রিয়েটর"];
+      const asksNumber = numberWords.some(w => low.includes(w));
+      const asksBoss = bossWords.some(w => low.includes(w));
+      const asksShihab = low.includes("shihab") || low.includes("শিহাব");
+
+      if (asksNumber && (asksBoss || asksShihab)) return `Shihab-এর number: ${MEMO_OWNER.phone}`;
+      if ((low.includes("facebook") || low.includes("fb") || low.includes("ফেসবুক")) && (asksShihab || asksBoss)) {
+        return `Shihab-এর Facebook: ${MEMO_OWNER.facebook}`;
+      }
+      if (asksBoss && !asksNumber) return "Shihab আমাকে তৈরি করেছে, আর আমি তার dedicated Personal Assistant (MEMO 1.5) হিসেবে কাজ করছি।";
+
+      if (/^(hi|hello|hey|helo|hii|heyy)[!. ]*$/i.test(low)) return "Hey! Bolo 😊";
+      if (/^(bhai+|vai+|bro+|broo+|dost)[!. ]*$/i.test(low)) return "Haan bhai, bolo 😊";
+      if (/\b(koi|kothay|where)\b/.test(low) && /\b(aso|acho|ach|accho|achen|achhen|are|tumi|you)\b/.test(low)) return "Ei to, ekhanei achi 😊";
+      if (/\b(ki\s+kros|ki\s+koros|ki\s+korcho|ki\s+koro|ki\s+kor)\b/.test(low)) return "Tomar sathe kotha bolchi 😄";
+      if (/\b(kmn|kemon|kmn acho|kemon acho|how are you)\b/.test(low)) return "Valo achi bhai 😊 Tumi kemon acho?";
+      if (/\b(ki\s+khobor|ki\s+obostha|what'?s up)\b/.test(low)) return "Bhalo bhai, cholche 😄";
+      if (/^(thanks|thank you|thx|tnx|ধন্যবাদ)[!. ]*$/i.test(low)) return "Anytime bhai 😊";
+
+      return null;
     }
 
-    function setFilter(cat) {
-      currentFilter = cat;
-      document.querySelectorAll('.cat-btn').forEach(btn => {
-        if (btn.dataset.cat === cat) {
-          btn.className = 'cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shrink-0';
+    // --- 3. Multi-AI Priority Fallback Caller ---
+    async function callProvider(id, provider, systemPrompt, userPrompt) {
+      const key = (provider.apiKey || "").trim();
+      if (!key || !provider.enabled) throw new Error(`${id} not configured`);
+
+      if (id === "gemini") {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${provider.model || 'gemini-2.5-flash'}:generateContent?key=${key}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }]
+          })
+        });
+        if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
+        const data = await res.json();
+        return data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      }
+
+      // OpenAI-compatible endpoints (ChatGPT, Groq, DeepSeek, Grok)
+      const endpoints = {
+        chatgpt: "https://api.openai.com/v1/chat/completions",
+        groq: "https://api.groq.com/openai/v1/chat/completions",
+        deepseek: "https://api.deepseek.com/v1/chat/completions",
+        grok: "https://api.x.ai/v1/chat/completions"
+      };
+
+      if (endpoints[id]) {
+        const res = await fetch(endpoints[id], {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${key}`
+          },
+          body: JSON.stringify({
+            model: provider.model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ]
+          })
+        });
+        if (!res.ok) throw new Error(`${provider.name} HTTP ${res.status}`);
+        const data = await res.json();
+        return data?.choices?.[0]?.message?.content || "";
+      }
+
+      throw new Error(`${id} unsupported in browser mode`);
+    }
+
+    async function askWithFallback(brain, message) {
+      const historyText = chatMemory.slice(-14).map(m => `${m.role === 'user' ? 'User' : 'Memo'}: ${m.text}`).join("\n");
+      const systemPrompt = `You are MEMO 1.5 (${brain.toUpperCase()} BRAIN), a personal AI assistant created by Shihab (Phone: +8801620107233, FB: https://www.facebook.com/shihabul.islam.74/).
+Rules:
+- Reply naturally and concisely.
+- If user writes Bangla, reply in Bangla. If Banglish, reply in Banglish. If English, reply in English.
+- Understand typos and follow-up context.`;
+
+      const userPrompt = `Previous conversation:\n${historyText || '(none)'}\n\nCurrent user message:\n${message}`;
+
+      const ordered = Object.entries(aiConfig.providers || {})
+        .filter(([, p]) => p.enabled && p.apiKey && p.apiKey.trim() !== "")
+        .sort(([, a], [, b]) => Number(a.priority || 99) - Number(b.priority || 99));
+
+      if (ordered.length === 0) {
+        return {
+          provider: "LOCAL-ENGINE",
+          reply: `⚡ [Local Engine Mode — কোনো API Key এখনো দেয়া হয়নি]\n\nতুমি লিখেছো: "${message}"\nRouter Brain: ${brain.toUpperCase()}\n\nসবগুলো AI Brain (Gemini, Groq, ChatGPT, DeepSeek) চালু করতে ওপরের 🧠 Brains বাটনে ট্যাপ করে তোমার যেকোনো একটি API Key বসিয়ে নাও!`
+        };
+      }
+
+      const errors = [];
+      for (const [id, prov] of ordered) {
+        try {
+          setPipelineStage("brain", `Trying ${prov.name} (${prov.model})...`);
+          const raw = await callProvider(id, prov, systemPrompt, userPrompt);
+          if (raw && raw.trim()) {
+            return { provider: prov.name.toUpperCase(), reply: cleanAnswer(raw) };
+          }
+        } catch (err) {
+          errors.push(`${prov.name}: ${err.message}`);
+        }
+      }
+
+      return {
+        provider: "FALLBACK",
+        reply: `⚠️ সব কনফিগার করা প্রোভাইডার ব্যর্থ হয়েছে (${errors.join(" | ")})। অনুগ্রহ করে API Key বা ইন্টারনেট চেক করো।`
+      };
+    }
+
+    function cleanAnswer(text) {
+      return String(text || "")
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .replace(/^MEMO\s*ASSISTANT\s*:?\s*/i, "")
+        .trim();
+    }
+
+    // --- Pipeline Stage UI Animator (Mirrors memo_ui.js) ---
+    const STAGES = ["message", "router", "memory", "brain", "clean", "reply", "save"];
+    async function setPipelineStage(stageId, label) {
+      document.getElementById("pipeline-status").textContent = `⚡ ${label}`;
+      const idx = STAGES.indexOf(stageId);
+      STAGES.forEach((s, i) => {
+        const el = document.getElementById("st-" + s);
+        if (i < idx) {
+          el.className = "stage-pill py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold";
+        } else if (i === idx) {
+          el.className = "stage-pill py-1 rounded bg-amber-500/30 text-amber-200 border border-amber-400 font-bold animate-pulse";
         } else {
-          btn.className = 'cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 shrink-0';
+          el.className = "stage-pill py-1 rounded bg-slate-950 text-slate-500 border border-slate-800";
         }
       });
-      renderMemos();
+      await new Promise(r => setTimeout(r, 90));
     }
 
-    function renderMemos() {
-      const list = document.getElementById('memo-list');
-      const query = document.getElementById('search-input').value.trim().toLowerCase();
+    async function sendUserMessage() {
+      const inp = document.getElementById("chat-input");
+      const text = inp.value.trim();
+      if (!text) return;
+      inp.value = "";
 
-      const filtered = memos
-        .filter(m => {
-          if (currentFilter === 'pinned' && !m.pinned) return false;
-          if (currentFilter !== 'all' && currentFilter !== 'pinned' && m.category !== currentFilter) return false;
-          if (!query) return true;
-          return (
-            m.title.toLowerCase().includes(query) ||
-            m.content.toLowerCase().includes(query) ||
-            (m.tags && m.tags.some(t => t.toLowerCase().includes(query)))
-          );
-        })
-        .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.updatedAt) - new Date(a.updatedAt));
+      await setPipelineStage("message", "MESSAGE RECEIVED: Reading incoming message...");
+      chatMemory.push({ role: "user", text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+      renderChat();
 
-      document.getElementById('stats-line').textContent = `${memos.length} memos • Kokushibu74/MEMO`;
+      await setPipelineStage("router", "ROUTER: Selecting specialized AI brain...");
+      const brain = detectBrain(text);
+      document.getElementById("detected-brain-tag").textContent = `BRAIN: ${brain.toUpperCase()}`;
 
-      if (filtered.length === 0) {
-        list.innerHTML = `
-          <div class="col-span-full text-center py-16 text-slate-500">
-            <p class="text-3xl mb-2">📭</p>
-            <p class="text-sm font-medium">কোনো মেমো পাওয়া যায়নি</p>
-            <p class="text-xs mt-1">নিচের "+ New Memo" বাটনে ক্লিক করে নতুন নোট তৈরি করো।</p>
+      await setPipelineStage("memory", "MEMORY: Loading conversation context...");
+
+      let finalReply = "";
+      let usedProvider = "QUICK-ENGINE";
+
+      const direct = getDirectOrQuickReply(text);
+      if (direct) {
+        await setPipelineStage("brain", `BRAIN: Instant ${brain.toUpperCase()} match`);
+        finalReply = direct;
+      } else {
+        const res = await askWithFallback(brain, text);
+        finalReply = res.reply;
+        usedProvider = res.provider;
+      }
+
+      await setPipelineStage("clean", "CLEAN: Stripping reasoning tags...");
+      await setPipelineStage("reply", `REPLY: Sending via ${usedProvider}...`);
+
+      chatMemory.push({
+        role: "memo",
+        text: finalReply,
+        brain: brain.toUpperCase(),
+        provider: usedProvider,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+
+      await setPipelineStage("save", "MEMORY SAVE: Saved to persistent storage ✓");
+      localStorage.setItem(STORAGE_MEM, JSON.stringify(chatMemory.slice(-100)));
+      document.getElementById("active-engine-badge").textContent = `● ${usedProvider}`;
+      renderChat();
+    }
+
+    function renderChat() {
+      const box = document.getElementById("chat-box");
+      document.getElementById("header-sub").textContent = `Owner: Shihab • Memory: ON • ${chatMemory.length} Msgs`;
+
+      if (chatMemory.length === 0) {
+        box.innerHTML = `
+          <div class="cyber-card rounded-2xl p-4 text-xs text-slate-300 space-y-2">
+            <div class="text-cyan-400 font-bold font-mono">╔═══ MEMO 1.5 — MULTI-AI WHATSAPP ASSISTANT ═══╗</div>
+            <p>স্বাগতম <strong>Shihab</strong>! এটি তোমার আসল <strong>MEMO 1.5</strong> প্রজেক্টের অ্যান্ড্রয়েড কন্ট্রোল সেন্টার ও লাইভ মাল্টি-এআই এজেন্ট।</p>
+            <ul class="list-disc list-inside text-slate-400 space-y-1">
+              <li>টেস্ট করতে লেখো: <code class="text-emerald-300">"ki kros"</code>, <code class="text-emerald-300">"tomar boss er number dao"</code>, বা যেকোনো কোডিং প্রশ্ন।</li>
+              <li>ওপরের <strong>🧠 Brains</strong> বাটনে গিয়ে তোমার Gemini / Groq / ChatGPT API Key বসালেই অটোমেটিক মাল্টি-এআই ফলব্যাক কাজ করবে!</li>
+            </ul>
           </div>`;
         return;
       }
 
-      const badgeMap = {
-        idea: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-        code: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-        task: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-        personal: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
-      };
-
-      list.innerHTML = filtered.map(m => {
-        const dateStr = new Date(m.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-        const tagsHtml = (m.tags || []).filter(Boolean).map(t => `<span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400">#${escapeHtml(t)}</span>`).join('');
-        return `
-          <article onclick="openEditor('${m.id}')" class="bg-slate-900/90 hover:bg-slate-900 border ${m.pinned ? 'border-indigo-500/50' : 'border-slate-800'} rounded-2xl p-4 flex flex-col justify-between gap-3 cursor-pointer active:scale-[0.99] transition shadow-lg">
-            <div class="space-y-2">
-              <div class="flex items-start justify-between gap-2">
-                <h3 class="font-bold text-sm text-white leading-snug">${escapeHtml(m.title || 'Untitled Memo')}</h3>
-                <div class="flex items-center gap-1.5 shrink-0">
-                  ${m.pinned ? '<span class="text-xs" title="Pinned">📌</span>' : ''}
-                  <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${badgeMap[m.category] || badgeMap.idea}">${m.category}</span>
-                </div>
+      box.innerHTML = chatMemory.map(m => {
+        if (m.role === "user") {
+          return `
+            <div class="flex justify-end">
+              <div class="max-w-[82%] bg-gradient-to-br from-cyan-500 to-emerald-500 text-slate-950 font-medium rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-xs shadow">
+                <div class="whitespace-pre-wrap">${escapeHtml(m.text)}</div>
+                <div class="text-[9px] text-slate-900/70 text-right mt-1 font-mono">${m.time || ''}</div>
               </div>
-              <pre class="text-xs text-slate-300 font-sans whitespace-pre-wrap line-clamp-4 leading-relaxed">${escapeHtml(m.content)}</pre>
-            </div>
-            <div class="flex items-center justify-between pt-2 border-t border-slate-800/70">
-              <div class="flex flex-wrap gap-1">${tagsHtml}</div>
-              <span class="text-[10px] text-slate-500 shrink-0">${dateStr}</span>
-            </div>
-          </article>
-        `;
-      }).join('');
-    }
-
-    function openEditor(id = null) {
-      editingId = id;
-      const modal = document.getElementById('editor-modal');
-      const delBtn = document.getElementById('btn-delete');
-
-      if (id) {
-        const m = memos.find(x => x.id === id);
-        if (!m) return;
-        document.getElementById('modal-title').textContent = 'Edit Memo';
-        document.getElementById('memo-title').value = m.title;
-        document.getElementById('memo-category').value = m.category || 'idea';
-        document.getElementById('memo-tags').value = (m.tags || []).join(', ');
-        document.getElementById('memo-content').value = m.content;
-        editorPinned = !!m.pinned;
-        delBtn.classList.remove('hidden');
-      } else {
-        document.getElementById('modal-title').textContent = 'New Memo';
-        document.getElementById('memo-title').value = '';
-        document.getElementById('memo-category').value = 'idea';
-        document.getElementById('memo-tags').value = '';
-        document.getElementById('memo-content').value = '';
-        editorPinned = false;
-        delBtn.classList.add('hidden');
-      }
-      updatePinButtonUI();
-      modal.classList.remove('hidden');
-    }
-
-    function closeEditor() {
-      document.getElementById('editor-modal').classList.add('hidden');
-    }
-
-    function toggleEditorPin() {
-      editorPinned = !editorPinned;
-      updatePinButtonUI();
-    }
-
-    function updatePinButtonUI() {
-      const btn = document.getElementById('btn-pin-toggle');
-      btn.className = editorPinned
-        ? 'px-2.5 py-1 rounded-lg text-xs border border-indigo-500 bg-indigo-500/20 text-indigo-300 font-semibold'
-        : 'px-2.5 py-1 rounded-lg text-xs border border-slate-700 text-slate-400';
-    }
-
-    function saveMemo() {
-      const title = document.getElementById('memo-title').value.trim();
-      const category = document.getElementById('memo-category').value;
-      const tags = document.getElementById('memo-tags').value.split(',').map(s => s.trim()).filter(Boolean);
-      const content = document.getElementById('memo-content').value;
-
-      if (!title && !content.trim()) {
-        alert('অনুগ্রহ করে টাইটেল অথবা মেমো টেক্সট লিখুন!');
-        return;
-      }
-
-      if (editingId) {
-        const idx = memos.findIndex(x => x.id === editingId);
-        if (idx > -1) {
-          memos[idx] = { ...memos[idx], title, category, tags, content, pinned: editorPinned, updatedAt: new Date().toISOString() };
-        }
-      } else {
-        memos.unshift({
-          id: 'memo-' + Date.now(),
-          title: title || 'Quick Memo',
-          category,
-          tags,
-          content,
-          pinned: editorPinned,
-          updatedAt: new Date().toISOString()
-        });
-      }
-
-      persistMemos();
-      renderMemos();
-      closeEditor();
-    }
-
-    function deleteCurrentMemo() {
-      if (!editingId) return;
-      if (!confirm('এই মেমোটি মুছে ফেলতে চাও?')) return;
-      memos = memos.filter(x => x.id !== editingId);
-      persistMemos();
-      renderMemos();
-      closeEditor();
-    }
-
-    function copyMemoContent() {
-      const text = document.getElementById('memo-content').value;
-      navigator.clipboard.writeText(text);
-      alert('ক্লিপবোর্ডে কপি হয়েছে!');
-    }
-
-    // --- GitHub API Cloud Sync (Directly pushes/pulls notes/memo-data.json in Kokushibu74/MEMO) ---
-    function openSettings() {
-      const cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
-      document.getElementById('cfg-repo').value = cfg.repo || 'Kokushibu74/MEMO';
-      document.getElementById('cfg-token').value = cfg.token || '';
-      document.getElementById('settings-modal').classList.remove('hidden');
-    }
-
-    function closeSettings() {
-      document.getElementById('settings-modal').classList.add('hidden');
-    }
-
-    function saveSettings() {
-      const repo = document.getElementById('cfg-repo').value.trim() || 'Kokushibu74/MEMO';
-      const token = document.getElementById('cfg-token').value.trim();
-      localStorage.setItem(CFG_KEY, JSON.stringify({ repo, token }));
-      updateSyncBadge();
-      closeSettings();
-    }
-
-    function updateSyncBadge() {
-      const cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
-      const badge = document.getElementById('sync-badge');
-      if (cfg.token) {
-        badge.textContent = 'GitHub Connected';
-        badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30';
-      } else {
-        badge.textContent = 'Local Ready';
-        badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
-      }
-    }
-
-    async function syncWithGitHub() {
-      const cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
-      if (!cfg.token) {
-        openSettings();
-        return;
-      }
-
-      const badge = document.getElementById('sync-badge');
-      badge.textContent = 'Syncing...';
-      const path = 'notes/memo-backup.json';
-      const apiUrl = `https://api.github.com/repos/${cfg.repo}/contents/${path}`;
-
-      try {
-        let sha = null;
-        const getRes = await fetch(apiUrl, {
-          headers: { Authorization: `token ${cfg.token}`, Accept: 'application/vnd.github.v3+json' }
-        });
-        if (getRes.ok) {
-          const fileData = await getRes.json();
-          sha = fileData.sha;
-        }
-
-        const payload = {
-          message: `Sync ${memos.length} memos from MEMO Pro Android App`,
-          content: btoa(unescape(encodeURIComponent(JSON.stringify(memos, null, 2))))
-        };
-        if (sha) payload.sha = sha;
-
-        const putRes = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            Authorization: `token ${cfg.token}`,
-            Accept: 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (putRes.ok) {
-          badge.textContent = 'Synced ✓';
-          alert(`সফলভাবে ${cfg.repo} রিপোজিটরিতে সিঙ্ক হয়েছে!`);
+            </div>`;
         } else {
-          const err = await putRes.json();
-          throw new Error(err.message || 'Sync failed');
+          return `
+            <div class="flex justify-start">
+              <div class="max-w-[86%] cyber-card rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-xs text-slate-200 shadow">
+                <div class="flex items-center gap-2 mb-1 font-mono text-[9px]">
+                  <span class="text-cyan-400 font-bold">MEMO 1.5</span>
+                  <span class="px-1.5 py-0.2 rounded bg-slate-800 text-amber-300">${m.brain || 'CHAT'}</span>
+                  <span class="text-emerald-400">${m.provider || 'AI'}</span>
+                </div>
+                <div class="whitespace-pre-wrap leading-relaxed">${escapeHtml(m.text)}</div>
+                <div class="text-[9px] text-slate-500 text-right mt-1 font-mono">${m.time || ''}</div>
+              </div>
+            </div>`;
         }
-      } catch (e) {
-        badge.textContent = 'Sync Error';
-        alert('GitHub Sync Error: ' + e.message);
-      }
+      }).join("");
+      box.scrollTop = box.scrollHeight;
     }
 
-    async function pullFromGitHub() {
-      const cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
-      if (!cfg.token) {
-        alert('প্রথমে GitHub Token দিয়ে Save Config করো!');
-        return;
-      }
-      const apiUrl = `https://api.github.com/repos/${cfg.repo}/contents/notes/memo-backup.json`;
-      try {
-        const res = await fetch(apiUrl, {
-          headers: { Authorization: `token ${cfg.token}`, Accept: 'application/vnd.github.v3+json' }
-        });
-        if (!res.ok) throw new Error('Backup file not found in repository yet.');
-        const data = await res.json();
-        const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-        const remoteMemos = JSON.parse(decoded);
-        if (Array.isArray(remoteMemos)) {
-          memos = remoteMemos;
-          persistMemos();
-          renderMemos();
-          closeSettings();
-          alert(`রিপোজিটরি থেকে ${memos.length}টি মেমো রিস্টোর হয়েছে!`);
-        }
-      } catch (e) {
-        alert('Pull failed: ' + e.message);
-      }
+    function renderProviders() {
+      const container = document.getElementById("providers-list");
+      const entries = Object.entries(aiConfig.providers || {}).sort(([, a], [, b]) => Number(a.priority || 99) - Number(b.priority || 99));
+
+      container.innerHTML = entries.map(([id, p]) => {
+        const isReady = p.enabled && p.apiKey && p.apiKey.trim().length > 5;
+        return `
+          <div class="cyber-card rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold text-white">#${p.priority} ${p.name}</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded ${isReady ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
+                  ${isReady ? '● ACTIVE' : '○ NO KEY'}
+                </span>
+              </div>
+              <input type="checkbox" ${p.enabled ? 'checked' : ''} onchange="toggleProvider('${id}', this.checked)" class="h-4 w-4 accent-cyan-400" />
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <input type="text" value="${p.model}" onchange="updateProviderField('${id}', 'model', this.value)" class="col-span-2 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-cyan-300" placeholder="Model name" />
+              <input type="number" min="1" max="9" value="${p.priority}" onchange="updateProviderField('${id}', 'priority', Number(this.value))" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-amber-300" placeholder="Priority" />
+            </div>
+            <input type="password" value="${p.apiKey || ''}" onchange="updateProviderField('${id}', 'apiKey', this.value)" placeholder="Paste ${p.name} API Key here..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
+          </div>`;
+      }).join("");
     }
 
-    function exportJSON() {
-      const blob = new Blob([JSON.stringify(memos, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
+    function toggleProvider(id, enabled) {
+      aiConfig.providers[id].enabled = enabled;
+      saveAiConfig();
+    }
+
+    function updateProviderField(id, field, value) {
+      aiConfig.providers[id][field] = value;
+      saveAiConfig();
+    }
+
+    function saveAiConfig() {
+      localStorage.setItem(STORAGE_AI, JSON.stringify(aiConfig));
+      renderProviders();
+    }
+
+    function exportAiJson() {
+      const blob = new Blob([JSON.stringify(aiConfig, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `memo-pro-backup-${Date.now()}.json`;
+      a.download = "ai.json";
       a.click();
     }
 
-    function importJSON(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const imported = JSON.parse(reader.result);
-          if (Array.isArray(imported)) {
-            memos = imported;
-            persistMemos();
-            renderMemos();
-            closeSettings();
-            alert('সফলভাবে মেমো ইমপোর্ট হয়েছে!');
-          }
-        } catch (err) {
-          alert('Invalid JSON file');
-        }
-      };
-      reader.readAsText(file);
+    function clearConversationMemory() {
+      if (!confirm("Reset all MEMO conversation memory?")) return;
+      chatMemory = [];
+      localStorage.setItem(STORAGE_MEM, "[]");
+      renderChat();
     }
 
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    function renderContextList() {
+      const q = (document.getElementById("ctx-search").value || "").toLowerCase();
+      const filtered = BUILTIN_CONTEXTS.filter(c => c.input.toLowerCase().includes(q) || c.meaning.toLowerCase().includes(q));
+      document.getElementById("ctx-list").innerHTML = filtered.map(c => `
+        <div class="cyber-card rounded-xl p-3 flex items-center justify-between text-xs">
+          <div>
+            <div class="font-mono font-bold text-cyan-300">${escapeHtml(c.input)}</div>
+            <div class="text-slate-400 text-[11px] mt-0.5">${escapeHtml(c.meaning)}</div>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 uppercase">${c.category}</span>
+        </div>`).join("");
     }
 
-    initApp();
+    function copyCmd(cmd) {
+      navigator.clipboard.writeText(cmd);
+      alert("Command copied: " + cmd);
+    }
+
+    function switchTab(tab) {
+      ["chat", "brains", "wa", "context"].forEach(t => {
+        document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
+        document.getElementById("nav-" + t).className = t === tab
+          ? "flex flex-col items-center py-1 text-cyan-400 font-bold"
+          : "flex flex-col items-center py-1 text-slate-500";
+      });
+      if (tab === "brains") renderProviders();
+      if (tab === "context") renderContextList();
+    }
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    renderChat();
   </script>
 </body>
 </html>
