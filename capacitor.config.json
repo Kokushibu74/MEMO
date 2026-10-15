@@ -1,9 +1,6 @@
 {
-  "appId": "com.shihab.memo15",
-  "appName": "MEMO 1.5 AI",
+  "appId": "com.shihab.memo20",
+  "appName": "MEMO 2.0",
   "webDir": "www",
-  "bundledWebRuntime": false,
-  "server": {
-    "androidScheme": "https"
-  }
+  "bundledWebRuntime": false
 }

@@ -1,8 +1,7 @@
-name: Build MEMO Android APK
-
+name: Build MEMO 2.0 Android APK
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -12,32 +11,51 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
 
-      - name: Setup Java JDK 21 for Capacitor 6
+      - name: Setup Java JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: 21
 
-      - name: Install Capacitor & Generate Android Project
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Prepare Web Assets & Custom MEMO 2.0 Neon Icon
         run: |
-          npm install
-          rm -rf android
-          npx cap add android
-          npx cap sync android
+          mkdir -p www
+          cp -f index.html www/index.html || true
+          sudo apt-get update && sudo apt-get install -y imagemagick
+          convert -size 512x512 radial-gradient:'#0B1022'-'#04060E' \
+            -fill none -stroke '#00F5D4' -strokewidth 14 -draw "roundrectangle 24,24 488,488 110,110" \
+            -fill none -stroke '#FF007F' -strokewidth 6 -draw "circle 256,220 256,115" \
+            -fill '#00F5D4' -pointsize 135 -font DejaVu-Sans-Bold -gravity center -annotate +0-35 "M" \
+            -fill '#FFFFFF' -pointsize 68 -font DejaVu-Sans-Bold -gravity center -annotate +0+115 "2.0" \
+            icon.png
 
-      - name: Compile Debug APK via Gradle
+      - name: Initialize Capacitor Android Project
+        run: |
+          rm -rf android package.json package-lock.json
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android
+          npx cap copy android
+          for f in $(find android/app/src/main/res -name "ic_launcher*.png"); do
+            cp -f icon.png "$f"
+          done
+
+      - name: Build Signed/Debug APK with Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug
 
-      - name: Upload Ready-to-Install APK Artifact
+      - name: Upload MEMO 2.0 Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: MEMO-Pro-Android-APK
+          name: MEMO-2.0-iOS26-Glass-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
