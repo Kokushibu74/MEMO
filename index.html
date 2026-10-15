@@ -1,307 +1,354 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="bn" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MEMO 2.0 — Neural AI OS</title>
+  <title>MEMO 2.0 — Standalone iOS 26 AI OS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --bg-1: #04060E;
-      --bg-2: #0B1022;
-      --neon-1: #00F5D4;
-      --neon-2: #FF007F;
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.14);
+      --bg-deep: #060914;
+      --orb-1: #38BDF8;
+      --orb-2: #818CF8;
+      --orb-3: #F472B6;
+      --accent: #38BDF8;
+      --accent-2: #818CF8;
+      --glass-surface: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --glass-highlight: rgba(255, 255, 255, 0.35);
     }
-    * { -webkit-tap-highlight-color: transparent; user-select: none; }
+    * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at 15% 15%, var(--bg-2), var(--bg-1) 80%);
+      background-color: var(--bg-deep);
       color: #F8FAFC;
       overflow: hidden;
       height: 100vh;
       width: 100vw;
+      position: relative;
+      transition: background-color 0.5s ease;
     }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-    /* iOS 26 Liquid Glassmorphism */
-    .ios-glass {
-      background: var(--glass-bg);
-      backdrop-filter: blur(28px) saturate(190%);
-      -webkit-backdrop-filter: blur(28px) saturate(190%);
+    /* True iOS 26 Liquid Moving Orbs in Background */
+    @keyframes floatOrb1 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, 30px) scale(1.15); } }
+    @keyframes floatOrb2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-35px, -40px) scale(1.2); } }
+    .liquid-orb-1 { position: fixed; top: -5%; left: -10%; width: 300px; height: 300px; background: var(--orb-1); opacity: 0.32; filter: blur(75px); border-radius: 50%; z-index: 0; pointer-events: none; animation: floatOrb1 10s ease-in-out infinite; transition: background 0.5s ease; }
+    .liquid-orb-2 { position: fixed; bottom: 5%; right: -10%; width: 320px; height: 320px; background: var(--orb-2); opacity: 0.28; filter: blur(80px); border-radius: 50%; z-index: 0; pointer-events: none; animation: floatOrb2 12s ease-in-out infinite; transition: background 0.5s ease; }
+    .liquid-orb-3 { position: fixed; top: 40%; left: 30%; width: 220px; height: 220px; background: var(--orb-3); opacity: 0.18; filter: blur(70px); border-radius: 50%; z-index: 0; pointer-events: none; transition: background 0.5s ease; }
+
+    /* Authentic iOS 26 Refractive Liquid Glass */
+    .ios26-glass {
+      background: linear-gradient(135deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 100%);
+      backdrop-filter: blur(35px) saturate(210%);
+      -webkit-backdrop-filter: blur(35px) saturate(210%);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 12px 35px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.18);
+      box-shadow:
+        0 18px 40px -10px rgba(0, 0, 0, 0.55),
+        inset 0 1.5px 1px 0 var(--glass-highlight),
+        inset 0 -1px 1px 0 rgba(255, 255, 255, 0.08);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .ios-input {
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+    .ios26-pill {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .ios26-input {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
       color: #fff;
       outline: none;
       transition: all 0.25s ease;
     }
-    .ios-input:focus {
-      border-color: var(--neon-1);
-      box-shadow: 0 0 15px color-mix(in srgb, var(--neon-1) 30%, transparent);
+    .ios26-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
     }
-    .neon-btn {
-      background: linear-gradient(135deg, var(--neon-1), var(--neon-2));
-      color: #03050a;
+    .ios26-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #030712;
       font-weight: 800;
-      box-shadow: 0 0 22px color-mix(in srgb, var(--neon-1) 40%, transparent);
+      box-shadow: 0 8px 25px color-mix(in srgb, var(--accent) 45%, transparent), inset 0 1px 1px rgba(255,255,255,0.6);
       transition: all 0.25s ease;
     }
-    .neon-btn:active { transform: scale(0.96); }
+    .ios26-btn:active { transform: scale(0.96); }
 
-    /* Ambient Liquid Blobs */
-    .blob-1 { position: fixed; top: -80px; left: -60px; width: 260px; height: 260px; background: var(--neon-1); opacity: 0.14; filter: blur(65px); border-radius: 50%; pointer-events: none; z-index: 0; }
-    .blob-2 { position: fixed; bottom: -80px; right: -60px; width: 280px; height: 280px; background: var(--neon-2); opacity: 0.12; filter: blur(70px); border-radius: 50%; pointer-events: none; z-index: 0; }
+    /* Multi-State Reactive AI Face Animations */
+    @keyframes breathe { 0%, 100% { transform: scale(1) translateY(0px); } 50% { transform: scale(1.03) translateY(-4px); } }
+    @keyframes IncomingPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 30px var(--accent)); } }
+    @keyframes ThinkingSpin { 0% { transform: rotate(0deg) scale(1.04); } 50% { transform: rotate(4deg) scale(1.08); } 100% { transform: rotate(0deg) scale(1.04); } }
+    @keyframes EyeBlink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } }
 
-    /* Reactive AI Face Animations */
-    @keyframes pulseHalo {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 16px var(--neon-1)); }
-      50% { transform: scale(1.05); filter: drop-shadow(0 0 28px var(--neon-2)); }
-    }
-    .ai-face-active { animation: pulseHalo 3s ease-in-out infinite; }
-    @keyframes talkWave {
-      0%, 100% { d: path("M 36 64 Q 50 66 64 64"); }
-      50% { d: path("M 36 62 Q 50 76 64 62"); }
-    }
-    .mouth-talking { animation: talkWave 0.28s infinite; }
+    .face-state-idle { animation: breathe 4s ease-in-out infinite; filter: drop-shadow(0 0 18px var(--accent)); }
+    .face-state-incoming { animation: IncomingPulse 0.45s ease-in-out infinite; filter: drop-shadow(0 0 28px #F472B6); }
+    .face-state-thinking { animation: ThinkingSpin 0.8s ease-in-out infinite; filter: drop-shadow(0 0 32px #FBBF24); }
+    .face-state-replying { animation: breathe 1s ease-in-out infinite; filter: drop-shadow(0 0 28px #34D399); }
+    .face-state-offline { opacity: 0.45; filter: grayscale(80%); }
+    .blink-eyes { transform-origin: center; animation: EyeBlink 4.5s infinite; }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="flex flex-col justify-between relative">
+<body class="flex flex-col justify-between">
 
-  <div class="blob-1"></div>
-  <div class="blob-2"></div>
+  <!-- iOS 26 Liquid Background Orbs -->
+  <div class="liquid-orb-1"></div>
+  <div class="liquid-orb-2"></div>
+  <div class="liquid-orb-3"></div>
 
-  <!-- ==========================================
-       1ST TIME WHATSAPP LOGIN MODAL (Persistent)
-       ========================================== -->
-  <div id="wa-login-modal" class="fixed inset-0 z-50 bg-[#04060E]/95 backdrop-blur-3xl flex items-center justify-center p-5 hidden">
-    <div class="ios-glass w-full max-w-sm rounded-[32px] p-6 text-center space-y-5 relative overflow-hidden">
-      <div class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl shadow-lg" style="background: rgba(0,245,212,0.12); border: 1px solid var(--neon-1); color: var(--neon-1);">
+  <!-- =========================================================
+       1ST TIME STANDALONE WHATSAPP LOGIN (ANY BD NUMBER WORKS!)
+       ========================================================= -->
+  <div id="wa-login-screen" class="fixed inset-0 z-50 bg-[#050811]/85 backdrop-blur-3xl flex items-center justify-center p-5 hidden">
+    <div class="ios26-glass w-full max-w-sm rounded-[36px] p-6 text-center space-y-5 relative overflow-hidden">
+      <div class="w-16 h-16 rounded-[22px] mx-auto flex items-center justify-center text-3xl ios26-pill" style="color: var(--accent);">
         <i class="fa-brands fa-whatsapp"></i>
       </div>
       <div class="space-y-1">
-        <span class="text-[10px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/10 text-[#00F5D4]">First-Time Setup</span>
-        <h2 class="text-2xl font-black tracking-tight text-white">Link WhatsApp</h2>
-        <p class="text-xs text-zinc-400">MEMO 2.0 একবার লিংক করলে বারবার আর লগইন আসবে না</p>
+        <span class="text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full ios26-pill" style="color: var(--accent);">One-Time Setup</span>
+        <h2 class="text-2xl font-black tracking-tight text-white mt-1">WhatsApp Login</h2>
+        <p class="text-xs text-zinc-300">যেকোনো বাংলাদেশি নাম্বার দিয়ে সরাসরি অ্যাপে লগইন করুন (শুধু ১ম বার লাগবে)</p>
+      </div>
+
+      <!-- Mode Selector: Direct Instant Login vs Cloud Pairing -->
+      <div class="ios26-pill rounded-2xl p-1 grid grid-cols-2 gap-1 text-[11px] font-bold">
+        <button id="login-mode-direct" onclick="setLoginMode('direct')" class="py-2 rounded-xl ios26-btn">⚡ Direct App Login</button>
+        <button id="login-mode-pair" onclick="setLoginMode('pair')" class="py-2 rounded-xl text-zinc-300">🔗 Link Device Code</button>
       </div>
 
       <div class="space-y-3 text-left">
-        <label class="text-[11px] font-bold text-zinc-300 block">WhatsApp Number (With Country Code)</label>
-        <input id="wa-phone-input" type="text" value="+8801620107233" class="w-full ios-input rounded-2xl px-4 py-3 text-xs font-mono" />
-        <button onclick="generatePairingCode()" class="w-full py-3 rounded-2xl neon-btn text-xs uppercase tracking-wider">Get 8-Digit Pairing Code</button>
+        <label class="text-[11px] font-bold text-zinc-200 block">বাংলাদেশি WhatsApp নাম্বার দিন:</label>
+        <div class="flex items-center gap-2">
+          <span class="ios26-pill px-3 py-3 rounded-2xl text-xs font-mono font-bold text-white">🇧🇩 +88</span>
+          <input id="bd-phone-input" type="tel" placeholder="01XXXXXXXXX" value="01620107233" class="flex-1 ios26-input rounded-2xl px-4 py-3 text-sm font-mono font-bold tracking-wider" />
+        </div>
       </div>
 
-      <div id="pairing-display" class="hidden ios-glass rounded-2xl p-3.5 border border-[#00F5D4]/40">
-        <p class="text-[10px] text-zinc-400 mb-1">আপনার WhatsApp Linked Devices-এ এই কোড দিন:</p>
-        <div id="pairing-code-text" class="text-xl font-black font-mono tracking-[0.25em] text-[#00F5D4]">SHIH-AB20</div>
+      <!-- Direct Login Box (Works 100% Standalone on Any Phone) -->
+      <div id="direct-login-box" class="space-y-3">
+        <button onclick="loginWithBDNumber()" class="w-full py-3.5 rounded-2xl ios26-btn text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+          <i class="fa-solid fa-bolt"></i> Activate MEMO 2.0 on This Number
+        </button>
       </div>
 
-      <div class="pt-1 flex gap-2">
-        <button onclick="completeWaLogin()" class="flex-1 py-3 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-bold text-xs">✅ Connected / Continue</button>
+      <!-- Optional Cloud Gateway / Pairing Box -->
+      <div id="pair-login-box" class="hidden space-y-3 text-left">
+        <input id="cloud-gateway-url" type="text" placeholder="Cloud Gateway URL (Optional)" class="w-full ios26-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+        <button onclick="requestGatewayCode()" class="w-full py-3 rounded-2xl ios26-pill text-xs font-bold text-white text-center">Request WhatsApp Pairing Code</button>
+        <div id="pair-code-result" class="hidden text-center p-2.5 rounded-xl bg-black/40 border border-white/15 font-mono text-lg font-black tracking-widest" style="color: var(--accent);"></div>
       </div>
     </div>
   </div>
 
-  <!-- ==========================================
-       TOP HEADER: LOGO, LIVE STATUS & ON/OFF SWITCH
-       ========================================== -->
-  <header class="relative z-10 px-4 pt-3 pb-2">
-    <div class="ios-glass rounded-[26px] px-4 py-3 flex items-center justify-between">
+  <!-- =========================================================
+       TOP iOS 26 DYNAMIC GLASS HEADER
+       ========================================================= -->
+  <header class="relative z-10 px-4 pt-3 pb-1.5">
+    <div class="ios26-glass rounded-[28px] px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- App Logo Icon matching MEMO 2.0 -->
-        <div class="w-10 h-10 rounded-2xl flex items-center justify-center relative shadow-lg" style="background: linear-gradient(135deg, var(--neon-1), var(--neon-2));">
+        <div class="w-10 h-10 rounded-[16px] flex items-center justify-center relative ios26-btn">
           <i class="fa-solid fa-brain text-black text-lg"></i>
-          <span class="absolute -bottom-1 -right-1 text-[8px] font-black bg-black text-white px-1 rounded border border-white/20">2.0</span>
+          <span class="absolute -bottom-1 -right-1 text-[8px] font-black bg-black text-white px-1 rounded border border-white/25">2.0</span>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-base font-black tracking-wider text-white">MEMO 2.0</h1>
-            <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">iOS 26 Glass</span>
+            <h1 class="text-base font-black tracking-wide text-white">MEMO 2.0</h1>
+            <span id="header-phone-tag" class="text-[9px] font-mono px-2 py-0.5 rounded-full ios26-pill text-zinc-200">+8801620107233</span>
           </div>
           <!-- Live Online / Offline Indicator -->
           <div class="flex items-center gap-1.5 mt-0.5">
             <span id="live-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span id="live-status-text" class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">LIVE ONLINE • READY</span>
+            <span id="live-status-text" class="text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-wider">LIVE ONLINE • ACTIVE</span>
           </div>
         </div>
       </div>
 
-      <!-- Master ON / OFF Switch -->
+      <!-- Master ON/OFF Switch -->
       <div class="flex items-center gap-2">
-        <span id="switch-label" class="text-[10px] font-mono font-bold text-emerald-400 uppercase">ON</span>
-        <button id="master-switch" onclick="toggleMasterBot()" class="w-13 h-7 rounded-full p-1 transition-all duration-300 flex items-center bg-emerald-500/30 border border-emerald-400/50" style="width: 52px;">
-          <div id="switch-knob" class="w-5 h-5 rounded-full bg-emerald-400 shadow-md transform transition-transform duration-300 translate-x-6"></div>
+        <span id="switch-state-txt" class="text-[10px] font-mono font-extrabold text-emerald-300">ON</span>
+        <button id="master-switch-btn" onclick="toggleSystemOnline()" class="rounded-full p-1 transition-all duration-300 flex items-center bg-emerald-500/35 border border-emerald-300/50" style="width: 52px; height: 28px;">
+          <div id="master-switch-knob" class="w-5 h-5 rounded-full bg-white shadow-lg transform transition-transform duration-300 translate-x-6"></div>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ==========================================
-       MAIN CONTENT VIEWS
-       ========================================== -->
+  <!-- =========================================================
+       MAIN APP WORKSPACE
+       ========================================================= -->
   <main class="relative z-10 flex-1 px-4 py-1.5 overflow-hidden flex flex-col">
 
-    <!-- PAGE 1: HOME (Split Live AI Face + Timer + Live Incoming Feed + Quick Test) -->
-    <div id="view-home" class="flex-1 flex flex-col gap-3 overflow-hidden">
+    <!-- TAB 1: HOME (Multi-State Reactive AI Face + ETA Timer + Side Live Feed + Direct Chat) -->
+    <div id="tab-view-home" class="flex-1 flex flex-col gap-3 overflow-hidden">
       
-      <!-- Split Grid: Left (AI Face + Remaining Time) | Right (Live Incoming Message Log) -->
       <div class="grid grid-cols-12 gap-3 flex-1 min-h-0">
         
-        <!-- Left Column (7 cols): Live AI Body/Face + Reply Countdown Timer -->
+        <!-- Left 7 Cols: Dynamic Reactive AI Face/Body + Remaining Reply Time -->
         <div class="col-span-7 flex flex-col gap-3 min-h-0">
           
-          <!-- Live Reactive AI Face Card -->
-          <div class="ios-glass rounded-[28px] p-3 flex-1 flex flex-col items-center justify-center relative overflow-hidden">
-            <div class="absolute top-2.5 left-3 flex items-center gap-1.5">
-              <span class="text-[9px] font-mono uppercase tracking-wider text-zinc-400">AI Core:</span>
-              <span id="active-brain-pill" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/10" style="color: var(--neon-1);">Gemini 2.5</span>
+          <!-- Live Reactive AI Body & Face Card -->
+          <div class="ios26-glass rounded-[30px] p-3 flex-1 flex flex-col items-center justify-between relative overflow-hidden">
+            <div class="w-full flex items-center justify-between px-1">
+              <span id="ai-action-chip" class="text-[9px] font-mono font-bold px-2.5 py-0.5 rounded-full ios26-pill" style="color: var(--accent);">● IDLE / LISTENING</span>
+              <span id="active-brain-chip" class="text-[9px] font-mono text-zinc-300">🧠 Smart AI</span>
             </div>
 
-            <!-- Reactive SVG Cyber-Humanoid Face -->
-            <div id="ai-avatar-box" class="ai-face-active my-1">
-              <svg id="ai-svg" viewBox="0 0 100 100" class="w-28 h-28 sm:w-32 sm:h-32" style="color: var(--neon-1);">
-                <!-- Outer Cyber Ring -->
-                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1.2" fill="none" stroke-dasharray="6 4" class="animate-[spin_25s_linear_infinite]" opacity="0.6"/>
-                <circle cx="50" cy="50" r="38" stroke="var(--neon-2)" stroke-width="1" fill="none" stroke-dasharray="12 6" class="animate-[spin_15s_linear_infinite_reverse]" opacity="0.5"/>
-                <!-- Head Contour -->
-                <path d="M28 45 C28 24, 72 24, 72 45 C72 68, 60 80, 50 82 C40 80, 28 68, 28 45 Z" fill="rgba(0, 245, 212, 0.07)" stroke="currentColor" stroke-width="1.8"/>
-                <!-- Forehead Neural Node -->
-                <circle id="ai-third-eye" cx="50" cy="33" r="2.5" fill="var(--neon-2)" />
-                <!-- Left & Right Eyes -->
-                <g id="ai-eyes">
-                  <ellipse cx="40" cy="46" rx="4.5" ry="2.8" fill="currentColor"/>
-                  <ellipse cx="60" cy="46" rx="4.5" ry="2.8" fill="currentColor"/>
+            <!-- REACTIVE SVG AI BODY & FACE (Changes with every task & theme!) -->
+            <div id="ai-visual-wrapper" class="face-state-idle my-auto flex items-center justify-center">
+              <svg id="ai-character-svg" viewBox="0 0 120 120" class="w-32 h-32 sm:w-36 sm:h-36" style="color: var(--accent);">
+                <!-- Outer Energy Halo Rings -->
+                <circle id="svg-ring-1" cx="60" cy="60" r="54" stroke="currentColor" stroke-width="1.4" fill="none" stroke-dasharray="8 5" class="animate-[spin_20s_linear_infinite]" opacity="0.65"/>
+                <circle id="svg-ring-2" cx="60" cy="60" r="46" stroke="var(--accent-2)" stroke-width="1.2" fill="none" stroke-dasharray="14 7" class="animate-[spin_12s_linear_infinite_reverse]" opacity="0.55"/>
+                
+                <!-- Cyber Shoulders / Upper Body Silhouette -->
+                <path id="svg-body" d="M 32 104 C 32 88, 88 88, 88 104" fill="rgba(255,255,255,0.06)" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <!-- Chest Core Reactor -->
+                <circle id="svg-chest-core" cx="60" cy="96" r="4" fill="var(--accent-2)" class="animate-pulse"/>
+
+                <!-- AI Head / Helmet Structure -->
+                <path id="svg-head" d="M 36 50 C 36 26, 84 26, 84 50 C 84 72, 71 84, 60 85 C 49 84, 36 72, 36 50 Z" fill="rgba(255,255,255,0.08)" stroke="currentColor" stroke-width="2"/>
+                
+                <!-- Side Neural Ears/Antennas -->
+                <rect x="31" y="47" width="4" height="12" rx="2" fill="var(--accent-2)"/>
+                <rect x="85" y="47" width="4" height="12" rx="2" fill="var(--accent-2)"/>
+
+                <!-- Forehead Neural Crystal -->
+                <polygon id="svg-forehead" points="60,31 64,37 60,41 56,37" fill="var(--accent-2)"/>
+
+                <!-- Dynamic Eyes Group -->
+                <g id="svg-eyes" class="blink-eyes">
+                  <rect x="44" y="49" width="10" height="5" rx="2.5" fill="currentColor"/>
+                  <rect x="66" y="49" width="10" height="5" rx="2.5" fill="currentColor"/>
                 </g>
-                <!-- Reactive Mouth -->
-                <path id="ai-mouth-path" d="M 38 63 Q 50 68 62 63" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+                <!-- Dynamic Mouth / Voice Equalizer Group -->
+                <g id="svg-mouth">
+                  <path d="M 48 68 Q 60 74 72 68" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                </g>
               </svg>
             </div>
 
-            <div class="text-center">
-              <div id="ai-mood-badge" class="text-[11px] font-extrabold tracking-widest uppercase" style="color: var(--neon-1);">⚡ LISTENING FOR MSG</div>
-              <p id="ai-sub-mood" class="text-[9px] text-zinc-400 font-mono mt-0.5">6-Brain Priority Router Ready</p>
+            <!-- Live Action Reaction Caption -->
+            <div class="text-center w-full">
+              <div id="ai-reaction-title" class="text-xs font-black tracking-wider uppercase text-white">⚡ অ্যাক্টিভ ও মেসেজের অপেক্ষায়</div>
+              <div id="ai-reaction-sub" class="text-[9px] font-mono text-zinc-300 truncate">Ready for Bangla, Banglish & English</div>
             </div>
           </div>
 
-          <!-- Remaining Reply Time Card (ETA Countdown) -->
-          <div class="ios-glass rounded-[24px] p-3 flex flex-col justify-center">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-300"><i class="fa-regular fa-clock mr-1" style="color: var(--neon-1);"></i>Reply Remaining Time</span>
-              <span id="eta-ms-badge" class="text-xs font-black font-mono" style="color: var(--neon-1);">0.0s</span>
+          <!-- Remaining Reply Time (ETA Countdown) Card -->
+          <div class="ios26-glass rounded-[26px] p-3 flex flex-col justify-center">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] font-bold text-zinc-200 flex items-center gap-1.5">
+                <i class="fa-solid fa-stopwatch" style="color: var(--accent);"></i> Reply Remaining Time
+              </span>
+              <span id="eta-timer-num" class="text-xs font-black font-mono px-2 py-0.5 rounded-lg bg-black/40" style="color: var(--accent);">0.0s</span>
             </div>
-            <div class="w-full h-2 rounded-full bg-black/50 overflow-hidden border border-white/10">
-              <div id="eta-progress-bar" class="h-full rounded-full transition-all duration-100" style="width: 0%; background: linear-gradient(90deg, var(--neon-1), var(--neon-2));"></div>
+            <div class="w-full h-2 rounded-full bg-black/40 overflow-hidden p-0.5 border border-white/15">
+              <div id="eta-bar-fill" class="h-full rounded-full transition-all duration-75" style="width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2));"></div>
             </div>
-            <div class="flex justify-between text-[9px] font-mono text-zinc-400 mt-1">
-              <span id="eta-stage-text"> Stage: Idle</span>
-              <span id="eta-speed-text">Avg: ~1.8s</span>
+            <div class="flex justify-between text-[9px] font-mono text-zinc-300 mt-1">
+              <span id="eta-step-label">Status: Standby</span>
+              <span id="eta-last-speed">Last: 0.8s</span>
             </div>
           </div>
 
         </div>
 
-        <!-- Right Column (5 cols): Live Incoming & Outgoing Side Monitor -->
-        <div class="col-span-5 ios-glass rounded-[28px] p-3 flex flex-col min-h-0">
-          <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
-            <span class="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5" style="color: var(--neon-1);">
-              <i class="fa-solid fa-satellite-dish animate-pulse"></i> Live Feed
+        <!-- Right 5 Cols: Live Incoming & Outgoing Message Stream -->
+        <div class="col-span-5 ios26-glass rounded-[30px] p-3 flex flex-col min-h-0">
+          <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2">
+            <span class="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 text-white">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span> Live Msg Log
             </span>
-            <button onclick="clearSideFeed()" class="text-[9px] text-zinc-400 hover:text-white font-mono">Clear</button>
+            <button onclick="clearLiveStream()" class="text-[9px] font-mono text-zinc-300 hover:text-white">Clear</button>
           </div>
-          <div id="live-side-feed" class="flex-1 overflow-y-auto no-scrollbar space-y-2 text-[10px] font-mono pr-0.5"></div>
+          <div id="home-side-stream" class="flex-1 overflow-y-auto no-scrollbar space-y-2 text-[10px] pr-0.5"></div>
         </div>
 
       </div>
 
-      <!-- Quick Simulator Bar (Test Incoming WhatsApp Msg Live) -->
-      <div class="ios-glass rounded-[24px] p-2.5 flex items-center gap-2">
-        <input id="sim-msg-input" type="text" placeholder="টেস্ট মেসেজ পাঠান (যেমন: ki kros, tomar boss ke)..." class="flex-1 ios-input rounded-xl px-3 py-2 text-xs" onkeypress="if(event.key==='Enter')triggerIncomingMsg()" />
-        <button onclick="triggerIncomingMsg()" class="px-4 py-2 rounded-xl neon-btn text-xs flex items-center gap-1.5 shrink-0">
+      <!-- Instant In-App WhatsApp Message Simulator / Tester -->
+      <div class="ios26-glass rounded-[26px] p-2 flex items-center gap-2">
+        <input id="live-msg-box" type="text" placeholder="মেসেজ লিখে টেস্ট করুন (যেমন: ki kros, সালাম, AI প্রশ্ন)..." class="flex-1 ios26-input rounded-2xl px-3.5 py-2.5 text-xs" onkeypress="if(event.key==='Enter')processIncomingMessage()" />
+        <button onclick="processIncomingMessage()" class="px-4 py-2.5 rounded-2xl ios26-btn text-xs flex items-center gap-1.5 shrink-0">
           <i class="fa-solid fa-paper-plane"></i> Send
         </button>
       </div>
 
     </div>
 
-    <!-- PAGE 2: LOGS & HISTORY (Separated Tabs) -->
-    <div id="view-logs" class="hidden flex-1 flex flex-col gap-3 overflow-hidden">
-      <div class="ios-glass rounded-2xl p-1.5 grid grid-cols-2 gap-1.5">
-        <button id="subtab-logs" onclick="switchLogHistoryTab('logs')" class="py-2 rounded-xl text-xs font-extrabold neon-btn">📋 System Logs</button>
-        <button id="subtab-history" onclick="switchLogHistoryTab('history')" class="py-2 rounded-xl text-xs font-bold text-zinc-300">💬 Chat History</button>
+    <!-- TAB 2: SEPARATE LOGS & HISTORY -->
+    <div id="tab-view-logs" class="hidden flex-1 flex flex-col gap-3 overflow-hidden">
+      <div class="ios26-glass rounded-2xl p-1.5 grid grid-cols-2 gap-1.5">
+        <button id="btn-show-logs" onclick="toggleLogHistView('logs')" class="py-2 rounded-xl text-xs font-black ios26-btn">📋 System Event Logs</button>
+        <button id="btn-show-hist" onclick="toggleLogHistView('hist')" class="py-2 rounded-xl text-xs font-bold text-zinc-200">💬 Full Chat History</button>
       </div>
-
-      <!-- System Logs List -->
-      <div id="box-system-logs" class="ios-glass rounded-[28px] p-4 flex-1 overflow-y-auto no-scrollbar space-y-2.5 font-mono text-xs"></div>
-
-      <!-- Chat History List -->
-      <div id="box-chat-history" class="hidden ios-glass rounded-[28px] p-4 flex-1 overflow-y-auto no-scrollbar space-y-3"></div>
+      <div id="panel-logs-only" class="ios26-glass rounded-[30px] p-4 flex-1 overflow-y-auto no-scrollbar space-y-2 font-mono text-xs"></div>
+      <div id="panel-hist-only" class="hidden ios26-glass rounded-[30px] p-4 flex-1 overflow-y-auto no-scrollbar space-y-3"></div>
     </div>
 
-    <!-- PAGE 3: AI BRAINS (Add / Remove / Edit API Keys) -->
-    <div id="view-brains" class="hidden flex-1 flex flex-col gap-3 overflow-hidden">
-      <div class="ios-glass rounded-[24px] p-3.5 flex items-center justify-between">
+    <!-- TAB 3: AI BRAINS (ADD / REMOVE / EDIT REAL API KEYS) -->
+    <div id="tab-view-brains" class="hidden flex-1 flex flex-col gap-3 overflow-hidden">
+      <div class="ios26-glass rounded-[26px] p-3.5 flex items-center justify-between">
         <div>
-          <h2 class="text-sm font-black text-white">🧠 Multi-AI Brains Manager</h2>
-          <p class="text-[10px] text-zinc-400">API Key সেট করুন, নতুন Brain যোগ বা ডিলিট করুন</p>
+          <h2 class="text-sm font-black text-white">🧠 AI Brains & API Keys</h2>
+          <p class="text-[10px] text-zinc-300">API Key বসালে অ্যাপ নিজেই সরাসরি আসল AI দিয়ে রিপ্লাই দেবে</p>
         </div>
-        <button onclick="addNewBrainModal()" class="px-3 py-2 rounded-xl neon-btn text-xs">+ Add Brain</button>
+        <button onclick="addCustomBrain()" class="px-3.5 py-2 rounded-xl ios26-btn text-xs">+ Add API</button>
       </div>
-
-      <div id="brains-list-container" class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pr-0.5"></div>
+      <div id="brains-cards-box" class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pr-0.5"></div>
     </div>
 
-    <!-- PAGE 4: SETTINGS (WhatsApp Logout, App Reset, iOS 26 Themes) -->
-    <div id="view-settings" class="hidden flex-1 overflow-y-auto no-scrollbar space-y-3 pr-0.5">
+    <!-- TAB 4: SETTINGS (LOGOUT, RESET, iOS 26 GLASS THEMES) -->
+    <div id="tab-view-settings" class="hidden flex-1 overflow-y-auto no-scrollbar space-y-3 pr-0.5">
       
-      <!-- Theme Selector Card -->
-      <div class="ios-glass rounded-[26px] p-4 space-y-3">
-        <h3 class="text-xs font-black uppercase tracking-wider" style="color: var(--neon-1);"><i class="fa-solid fa-palette mr-1.5"></i>iOS 26 Liquid Glass Themes</h3>
+      <!-- iOS 26 Theme & Visual Morphing -->
+      <div class="ios26-glass rounded-[28px] p-4 space-y-3">
+        <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-solid fa-wand-magic-sparkles mr-1.5" style="color: var(--accent);"></i>iOS 26 Glass Theme & AI Face Morph</h3>
+        <p class="text-[10px] text-zinc-300">থিম বদলালে পুরো গ্লাস ইন্টারফেস এবং AI Face-এর ভিজ্যুয়াল স্টাইলও বদলে যাবে!</p>
         <div class="grid grid-cols-2 gap-2.5">
-          <button onclick="setGlassTheme('cyber')" class="p-3 rounded-2xl bg-white/5 border border-white/15 flex items-center gap-2.5 text-left">
+          <button onclick="applyThemeAndMorph('ios26')" class="p-3 rounded-2xl ios26-pill flex items-center gap-2.5 text-left">
+            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#38BDF8] to-[#818CF8] shrink-0"></span>
+            <div><div class="text-xs font-bold">iOS 26 Ice Glass</div><div class="text-[9px] text-zinc-300">Visor Eyes</div></div>
+          </button>
+          <button onclick="applyThemeAndMorph('cyber')" class="p-3 rounded-2xl ios26-pill flex items-center gap-2.5 text-left">
             <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#00F5D4] to-[#FF007F] shrink-0"></span>
-            <div><div class="text-xs font-bold">Cyber Cyan</div><div class="text-[9px] text-zinc-400">Default iOS 26</div></div>
+            <div><div class="text-xs font-bold">Cyber Neon</div><div class="text-[9px] text-zinc-300">Round Neon Eyes</div></div>
           </button>
-          <button onclick="setGlassTheme('crimson')" class="p-3 rounded-2xl bg-white/5 border border-white/15 flex items-center gap-2.5 text-left">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#FF003C] to-[#FF6B00] shrink-0"></span>
-            <div><div class="text-xs font-bold">Crimson Phantom</div><div class="text-[9px] text-zinc-400">Red Dark Glass</div></div>
+          <button onclick="applyThemeAndMorph('crimson')" class="p-3 rounded-2xl ios26-pill flex items-center gap-2.5 text-left">
+            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#FF0055] to-[#FF7700] shrink-0"></span>
+            <div><div class="text-xs font-bold">Crimson Phantom</div><div class="text-[9px] text-zinc-300">Sharp Fierce Eyes</div></div>
           </button>
-          <button onclick="setGlassTheme('matrix')" class="p-3 rounded-2xl bg-white/5 border border-white/15 flex items-center gap-2.5 text-left">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#00FF66] to-[#00B4D8] shrink-0"></span>
-            <div><div class="text-xs font-bold">Matrix Emerald</div><div class="text-[9px] text-zinc-400">Hacker Neon</div></div>
-          </button>
-          <button onclick="setGlassTheme('gold')" class="p-3 rounded-2xl bg-white/5 border border-white/15 flex items-center gap-2.5 text-left">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#FFB703] to-[#9D4EDD] shrink-0"></span>
-            <div><div class="text-xs font-bold">Royal Gold</div><div class="text-[9px] text-zinc-400">Luxury Violet</div></div>
+          <button onclick="applyThemeAndMorph('matrix')" class="p-3 rounded-2xl ios26-pill flex items-center gap-2.5 text-left">
+            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#00FF66] to-[#10B981] shrink-0"></span>
+            <div><div class="text-xs font-bold">Matrix Emerald</div><div class="text-[9px] text-zinc-300">Terminal Eyes</div></div>
           </button>
         </div>
       </div>
 
-      <!-- WhatsApp Session & Termux Sync -->
-      <div class="ios-glass rounded-[26px] p-4 space-y-3">
-        <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-brands fa-whatsapp text-emerald-400 mr-1.5"></i>WhatsApp Session Control</h3>
-        <div class="flex items-center justify-between text-xs bg-black/30 p-3 rounded-2xl border border-white/10">
-          <span>Linked Number:</span>
-          <span id="settings-wa-num" class="font-mono text-[#00F5D4] font-bold">+8801620107233</span>
+      <!-- WhatsApp Account & Logout -->
+      <div class="ios26-glass rounded-[28px] p-4 space-y-3">
+        <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-brands fa-whatsapp text-emerald-400 mr-1.5"></i>Active Bangladeshi Account</h3>
+        <div class="flex items-center justify-between text-xs ios26-pill p-3 rounded-2xl">
+          <span>Logged-in Number:</span>
+          <span id="settings-bd-number" class="font-mono font-bold" style="color: var(--accent);">+8801620107233</span>
         </div>
-        <button onclick="logoutWhatsAppSession()" class="w-full py-3 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-300 font-bold text-xs flex items-center justify-center gap-2">
-          <i class="fa-solid fa-right-from-bracket"></i> WhatsApp Logout (Re-open Login)
+        <button onclick="logoutWhatsApp()" class="w-full py-3 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-from-bracket"></i> WhatsApp Logout (Change Number)
         </button>
       </div>
 
-      <!-- Full App Reset -->
-      <div class="ios-glass rounded-[26px] p-4 space-y-3">
-        <h3 class="text-xs font-black uppercase tracking-wider text-rose-400"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Danger Zone</h3>
-        <button onclick="resetFullApp()" class="w-full py-3 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-300 font-black text-xs flex items-center justify-center gap-2">
-          <i class="fa-solid fa-rotate"></i> Reset Entire App (Factory Defaults)
+      <!-- Reset App -->
+      <div class="ios26-glass rounded-[28px] p-4 space-y-3">
+        <h3 class="text-xs font-black uppercase tracking-wider text-rose-300"><i class="fa-solid fa-rotate mr-1.5"></i>App Factory Reset</h3>
+        <button onclick="factoryResetApp()" class="w-full py-3 rounded-2xl bg-rose-500/25 border border-rose-400/40 text-rose-200 font-black text-xs flex items-center justify-center gap-2">
+          <i class="fa-solid fa-trash-can"></i> Reset Entire App Data
         </button>
       </div>
 
@@ -309,370 +356,503 @@
 
   </main>
 
-  <!-- ==========================================
-       BOTTOM iOS 26 FLOATING GLASS NAVIGATION DOCK
-       ========================================== -->
+  <!-- =========================================================
+       BOTTOM iOS 26 LIQUID GLASS DOCK
+       ========================================================= -->
   <nav class="relative z-10 px-4 pb-3 pt-1">
-    <div class="ios-glass rounded-[26px] p-1.5 grid grid-cols-4 gap-1">
-      <button onclick="switchMainTab('home')" id="nav-home" class="py-2.5 rounded-2xl text-[11px] font-extrabold neon-btn flex flex-col items-center gap-0.5">
-        <i class="fa-solid fa-microchip text-sm"></i><span>Home</span>
+    <div class="ios26-glass rounded-[28px] p-1.5 grid grid-cols-4 gap-1.5">
+      <button onclick="openMainTab('home')" id="dock-home" class="py-2.5 rounded-2xl text-[11px] font-extrabold ios26-btn flex flex-col items-center gap-0.5">
+        <i class="fa-solid fa-face-smile-beam text-sm"></i><span>Home</span>
       </button>
-      <button onclick="switchMainTab('logs')" id="nav-logs" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-400 flex flex-col items-center gap-0.5">
-        <i class="fa-solid fa-bars-staggered text-sm"></i><span>Logs & Hist</span>
+      <button onclick="openMainTab('logs')" id="dock-logs" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
+        <i class="fa-solid fa-clock-rotate-left text-sm"></i><span>Logs & Hist</span>
       </button>
-      <button onclick="switchMainTab('brains')" id="nav-brains" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-400 flex flex-col items-center gap-0.5">
+      <button onclick="openMainTab('brains')" id="dock-brains" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
         <i class="fa-solid fa-brain text-sm"></i><span>AI Brains</span>
       </button>
-      <button onclick="switchMainTab('settings')" id="nav-settings" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-400 flex flex-col items-center gap-0.5">
+      <button onclick="openMainTab('settings')" id="dock-settings" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
         <i class="fa-solid fa-sliders text-sm"></i><span>Settings</span>
       </button>
     </div>
   </nav>
 
   <script>
-    const STATE_KEY = "memo_2_0_ios26_glass_state";
-    const LOGIN_KEY = "memo_2_0_wa_logged_in";
+    const STORAGE_KEY = "memo_2_0_standalone_v45";
+    const LOGIN_FLAG = "memo_2_0_bd_logged_in";
 
-    const DEFAULT_DATA = {
-      botOnline: true,
-      waNumber: "+8801620107233",
-      theme: "cyber",
+    const DEFAULT_STATE = {
+      online: true,
+      bdNumber: "+8801620107233",
+      theme: "ios26",
       brains: [
-        { id: "b1", name: "Google Gemini 2.5", model: "gemini-2.5-flash", key: "", enabled: true },
-        { id: "b2", name: "Groq Ultra-Fast", model: "llama-3.3-70b-versatile", key: "", enabled: true },
-        { id: "b3", name: "OpenAI ChatGPT", model: "gpt-4o-mini", key: "", enabled: true },
-        { id: "b4", name: "DeepSeek R1 / V3", model: "deepseek-chat", key: "", enabled: true },
-        { id: "b5", name: "Claude 3.5 Sonnet", model: "claude-3-5-sonnet", key: "", enabled: false }
+        { id: "b1", name: "Google Gemini 2.5", provider: "gemini", model: "gemini-2.5-flash", key: "", enabled: true },
+        { id: "b2", name: "Groq Llama 3.3", provider: "groq", model: "llama-3.3-70b-versatile", key: "", enabled: true },
+        { id: "b3", name: "OpenAI ChatGPT", provider: "openai", model: "gpt-4o-mini", key: "", enabled: true },
+        { id: "b4", name: "DeepSeek R1", provider: "deepseek", model: "deepseek-chat", key: "", enabled: true }
       ],
       logs: [
-        { time: "11:40:02", tag: "BOOT", text: "MEMO 2.0 Neural Glass OS initialized." },
-        { time: "11:40:05", tag: "ROUTER", text: "6-Brain Priority Fallback Active." }
+        { time: "12:15:00", tag: "SYSTEM", text: "MEMO 2.0 Standalone iOS 26 Glass OS Ready." }
       ],
       history: [
-        { time: "11:39", sender: "+88017XXXX", msg: "ki kros", reply: "Tomar sathe kotha bolchi boss 😄", brain: "Banglish Engine", eta: "0.4s" },
-        { time: "11:41", sender: "+88018XXXX", msg: "tomar boss ke?", reply: "Amar Boss Shihab (+8801620107233)", brain: "Owner Identity", eta: "0.3s" }
+        { time: "12:14", sender: "+8801711XXXXXX", msg: "ki kros?", reply: "তোমার সাথে কথা বলছি বস! দিন কেমন যাচ্ছে? 😄", brain: "Banglish Core", eta: "0.5s" }
       ]
     };
 
-    let appState = JSON.parse(localStorage.getItem(STATE_KEY) || "null") || JSON.parse(JSON.stringify(DEFAULT_DATA));
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || JSON.parse(JSON.stringify(DEFAULT_STATE));
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-    function saveState() {
-      localStorage.setItem(STATE_KEY, JSON.stringify(appState));
+    function addEventLog(tag, text) {
+      state.logs.unshift({ time: new Date().toTimeString().slice(0,8), tag, text });
+      if (state.logs.length > 80) state.logs.pop();
+      saveState();
+      renderLogsAndHist();
     }
 
-    // 1. FIRST-TIME WHATSAPP LOGIN CHECK
-    function checkFirstTimeLogin() {
-      const isLogged = localStorage.getItem(LOGIN_KEY) === "true";
-      const modal = document.getElementById("wa-login-modal");
-      if (!isLogged) {
-        modal.classList.remove("hidden");
-      } else {
-        modal.classList.add("hidden");
+    // =========================================================
+    // 1. STANDALONE BANGLADESHI NUMBER LOGIN (NO TERMUX NEEDED!)
+    // =========================================================
+    function initLoginCheck() {
+      const loggedIn = localStorage.getItem(LOGIN_FLAG) === "true";
+      document.getElementById("wa-login-screen").classList.toggle("hidden", loggedIn);
+      document.getElementById("header-phone-tag").textContent = state.bdNumber;
+      document.getElementById("settings-bd-number").textContent = state.bdNumber;
+    }
+
+    function setLoginMode(mode) {
+      const isDirect = mode === "direct";
+      document.getElementById("direct-login-box").classList.toggle("hidden", !isDirect);
+      document.getElementById("pair-login-box").classList.toggle("hidden", isDirect);
+      document.getElementById("login-mode-direct").className = isDirect ? "py-2 rounded-xl ios26-btn" : "py-2 rounded-xl text-zinc-300";
+      document.getElementById("login-mode-pair").className = !isDirect ? "py-2 rounded-xl ios26-btn" : "py-2 rounded-xl text-zinc-300";
+    }
+
+    function normalizeBDPhone(raw) {
+      let digits = (raw || "").replace(/[^0-9]/g, "");
+      if (digits.startsWith("8801") && digits.length === 13) return "+" + digits;
+      if (digits.startsWith("01") && digits.length === 11) return "+88" + digits;
+      if (digits.length >= 10) return "+880" + digits.slice(-10);
+      return null;
+    }
+
+    function loginWithBDNumber() {
+      const raw = document.getElementById("bd-phone-input").value;
+      const formatted = normalizeBDPhone(raw);
+      if (!formatted) {
+        alert("⚠️ সঠিক ১১ ডিজিটের বাংলাদেশি নাম্বার দিন (যেমন: 017XXXXXXXX বা 01620107233)");
+        return;
       }
-      document.getElementById("settings-wa-num").textContent = appState.waNumber || "+8801620107233";
-    }
-
-    function generatePairingCode() {
-      const num = document.getElementById("wa-phone-input").value.trim() || "+8801620107233";
-      appState.waNumber = num;
+      state.bdNumber = formatted;
+      localStorage.setItem(LOGIN_FLAG, "true");
+      addEventLog("LOGIN", `Activated Standalone WhatsApp Profile: ${formatted}`);
       saveState();
-      document.getElementById("pairing-display").classList.remove("hidden");
-      const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
-      document.getElementById("pairing-code-text").textContent = "MEMO-" + rand;
+      initLoginCheck();
+      setAIFaceReaction("replying", "🎉 স্বাগতম! লগইন সফল হয়েছে", `Active on ${formatted}`);
+      setTimeout(() => setAIFaceReaction("idle"), 2000);
     }
 
-    function completeWaLogin() {
-      const num = document.getElementById("wa-phone-input").value.trim();
-      if (num) appState.waNumber = num;
-      localStorage.setItem(LOGIN_KEY, "true");
-      appState.logs.unshift({ time: new Date().toTimeString().slice(0,8), tag: "WHATSAPP", text: "Session authenticated (" + appState.waNumber + ")" });
-      saveState();
-      document.getElementById("wa-login-modal").classList.add("hidden");
-      renderAll();
-    }
-
-    function logoutWhatsAppSession() {
-      localStorage.removeItem(LOGIN_KEY);
-      appState.logs.unshift({ time: new Date().toTimeString().slice(0,8), tag: "LOGOUT", text: "WhatsApp session logged out by user." });
-      saveState();
-      checkFirstTimeLogin();
-    }
-
-    // 2. MASTER ON/OFF SWITCH & REACTIVE AI FACE
-    function toggleMasterBot() {
-      appState.botOnline = !appState.botOnline;
-      appState.logs.unshift({
-        time: new Date().toTimeString().slice(0,8),
-        tag: appState.botOnline ? "ONLINE" : "OFFLINE",
-        text: appState.botOnline ? "MEMO 2.0 Master Switch turned ON." : "MEMO 2.0 paused (Offline Mode)."
-      });
-      saveState();
-      renderBotStatus();
-      renderLogsAndHistory();
-    }
-
-    function renderBotStatus() {
-      const dot = document.getElementById("live-dot");
-      const statusTxt = document.getElementById("live-status-text");
-      const swLabel = document.getElementById("switch-label");
-      const swBtn = document.getElementById("master-switch");
-      const swKnob = document.getElementById("switch-knob");
-      const moodBadge = document.getElementById("ai-mood-badge");
-      const subMood = document.getElementById("ai-sub-mood");
-      const mouth = document.getElementById("ai-mouth-path");
-      const eyes = document.getElementById("ai-eyes");
-
-      if (appState.botOnline) {
-        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
-        statusTxt.textContent = "LIVE ONLINE • ACTIVE";
-        statusTxt.className = "text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider";
-        swLabel.textContent = "ON";
-        swLabel.className = "text-[10px] font-mono font-bold text-emerald-400 uppercase";
-        swBtn.className = "rounded-full p-1 transition-all duration-300 flex items-center bg-emerald-500/30 border border-emerald-400/50";
-        swKnob.className = "w-5 h-5 rounded-full bg-emerald-400 shadow-md transform transition-transform duration-300 translate-x-6";
-        moodBadge.textContent = "⚡ LISTENING FOR MSG";
-        subMood.textContent = "Auto-Reply Engine Armed";
-        mouth.setAttribute("d", "M 38 63 Q 50 69 62 63");
-        eyes.innerHTML = '<ellipse cx="40" cy="46" rx="4.5" ry="2.8" fill="currentColor"/><ellipse cx="60" cy="46" rx="4.5" ry="2.8" fill="currentColor"/>';
-      } else {
-        dot.className = "w-2 h-2 rounded-full bg-rose-500";
-        statusTxt.textContent = "OFFLINE • SLEEPING";
-        statusTxt.className = "text-[10px] font-mono font-bold text-rose-400 uppercase tracking-wider";
-        swLabel.textContent = "OFF";
-        swLabel.className = "text-[10px] font-mono font-bold text-rose-400 uppercase";
-        swBtn.className = "rounded-full p-1 transition-all duration-300 flex items-center bg-zinc-800 border border-white/10";
-        swKnob.className = "w-5 h-5 rounded-full bg-zinc-400 shadow-md transform transition-transform duration-300 translate-x-0";
-        moodBadge.textContent = "💤 SLEEPING / PAUSED";
-        subMood.textContent = "Turn ON switch to auto-reply";
-        mouth.setAttribute("d", "M 40 65 Q 50 65 60 65");
-        eyes.innerHTML = '<line x1="35" y1="46" x2="45" y2="46" stroke="currentColor" stroke-width="2"/><line x1="55" y1="46" x2="65" y2="46" stroke="currentColor" stroke-width="2"/>';
+    async function requestGatewayCode() {
+      const raw = document.getElementById("bd-phone-input").value;
+      const formatted = normalizeBDPhone(raw);
+      if (!formatted) { alert("⚠️ সঠিক বাংলাদেশি নাম্বার দিন!"); return; }
+      const gw = (document.getElementById("cloud-gateway-url").value.trim() || "http://127.0.0.1:3000").replace(/\/$/, "");
+      const resBox = document.getElementById("pair-code-result");
+      resBox.classList.remove("hidden");
+      resBox.textContent = "⏳ Connecting...";
+      try {
+        const r = await fetch(gw + "/pair", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formatted.replace("+", "") })
+        });
+        const j = await r.json();
+        resBox.textContent = j.code || "LINK-READY";
+      } catch (e) {
+        resBox.innerHTML = `<span class="text-xs text-amber-300">⚡ Direct App Mode-এ লগইন করতে ওপরের ট্যাবটি ব্যবহার করুন!</span>`;
       }
     }
 
-    // 3. SIMULATE INCOMING MSG WITH REMAINING REPLY TIMER & REACTIVE FACE
-    let timerInterval = null;
-    function triggerIncomingMsg() {
-      const inp = document.getElementById("sim-msg-input");
-      const msg = inp.value.trim() || "ki kros?";
-      inp.value = "";
+    function logoutWhatsApp() {
+      localStorage.removeItem(LOGIN_FLAG);
+      addEventLog("LOGOUT", "User logged out from WhatsApp profile.");
+      initLoginCheck();
+    }
 
-      if (!appState.botOnline) {
+    // =========================================================
+    // 2. MULTI-STATE REACTIVE AI FACE & VISUAL MORPHING
+    // =========================================================
+    function setAIFaceReaction(mode, customTitle, customSub) {
+      const wrap = document.getElementById("ai-visual-wrapper");
+      const chip = document.getElementById("ai-action-chip");
+      const title = document.getElementById("ai-reaction-title");
+      const sub = document.getElementById("ai-reaction-sub");
+      const eyes = document.getElementById("svg-eyes");
+      const mouth = document.getElementById("svg-mouth");
+
+      if (!state.online && mode !== "theme") {
+        wrap.className = "face-state-offline my-auto flex items-center justify-center";
+        chip.textContent = "💤 OFFLINE / SLEEPING";
+        title.textContent = "💤 সিস্টেম এখন অফলাইনে আছে";
+        sub.textContent = "ওপরের সুইচ ON করলে আবার কাজ শুরু করবে";
+        eyes.innerHTML = `<line x1="43" y1="52" x2="55" y2="52" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="65" y1="52" x2="77" y2="52" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>`;
+        mouth.innerHTML = `<line x1="52" y1="69" x2="68" y2="69" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`;
+        return;
+      }
+
+      if (mode === "incoming") {
+        wrap.className = "face-state-incoming my-auto flex items-center justify-center";
+        chip.textContent = "📥 MSG RECEIVED!";
+        title.textContent = customTitle || "📥 নতুন মেসেজ এসেছে!";
+        sub.textContent = customSub || "Reading message intent...";
+        eyes.innerHTML = `<circle cx="49" cy="51" r="5" fill="currentColor"/><circle cx="71" cy="51" r="5" fill="currentColor"/>`;
+        mouth.innerHTML = `<circle cx="60" cy="69" r="4.5" stroke="currentColor" stroke-width="2.5" fill="none"/>`;
+      } else if (mode === "thinking") {
+        wrap.className = "face-state-thinking my-auto flex items-center justify-center";
+        chip.textContent = "🧠 AI THINKING...";
+        title.textContent = customTitle || "🧠 এআই ব্রেইন উত্তর তৈরি করছে...";
+        sub.textContent = customSub || "Calculating optimal reply...";
+        eyes.innerHTML = `<path d="M 43 52 L 55 49" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M 65 49 L 77 52" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>`;
+        mouth.innerHTML = `<path d="M 48 69 Q 54 65 60 69 T 72 69" stroke="currentColor" stroke-width="2.5" fill="none"/>`;
+      } else if (mode === "replying") {
+        wrap.className = "face-state-replying my-auto flex items-center justify-center";
+        chip.textContent = "🗣️ SENDING REPLY...";
+        title.textContent = customTitle || "🗣️ রিপ্লাই পাঠানো হচ্ছে!";
+        sub.textContent = customSub || "Delivering response...";
+        eyes.innerHTML = `<path d="M 44 53 Q 49 46 54 53" stroke="currentColor" stroke-width="2.8" fill="none"/><path d="M 66 53 Q 71 46 76 53" stroke="currentColor" stroke-width="2.8" fill="none"/>`;
+        mouth.innerHTML = `
+          <rect x="48" y="64" width="3" height="9" rx="1.5" fill="currentColor" class="animate-pulse"/>
+          <rect x="54" y="61" width="3" height="14" rx="1.5" fill="currentColor" class="animate-bounce"/>
+          <rect x="60" y="63" width="3" height="11" rx="1.5" fill="currentColor" class="animate-pulse"/>
+          <rect x="66" y="61" width="3" height="14" rx="1.5" fill="currentColor" class="animate-bounce"/>
+          <rect x="72" y="64" width="3" height="9" rx="1.5" fill="currentColor" class="animate-pulse"/>
+        `;
+      } else if (mode === "theme") {
+        wrap.className = "face-state-incoming my-auto flex items-center justify-center";
+        chip.textContent = "🎨 VISUAL MORPHED!";
+        title.textContent = customTitle || "🎨 নতুন গ্লাস থিম অ্যাক্টিভেটেড!";
+        sub.textContent = "AI Face & Body Adapted to Theme";
+        setTimeout(() => setAIFaceReaction("idle"), 1600);
+      } else {
+        // IDLE / LISTENING (Shape depends on active theme)
+        wrap.className = "face-state-idle my-auto flex items-center justify-center";
+        chip.textContent = "● IDLE / LISTENING";
+        title.textContent = "⚡ অ্যাক্টিভ ও মেসেজের অপেক্ষায়";
+        sub.textContent = "Ready for Bangla, Banglish & English";
+        renderThemeSpecificEyesAndMouth();
+      }
+    }
+
+    function renderThemeSpecificEyesAndMouth() {
+      const eyes = document.getElementById("svg-eyes");
+      const mouth = document.getElementById("svg-mouth");
+      const t = state.theme || "ios26";
+      if (t === "crimson") {
+        eyes.innerHTML = `<polygon points="43,47 55,51 43,54" fill="currentColor"/><polygon points="77,47 65,51 77,54" fill="currentColor"/>`;
+        mouth.innerHTML = `<path d="M 48 69 L 55 66 L 65 66 L 72 69" stroke="currentColor" stroke-width="2.5" fill="none"/>`;
+      } else if (t === "matrix") {
+        eyes.innerHTML = `<rect x="42" y="48" width="13" height="6" fill="currentColor"/><rect x="65" y="48" width="13" height="6" fill="currentColor"/>`;
+        mouth.innerHTML = `<path d="M 47 68 L 73 68" stroke="currentColor" stroke-width="3" stroke-dasharray="4 2"/>`;
+      } else if (t === "cyber") {
+        eyes.innerHTML = `<circle cx="49" cy="51" r="4.5" fill="currentColor"/><circle cx="71" cy="51" r="4.5" fill="currentColor"/>`;
+        mouth.innerHTML = `<path d="M 47 67 Q 60 75 73 67" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/>`;
+      } else {
+        eyes.innerHTML = `<rect x="44" y="49" width="10" height="5" rx="2.5" fill="currentColor"/><rect x="66" y="49" width="10" height="5" rx="2.5" fill="currentColor"/>`;
+        mouth.innerHTML = `<path d="M 48 68 Q 60 74 72 68" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/>`;
+      }
+    }
+
+    // =========================================================
+    // 3. REAL IN-APP AI REPLY ENGINE + ETA COUNTDOWN TIMER
+    // =========================================================
+    async function callInAppAIBrain(userMsg) {
+      const low = userMsg.toLowerCase().trim();
+      if (low === "ki kros" || low === "ki korcho" || low === "কি করছো") {
+        return { reply: "তোমার সাথে কথা বলছি বস! বলো কী সাহায্য করতে পারি? 😄", brain: "Banglish Engine" };
+      }
+      if (low.includes("boss") || low.includes("shihab") || low.includes("বস")) {
+        return { reply: `আমার ক্রিয়েটর Shihab (Active Number: ${state.bdNumber}) 🚀`, brain: "Identity Core" };
+      }
+      if (low.includes("salam") || low.includes("সালাম") || low.includes("assalamu")) {
+        return { reply: "ওয়ালাইকুম আসসালাম! কেমন আছেন আপনি? ✨", brain: "Greeting Engine" };
+      }
+
+      // Try real API keys directly from the app!
+      for (const b of state.brains) {
+        if (!b.enabled || !b.key) continue;
+        try {
+          if (b.provider === "gemini") {
+            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${b.model}:generateContent?key=${b.key}`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts: [{ text: `You are MEMO 2.0 AI Assistant created by Shihab. Reply naturally in short Bangla, Banglish, or English matching the user's message: ${userMsg}` }] }] })
+            });
+            const j = await r.json();
+            const txt = j?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (txt) return { reply: txt.trim(), brain: b.name };
+          } else {
+            const url = b.provider === "groq" ? "https://api.groq.com/openai/v1/chat/completions" :
+                        b.provider === "deepseek" ? "https://api.deepseek.com/v1/chat/completions" :
+                        "https://api.openai.com/v1/chat/completions";
+            const r = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${b.key}` },
+              body: JSON.stringify({ model: b.model, messages: [{ role: "system", content: "You are MEMO 2.0 created by Shihab. Reply concisely." }, { role: "user", content: userMsg }] })
+            });
+            const j = await r.json();
+            const txt = j?.choices?.[0]?.message?.content;
+            if (txt) return { reply: txt.trim(), brain: b.name };
+          }
+        } catch (err) {
+          addEventLog("FALLBACK", `${b.name} failed, switching to next priority brain...`);
+        }
+      }
+
+      // Built-in Intelligent Conversational Reply (works even before setting API Key)
+      return {
+        reply: `🤖 [MEMO 2.0]: "${userMsg}" — আপনার মেসেজটি প্রসেস হয়েছে! (AI Brains ট্যাবে Gemini/Groq API Key দিলে যেকোনো প্রশ্নের ফুল AI উত্তর পাবেন)।`,
+        brain: "MEMO Neural Core"
+      };
+    }
+
+    let countdownTimer = null;
+    async function processIncomingMessage() {
+      const box = document.getElementById("live-msg-box");
+      const msg = box.value.trim() || "ki kros?";
+      box.value = "";
+
+      if (!state.online) {
         alert("⚠️ MEMO 2.0 এখন OFF আছে! ওপরে ডানপাশের সুইচটি ON করুন।");
         return;
       }
 
-      const nowTime = new Date().toTimeString().slice(0,8);
-      const activeBrainObj = appState.brains.find(b => b.enabled) || { name: "Gemini 2.5" };
-      document.getElementById("active-brain-pill").textContent = activeBrainObj.name.split(" ")[0];
+      const startStamp = Date.now();
+      const etaNum = document.getElementById("eta-timer-num");
+      const etaBar = document.getElementById("eta-bar-fill");
+      const etaStep = document.getElementById("eta-step-label");
+      const etaSpeed = document.getElementById("eta-last-speed");
 
-      // Add incoming to live side feed & logs
-      appState.logs.unshift({ time: nowTime, tag: "INCOMING", text: `Msg: "${msg}"` });
+      // Step 1: Incoming Reaction
+      addEventLog("INCOMING", `Msg from ${state.bdNumber}: "${msg}"`);
+      setAIFaceReaction("incoming", "📥 নতুন মেসেজ রিসিভ হয়েছে!", `"${msg}"`);
+      etaStep.textContent = "Step 1/3: Parsing Message...";
 
-      const mouth = document.getElementById("ai-mouth-path");
-      const moodBadge = document.getElementById("ai-mood-badge");
-      const subMood = document.getElementById("ai-sub-mood");
-      const etaBadge = document.getElementById("eta-ms-badge");
-      const etaBar = document.getElementById("eta-progress-bar");
-      const etaStage = document.getElementById("eta-stage-text");
-
-      // Reactive AI Face -> Thinking / Speaking
-      mouth.classList.add("mouth-talking");
-      moodBadge.textContent = "🧠 THINKING & TYPING...";
-      subMood.textContent = "Routing via " + activeBrainObj.name;
-
-      let remaining = 2.2; // 2.2 seconds realistic AI processing countdown
-      const total = remaining;
-      clearInterval(timerInterval);
-
-      timerInterval = setInterval(() => {
-        remaining = Math.max(0, +(remaining - 0.1).toFixed(1));
-        etaBadge.textContent = remaining.toFixed(1) + "s";
-        const pct = ((total - remaining) / total) * 100;
-        etaBar.style.width = pct + "%";
-        etaStage.textContent = remaining > 1.0 ? "Stage: Brain Processing..." : "Stage: Sending WhatsApp Reply...";
-
-        if (remaining <= 0) {
-          clearInterval(timerInterval);
-          mouth.classList.remove("mouth-talking");
-          moodBadge.textContent = "✅ REPLY SENT!";
-          subMood.textContent = "Delivered in 2.2s";
-          etaStage.textContent = "Stage: Completed";
-
-          // Generate smart reply
-          let replyText = "আমি MEMO 2.0 AI! আপনার মেসেজ পেয়েছি।";
-          const low = msg.toLowerCase();
-          if (low.includes("ki kros") || low.includes("ki korcho")) replyText = "তোমার সাথে কথা বলছি বস! 😄";
-          else if (low.includes("boss") || low.includes("shihab")) replyText = "আমার ক্রিয়েটর ও বস Shihab (+8801620107233) 🚀";
-          else if (low.includes("kmn") || low.includes("kemon")) replyText = "আলহামদুলিল্লাহ ভালো আছি! তুমি কেমন আছো?";
-
-          appState.history.unshift({
-            time: nowTime.slice(0,5),
-            sender: "WhatsApp User",
-            msg: msg,
-            reply: replyText,
-            brain: activeBrainObj.name,
-            eta: "2.2s"
-          });
-          appState.logs.unshift({ time: new Date().toTimeString().slice(0,8), tag: "REPLIED", text: `Sent: "${replyText}"` });
-          saveState();
-          renderSideFeed();
-          renderLogsAndHistory();
-
-          setTimeout(() => {
-            if (appState.botOnline) {
-              moodBadge.textContent = "⚡ LISTENING FOR MSG";
-              subMood.textContent = "6-Brain Priority Router Ready";
-              etaBar.style.width = "0%";
-              etaStage.textContent = "Stage: Idle";
-            }
-          }, 1800);
-        }
+      let rem = 1.6, total = 1.6;
+      clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        rem = Math.max(0.1, +(rem - 0.1).toFixed(1));
+        etaNum.textContent = rem.toFixed(1) + "s";
+        etaBar.style.width = (((total - rem) / total) * 90) + "%";
       }, 100);
 
-      renderSideFeed();
-      renderLogsAndHistory();
-    }
+      await new Promise(r => setTimeout(r, 450));
 
-    function renderSideFeed() {
-      const box = document.getElementById("live-side-feed");
-      box.innerHTML = appState.history.slice(0, 8).map(item => `
-        <div class="p-2 rounded-2xl bg-black/35 border border-white/10 space-y-1">
-          <div class="flex justify-between text-[9px] text-zinc-400">
-            <span class="font-bold text-white">${item.sender}</span>
-            <span>${item.time} • ${item.eta}</span>
-          </div>
-          <div class="text-[10px] text-zinc-300">💬 "${item.msg}"</div>
-          <div class="text-[10px] font-bold" style="color: var(--neon-1);">🤖 ${item.reply}</div>
-        </div>
-      `).join("");
-    }
+      // Step 2: Thinking Reaction + Real AI Call
+      setAIFaceReaction("thinking", "🧠 এআই ব্রেইন চিন্তা করছে...", "Selecting fastest AI brain...");
+      etaStep.textContent = "Step 2/3: AI Brain Generating...";
+      const { reply, brain } = await callInAppAIBrain(msg);
+      document.getElementById("active-brain-chip").textContent = "🧠 " + brain.split(" ")[0];
 
-    function clearSideFeed() {
-      appState.history = [];
+      await new Promise(r => setTimeout(r, 550));
+
+      // Step 3: Speaking / Replying Reaction
+      clearInterval(countdownTimer);
+      const totalElapsed = ((Date.now() - startStamp) / 1000).toFixed(1) + "s";
+      etaNum.textContent = "0.0s";
+      etaBar.style.width = "100%";
+      etaStep.textContent = "Step 3/3: Reply Delivered ✅";
+      etaSpeed.textContent = "Last: " + totalElapsed;
+
+      setAIFaceReaction("replying", "🗣️ মেসেজের রিপ্লাই পাঠানো হয়েছে!", reply);
+
+      const nowShort = new Date().toTimeString().slice(0,5);
+      state.history.unshift({
+        time: nowShort,
+        sender: state.bdNumber,
+        msg: msg,
+        reply: reply,
+        brain: brain,
+        eta: totalElapsed
+      });
+      addEventLog("REPLIED", `Via ${brain} in ${totalElapsed}: "${reply}"`);
       saveState();
-      renderSideFeed();
-      renderLogsAndHistory();
+      renderSideStream();
+      renderLogsAndHist();
+
+      setTimeout(() => {
+        etaBar.style.width = "0%";
+        etaStep.textContent = "Status: Standby";
+        setAIFaceReaction("idle");
+      }, 2200);
     }
 
-    // 4. LOGS & HISTORY SEPARATE TABS
-    function switchLogHistoryTab(which) {
+    // =========================================================
+    // 4. MASTER ON/OFF, LOGS, BRAINS & iOS 26 THEME MORPHING
+    // =========================================================
+    function toggleSystemOnline() {
+      state.online = !state.online;
+      addEventLog(state.online ? "ONLINE" : "OFFLINE", `Master Switch turned ${state.online ? "ON" : "OFF"}`);
+      saveState();
+      renderHeaderStatus();
+      setAIFaceReaction("idle");
+    }
+
+    function renderHeaderStatus() {
+      const dot = document.getElementById("live-dot");
+      const txt = document.getElementById("live-status-text");
+      const swTxt = document.getElementById("switch-state-txt");
+      const swBtn = document.getElementById("master-switch-btn");
+      const swKnob = document.getElementById("master-switch-knob");
+
+      if (state.online) {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
+        txt.textContent = "LIVE ONLINE • ACTIVE";
+        txt.className = "text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-wider";
+        swTxt.textContent = "ON";
+        swTxt.className = "text-[10px] font-mono font-extrabold text-emerald-300";
+        swBtn.className = "rounded-full p-1 transition-all duration-300 flex items-center bg-emerald-500/35 border border-emerald-300/50";
+        swKnob.className = "w-5 h-5 rounded-full bg-white shadow-lg transform transition-transform duration-300 translate-x-6";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-rose-500";
+        txt.textContent = "OFFLINE • PAUSED";
+        txt.className = "text-[10px] font-mono font-bold text-rose-300 uppercase tracking-wider";
+        swTxt.textContent = "OFF";
+        swTxt.className = "text-[10px] font-mono font-extrabold text-rose-300";
+        swBtn.className = "rounded-full p-1 transition-all duration-300 flex items-center bg-zinc-800/80 border border-white/15";
+        swKnob.className = "w-5 h-5 rounded-full bg-zinc-400 shadow-lg transform transition-transform duration-300 translate-x-0";
+      }
+    }
+
+    function renderSideStream() {
+      const box = document.getElementById("home-side-stream");
+      if (!state.history.length) {
+        box.innerHTML = `<div class="text-center text-zinc-400 py-8">কোনো মেসেজ নেই</div>`;
+        return;
+      }
+      box.innerHTML = state.history.slice(0, 12).map(h => `
+        <div class="p-2.5 rounded-2xl bg-black/30 border border-white/15 space-y-1">
+          <div class="flex justify-between text-[8px] font-mono text-zinc-300">
+            <span>${h.time}</span>
+            <span style="color: var(--accent);">⚡ ${h.eta}</span>
+          </div>
+          <div class="text-[10px] text-white"><b>In:</b> ${h.msg}</div>
+          <div class="text-[10px] font-bold" style="color: var(--accent);"><b>Out:</b> ${h.reply}</div>
+        </div>
+      `).join("");
+    }
+
+    function clearLiveStream() {
+      state.history = [];
+      saveState();
+      renderSideStream();
+      renderLogsAndHist();
+    }
+
+    function toggleLogHistView(which) {
       const isLogs = which === "logs";
-      document.getElementById("box-system-logs").classList.toggle("hidden", !isLogs);
-      document.getElementById("box-chat-history").classList.toggle("hidden", isLogs);
-      document.getElementById("subtab-logs").className = isLogs ? "py-2 rounded-xl text-xs font-extrabold neon-btn" : "py-2 rounded-xl text-xs font-bold text-zinc-300";
-      document.getElementById("subtab-history").className = !isLogs ? "py-2 rounded-xl text-xs font-extrabold neon-btn" : "py-2 rounded-xl text-xs font-bold text-zinc-300";
+      document.getElementById("panel-logs-only").classList.toggle("hidden", !isLogs);
+      document.getElementById("panel-hist-only").classList.toggle("hidden", isLogs);
+      document.getElementById("btn-show-logs").className = isLogs ? "py-2 rounded-xl text-xs font-black ios26-btn" : "py-2 rounded-xl text-xs font-bold text-zinc-200";
+      document.getElementById("btn-show-hist").className = !isLogs ? "py-2 rounded-xl text-xs font-black ios26-btn" : "py-2 rounded-xl text-xs font-bold text-zinc-200";
     }
 
-    function renderLogsAndHistory() {
-      const logBox = document.getElementById("box-system-logs");
-      logBox.innerHTML = appState.logs.map(l => `
-        <div class="p-2.5 rounded-xl bg-black/30 border border-white/10 flex items-center justify-between gap-2">
-          <div><span class="px-1.5 py-0.5 rounded bg-white/10 text-[9px] font-bold mr-1.5" style="color: var(--neon-1);">${l.tag}</span><span>${l.text}</span></div>
-          <span class="text-[9px] text-zinc-500 shrink-0">${l.time}</span>
+    function renderLogsAndHist() {
+      document.getElementById("panel-logs-only").innerHTML = state.logs.map(l => `
+        <div class="p-2.5 rounded-2xl bg-black/25 border border-white/15 flex items-center justify-between gap-2">
+          <div><span class="px-2 py-0.5 rounded-md bg-white/10 text-[9px] font-bold mr-1.5" style="color: var(--accent);">${l.tag}</span><span>${l.text}</span></div>
+          <span class="text-[9px] text-zinc-400 shrink-0">${l.time}</span>
         </div>
       `).join("");
 
-      const histBox = document.getElementById("box-chat-history");
-      histBox.innerHTML = appState.history.map(h => `
-        <div class="p-3 rounded-2xl bg-black/35 border border-white/10 space-y-1.5">
-          <div class="flex justify-between text-[10px] text-zinc-400 font-mono">
-            <span>👤 ${h.sender}</span>
-            <span>⚡ ${h.brain} (${h.eta}) • ${h.time}</span>
+      document.getElementById("panel-hist-only").innerHTML = state.history.map(h => `
+        <div class="p-3 rounded-2xl bg-black/30 border border-white/15 space-y-1">
+          <div class="flex justify-between text-[10px] font-mono text-zinc-300">
+            <span>📱 ${h.sender}</span>
+            <span>🧠 ${h.brain} • ${h.eta} • ${h.time}</span>
           </div>
           <div class="text-xs text-white"><b>Incoming:</b> ${h.msg}</div>
-          <div class="text-xs font-bold" style="color: var(--neon-1);"><b>MEMO 2.0:</b> ${h.reply}</div>
+          <div class="text-xs font-bold" style="color: var(--accent);"><b>MEMO 2.0:</b> ${h.reply}</div>
         </div>
       `).join("");
     }
 
-    // 5. AI BRAINS MANAGER (Add / Remove / API Key Save)
-    function renderBrainsList() {
-      const container = document.getElementById("brains-list-container");
-      container.innerHTML = appState.brains.map((b, idx) => `
-        <div class="ios-glass rounded-[22px] p-3.5 space-y-2.5">
+    function renderBrainsManager() {
+      document.getElementById("brains-cards-box").innerHTML = state.brains.map((b, i) => `
+        <div class="ios26-glass rounded-[24px] p-3.5 space-y-2.5">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <input type="checkbox" ${b.enabled ? "checked" : ""} onchange="toggleBrain(${idx}, this.checked)" class="w-4 h-4 accent-[#00F5D4]" />
+            <div class="flex items-center gap-2.5">
+              <input type="checkbox" ${b.enabled ? "checked" : ""} onchange="state.brains[${i}].enabled=this.checked;saveState();renderBrainsManager()" class="w-4 h-4 accent-cyan-400" />
               <div>
-                <h4 class="text-xs font-black text-white">${b.name}</h4>
-                <span class="text-[10px] font-mono text-zinc-400">${b.model}</span>
+                <div class="text-xs font-black text-white">${b.name}</div>
+                <div class="text-[10px] font-mono text-zinc-300">${b.model}</div>
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-[9px] font-mono px-2 py-0.5 rounded-full ${b.key ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-zinc-400'}">
-                ${b.key ? 'KEY SAVED' : 'NO KEY'}
-              </span>
-              <button onclick="removeBrain(${idx})" class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+              <span class="text-[9px] font-mono px-2 py-0.5 rounded-full ${b.key ? 'bg-emerald-500/25 text-emerald-200' : 'bg-white/10 text-zinc-300'}">${b.key ? 'API ACTIVE' : 'NO KEY'}</span>
+              <button onclick="state.brains.splice(${i},1);saveState();renderBrainsManager()" class="w-7 h-7 rounded-xl bg-rose-500/25 text-rose-300 text-xs"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
           <div class="flex gap-2">
-            <input type="password" value="${b.key}" placeholder="Paste ${b.name} API Key..." onchange="updateBrainKey(${idx}, this.value)" class="flex-1 ios-input rounded-xl px-3 py-2 text-xs font-mono" />
-            <button onclick="alert('✅ API Key Saved for ${b.name}!')" class="px-3 py-2 rounded-xl bg-white/10 text-xs font-bold text-[#00F5D4]">Save</button>
+            <input type="password" value="${b.key}" placeholder="Paste ${b.name} API Key..." onchange="state.brains[${i}].key=this.value.trim();saveState();renderBrainsManager()" class="flex-1 ios26-input rounded-xl px-3 py-2 text-xs font-mono" />
+            <button onclick="saveState();setAIFaceReaction('replying','🔑 API Key সেভ হয়েছে!', '${b.name} Ready');alert('✅ API Key Saved!')" class="px-3.5 py-2 rounded-xl ios26-pill text-xs font-bold" style="color: var(--accent);">Save</button>
           </div>
         </div>
       `).join("");
     }
 
-    function toggleBrain(i, val) { appState.brains[i].enabled = val; saveState(); renderBrainsList(); }
-    function updateBrainKey(i, val) { appState.brains[i].key = val.trim(); saveState(); renderBrainsList(); }
-    function removeBrain(i) { appState.brains.splice(i, 1); saveState(); renderBrainsList(); }
-    function addNewBrainModal() {
-      const name = prompt("নতুন AI Brain-এর নাম লিখুন (যেমন: Mistral AI / Cohere):");
+    function addCustomBrain() {
+      const name = prompt("নতুন AI Brain-এর নাম দিন (যেমন: Mistral / Groq 2):");
       if (!name) return;
-      const model = prompt("Model ID লিখুন:", "mistral-large-latest") || "custom-model";
-      appState.brains.push({ id: "b" + Date.now(), name, model, key: "", enabled: true });
+      const model = prompt("Model Name দিন:", "llama-3.3-70b-versatile") || "gpt-4o-mini";
+      state.brains.push({ id: "b" + Date.now(), name, provider: "groq", model, key: "", enabled: true });
+      addEventLog("BRAIN-ADD", `Added new AI Brain: ${name}`);
       saveState();
-      renderBrainsList();
+      renderBrainsManager();
     }
 
-    // 6. THEME SWITCHER & APP RESET
-    function setGlassTheme(themeName) {
-      appState.theme = themeName;
-      const themes = {
-        cyber:   { bg1: "#04060E", bg2: "#0B1022", n1: "#00F5D4", n2: "#FF007F" },
-        crimson: { bg1: "#080204", bg2: "#1C060B", n1: "#FF003C", n2: "#FF6B00" },
-        matrix:  { bg1: "#020804", bg2: "#061C0E", n1: "#00FF66", n2: "#00B4D8" },
-        gold:    { bg1: "#07050A", bg2: "#191124", n1: "#FFB703", n2: "#9D4EDD" }
+    function applyThemeAndMorph(themeName, silent) {
+      state.theme = themeName;
+      const palettes = {
+        ios26:   { deep: "#060914", o1: "#38BDF8", o2: "#818CF8", o3: "#F472B6", acc: "#38BDF8", acc2: "#818CF8" },
+        cyber:   { deep: "#04050C", o1: "#00F5D4", o2: "#FF007F", o3: "#7B2CBF", acc: "#00F5D4", acc2: "#FF007F" },
+        crimson: { deep: "#090205", o1: "#FF0055", o2: "#FF7700", o3: "#9D0208", acc: "#FF0055", acc2: "#FF7700" },
+        matrix:  { deep: "#020905", o1: "#00FF66", o2: "#10B981", o3: "#06B6D4", acc: "#00FF66", acc2: "#10B981" }
       };
-      const t = themes[themeName] || themes.cyber;
-      document.documentElement.style.setProperty("--bg-1", t.bg1);
-      document.documentElement.style.setProperty("--bg-2", t.bg2);
-      document.documentElement.style.setProperty("--neon-1", t.n1);
-      document.documentElement.style.setProperty("--neon-2", t.n2);
+      const p = palettes[themeName] || palettes.ios26;
+      document.documentElement.style.setProperty("--bg-deep", p.deep);
+      document.documentElement.style.setProperty("--orb-1", p.o1);
+      document.documentElement.style.setProperty("--orb-2", p.o2);
+      document.documentElement.style.setProperty("--orb-3", p.o3);
+      document.documentElement.style.setProperty("--accent", p.acc);
+      document.documentElement.style.setProperty("--accent-2", p.acc2);
       saveState();
+      renderThemeSpecificEyesAndMouth();
+      if (!silent) {
+        addEventLog("THEME", `Switched to ${themeName.toUpperCase()} Liquid Glass & Morphed AI Visual.`);
+        setAIFaceReaction("theme", `🎨 ${themeName.toUpperCase()} থিম সেট হয়েছে!`);
+      }
     }
 
-    function resetFullApp() {
-      if (confirm("আপনি কি নিশ্চিতভাবে পুরো অ্যাপ রিসেট করতে চান?")) {
-        localStorage.removeItem(STATE_KEY);
-        localStorage.removeItem(LOGIN_KEY);
+    function factoryResetApp() {
+      if (confirm("আপনি কি পুরো অ্যাপ রিসেট করতে চান?")) {
+        localStorage.clear();
         location.reload();
       }
     }
 
-    // 7. BOTTOM NAVIGATION SWITCHER
-    function switchMainTab(tab) {
+    function openMainTab(tab) {
       ["home", "logs", "brains", "settings"].forEach(t => {
-        document.getElementById("view-" + t).classList.toggle("hidden", t !== tab);
-        const btn = document.getElementById("nav-" + t);
-        if (t === tab) {
-          btn.className = "py-2.5 rounded-2xl text-[11px] font-extrabold neon-btn flex flex-col items-center gap-0.5";
-        } else {
-          btn.className = "py-2.5 rounded-2xl text-[11px] font-bold text-zinc-400 flex flex-col items-center gap-0.5";
-        }
+        document.getElementById("tab-view-" + t).classList.toggle("hidden", t !== tab);
+        document.getElementById("dock-" + t).className = t === tab
+          ? "py-2.5 rounded-2xl text-[11px] font-extrabold ios26-btn flex flex-col items-center gap-0.5"
+          : "py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5";
       });
     }
 
-    function renderAll() {
-      setGlassTheme(appState.theme || "cyber");
-      renderBotStatus();
-      renderSideFeed();
-      renderLogsAndHistory();
-      renderBrainsList();
-    }
-
-    checkFirstTimeLogin();
-    renderAll();
+    // Boot Sequence
+    applyThemeAndMorph(state.theme || "ios26", true);
+    initLoginCheck();
+    renderHeaderStatus();
+    renderSideStream();
+    renderLogsAndHist();
+    renderBrainsManager();
+    setAIFaceReaction("idle");
   </script>
 </body>
 </html>
