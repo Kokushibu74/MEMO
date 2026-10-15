@@ -105,45 +105,19 @@
   <!-- =========================================================
        1ST TIME STANDALONE WHATSAPP LOGIN (ANY BD NUMBER WORKS!)
        ========================================================= -->
-  <div id="wa-login-screen" class="fixed inset-0 z-50 bg-[#050811]/85 backdrop-blur-3xl flex items-center justify-center p-5 hidden">
-    <div class="ios26-glass w-full max-w-sm rounded-[36px] p-6 text-center space-y-5 relative overflow-hidden">
+  <div id="wa-login-screen" class="fixed inset-0 z-50 bg-[#050811]/95 backdrop-blur-3xl flex items-center justify-center p-5">
+    <div class="ios26-glass w-full max-w-sm rounded-[36px] p-6 text-center space-y-4 relative overflow-hidden">
       <div class="w-16 h-16 rounded-[22px] mx-auto flex items-center justify-center text-3xl ios26-pill" style="color: var(--accent);">
         <i class="fa-brands fa-whatsapp"></i>
       </div>
-      <div class="space-y-1">
-        <span class="text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full ios26-pill" style="color: var(--accent);">One-Time Setup</span>
-        <h2 class="text-2xl font-black tracking-tight text-white mt-1">WhatsApp Login</h2>
-        <p class="text-xs text-zinc-300">যেকোনো বাংলাদেশি নাম্বার দিয়ে সরাসরি অ্যাপে লগইন করুন (শুধু ১ম বার লাগবে)</p>
+      <h2 class="text-xl font-black text-white">Scan WhatsApp QR</h2>
+      <p class="text-xs text-zinc-300">আপনার WhatsApp ➔ Linked Devices থেকে এই কোডটি স্ক্যান করুন</p>
+      <div class="bg-white p-3 rounded-2xl inline-block">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=MEMO_2_0_WHATSAPP_SESSION_QR" class="w-40 h-40 mx-auto rounded-lg"/>
       </div>
-
-      <!-- Mode Selector: Direct Instant Login vs Cloud Pairing -->
-      <div class="ios26-pill rounded-2xl p-1 grid grid-cols-2 gap-1 text-[11px] font-bold">
-        <button id="login-mode-direct" onclick="setLoginMode('direct')" class="py-2 rounded-xl ios26-btn">⚡ Direct App Login</button>
-        <button id="login-mode-pair" onclick="setLoginMode('pair')" class="py-2 rounded-xl text-zinc-300">🔗 Link Device Code</button>
-      </div>
-
-      <div class="space-y-3 text-left">
-        <label class="text-[11px] font-bold text-zinc-200 block">বাংলাদেশি WhatsApp নাম্বার দিন:</label>
-        <div class="flex items-center gap-2">
-          <span class="ios26-pill px-3 py-3 rounded-2xl text-xs font-mono font-bold text-white">🇧🇩 +88</span>
-          <input id="bd-phone-input" type="tel" placeholder="01XXXXXXXXX" value="01620107233" class="flex-1 ios26-input rounded-2xl px-4 py-3 text-sm font-mono font-bold tracking-wider" />
-        </div>
-      </div>
-
-      <!-- Direct Login Box (Works 100% Standalone on Any Phone) -->
-      <div id="direct-login-box" class="space-y-3">
-        <button onclick="loginWithBDNumber()" class="w-full py-3.5 rounded-2xl ios26-btn text-xs uppercase tracking-wider flex items-center justify-center gap-2">
-          <i class="fa-solid fa-bolt"></i> Activate MEMO 2.0 on This Number
-        </button>
-      </div>
-
-      <!-- Optional Cloud Gateway / Pairing Box -->
-      <div id="pair-login-box" class="hidden space-y-3 text-left">
-        <input id="cloud-gateway-url" type="text" placeholder="Cloud Gateway URL (Optional)" class="w-full ios26-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-        <button onclick="requestGatewayCode()" class="w-full py-3 rounded-2xl ios26-pill text-xs font-bold text-white text-center">Request WhatsApp Pairing Code</button>
-        <div id="pair-code-result" class="hidden text-center p-2.5 rounded-xl bg-black/40 border border-white/15 font-mono text-lg font-black tracking-widest" style="color: var(--accent);"></div>
-      </div>
+      <button onclick="localStorage.setItem('memo_2_0_bd_logged_in', 'true'); document.getElementById('wa-login-screen').classList.add('hidden');" class="w-full py-3 rounded-2xl ios26-btn text-xs font-bold uppercase">✅ Scanned / Enter App</button>
     </div>
+  </div>
   </div>
 
   <!-- =========================================================
