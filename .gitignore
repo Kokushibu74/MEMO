@@ -1,78 +1,12 @@
-# Dependencies
-node_modules/
-
-# Secrets
+# Security Center: Never upload secrets, sessions, or keys
 .env
-.env.*
+*.env
 *.key
 *.pem
-.gemini_key
-config/ai.json
-config/ai.json.*
-config/*secret*
-config/*token*
-
-# WhatsApp sessions
-auth_info/
-session/
+auth_info_baileys/
+wa_session/
 sessions/
-*session*
-creds.json
-
-# Memory and local data
-memory/
-data/
-cache/
-*.db
-*.sqlite
-*.sqlite3
-
-# Backups and temporary files
-*.backup
-*.bak
-*.tmp
-*.old
-*.orig
-*.before-*
-*.broken-*
-*.context-backup
-*.error-backup
-*.owner-backup
-*.syntax-error-backup
-*.working-backup
-*~
-.DS_Store
-
-# Logs
-*.log
-logs/
-
-# Editor
-.vscode/
-.idea/
-
-# ===== MEMO PRIVATE DATA - NEVER COMMIT =====
-memory.json
-memo_memory.json
-memo_contexts.json
-config.json
-config.json.save
-memo_config.json
-brain_config.json
-config/ai.json
-config/ai.json.*
-.gemini_key
-auth_info/
-session/
-*.session
-*.auth
-*.token
-*.key
-*.secret
-.env
-.env.*
-*.log
+secrets.json
+local_models/*.bin
 node_modules/
-
-config/ai.json
-config/ai.json.*
+android/

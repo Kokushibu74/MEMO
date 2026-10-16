@@ -1,0 +1,23 @@
+{
+  "name": "memo",
+  "version": "1.5.0",
+  "description": "MEMO 1.5 — Multi-AI WhatsApp Assistant & Android Agent by Shihab",
+  "type": "module",
+  "main": "memo.js",
+  "scripts": {
+    "start": "node memo.js",
+    "whatsapp": "node whatsapp.js",
+    "login": "node memo_login.js",
+    "menu": "node memo_menu.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^6.0.0",
+    "@google/genai": "^2.27.0",
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "^6.7.24",
+    "blessed": "^0.1.81",
+    "pino": "^10.4.0"
+  }
+}

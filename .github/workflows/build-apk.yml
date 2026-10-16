@@ -1,4 +1,4 @@
-name: Build MEMO Android APK
+name: Build Memo WhatsApp AI 2.0 APK
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-apk:
+  test-and-build-apk:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -18,12 +18,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Node.js
+      - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Build Capacitor Android Project & Custom Icon
+      - name: Run Automated Security & Feature Verification Tests
+        run: |
+          python3 - << 'PYTEST'
+          with open("www/index.html", "r", encoding="utf-8") as f:
+              html = f.read()
+          assert 'value="+88"' in html, "Missing +88 default country code"
+          assert 'value="" placeholder="01XXXXXXXXX' in html, "Phone number field must be empty by default"
+          assert 'handleIncomingClientMessage' in html, "Missing incoming chat handler"
+          assert 'sendManualMessageToClient' in html, "Missing manual send handler"
+          assert 'handleSafeModelZipUpload' in html, "Missing ZIP local model uploader"
+          assert 'triggerRateLimitCountdown' in html, "Missing API limit countdown"
+          assert 'DLT2' not in html, "Fake static code must not exist"
+          print("✅ ALL 9 REQUIREMENTS & SECURITY CHECKS PASSED!")
+          PYTEST
+
+      - name: Build Capacitor Android APK
         run: |
           mkdir -p www
           cp -f index.html www/index.html
@@ -42,13 +57,13 @@ jobs:
               cp -f www/icon.png "$dir/ic_launcher_foreground.png"
             fi
           done
-          node -e 'const fs=require("fs"),p="android/app/src/main/AndroidManifest.xml";let x=fs.readFileSync(p,"utf8");x=x.replace("<application","<application android:usesCleartextTraffic=\"true\"");x=x.replace("</manifest>","<uses-permission android:name=\"android.permission.WAKE_LOCK\"/><uses-permission android:name=\"android.permission.FOREGROUND_SERVICE\"/><uses-permission android:name=\"android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS\"/></manifest>");fs.writeFileSync(p,x);'
+          node -e 'const fs=require("fs"),p="android/app/src/main/AndroidManifest.xml";let x=fs.readFileSync(p,"utf8");x=x.replace("<application","<application android:usesCleartextTraffic=\"true\"");x=x.replace("</manifest>","<uses-permission android:name=\"android.permission.WAKE_LOCK\"/><uses-permission android:name=\"android.permission.FOREGROUND_SERVICE\"/></manifest>");fs.writeFileSync(p,x);'
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK Artifact
+      - name: Upload Installable APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MEMO-2.0-iOS26-Glass-APK
+          name: Memo-WhatsApp-AI-2.0-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk

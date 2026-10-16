@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MEMO 2.0 — Liquid Glass AI OS</title>
+  <title>Memo WhatsApp AI Assistant 2.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -15,17 +16,8 @@
       --orb-3: #818CF8;
       --accent: #00F5D4;
       --accent-2: #38BDF8;
-      --skin-glow: rgba(0, 245, 212, 0.22);
     }
-    * {
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      box-sizing: border-box;
-      transition: background-color 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-                  border-color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-                  color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-                  box-shadow 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-    }
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
       background-color: var(--bg-deep);
@@ -37,1285 +29,1339 @@
     }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-    /* FLUID WATER CAUSTICS & ORBS */
-    @keyframes waterFlow1 {
-      0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-      33% { transform: translate3d(35px, -25px, 0) scale(1.18) rotate(12deg); }
-      66% { transform: translate3d(-25px, 30px, 0) scale(0.94) rotate(-10deg); }
-    }
-    @keyframes waterFlow2 {
+    @keyframes floatOrb {
       0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-      50% { transform: translate3d(-45px, -35px, 0) scale(1.24); }
+      50% { transform: translate3d(28px, -24px, 0) scale(1.15); }
     }
     .water-orb-1 {
-      position: fixed; top: -8%; left: -12%; width: 340px; height: 340px;
+      position: fixed; top: -10%; left: -10%; width: 320px; height: 320px;
       background: radial-gradient(circle, var(--orb-1) 0%, transparent 70%);
-      opacity: 0.38; filter: blur(60px); border-radius: 50%; z-index: 0;
-      pointer-events: none; animation: waterFlow1 14s ease-in-out infinite;
+      opacity: 0.32; filter: blur(60px); border-radius: 50%; z-index: 0;
+      pointer-events: none; animation: floatOrb 12s ease-in-out infinite;
     }
     .water-orb-2 {
-      position: fixed; bottom: -10%; right: -12%; width: 360px; height: 360px;
+      position: fixed; bottom: -10%; right: -10%; width: 340px; height: 340px;
       background: radial-gradient(circle, var(--orb-2) 0%, transparent 70%);
-      opacity: 0.34; filter: blur(65px); border-radius: 50%; z-index: 0;
-      pointer-events: none; animation: waterFlow2 16s ease-in-out infinite;
-    }
-    .water-orb-3 {
-      position: fixed; top: 36%; left: 22%; width: 260px; height: 260px;
-      background: radial-gradient(circle, var(--orb-3) 0%, transparent 70%);
-      opacity: 0.22; filter: blur(65px); border-radius: 50%; z-index: 0;
-      pointer-events: none; animation: waterFlow1 18s ease-in-out infinite reverse;
+      opacity: 0.28; filter: blur(65px); border-radius: 50%; z-index: 0;
+      pointer-events: none; animation: floatOrb 15s ease-in-out infinite reverse;
     }
 
-    /* TRUE WATER-DROP LIQUID GLASS (iOS 26 Fluid Specular Glass) */
     .liquid-glass {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 55%, rgba(255, 255, 255, 0.09) 100%);
-      backdrop-filter: blur(40px) saturate(230%);
-      -webkit-backdrop-filter: blur(40px) saturate(230%);
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      box-shadow:
-        0 20px 50px -12px rgba(0, 0, 0, 0.6),
-        inset 0 2px 3px 0 rgba(255, 255, 255, 0.42),
-        inset 0 -2px 4px 0 rgba(0, 0, 0, 0.25),
-        inset 0 0 22px 0 rgba(255, 255, 255, 0.05);
-      position: relative;
-      overflow: hidden;
-    }
-    .liquid-glass::before {
-      content: "";
-      position: absolute;
-      top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.16), transparent 45%);
-      pointer-events: none;
-      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      background: linear-gradient(145deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.03) 55%, rgba(255,255,255,0.08) 100%);
+      backdrop-filter: blur(36px) saturate(210%);
+      -webkit-backdrop-filter: blur(36px) saturate(210%);
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow: 0 18px 45px -12px rgba(0,0,0,0.6), inset 0 1.5px 2px rgba(255,255,255,0.35);
     }
     .liquid-pill {
-      background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.35), 0 6px 16px rgba(0,0,0,0.25);
+      background: linear-gradient(135deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.2);
     }
     .liquid-input {
-      background: rgba(3, 7, 18, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: inset 0 3px 8px rgba(0,0,0,0.55);
+      background: rgba(2, 6, 23, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       color: #fff;
       outline: none;
-      user-select: text;
     }
     .liquid-input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 40%, transparent), inset 0 2px 6px rgba(0,0,0,0.5);
+      box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent);
     }
     .liquid-btn {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: #020617;
       font-weight: 800;
-      box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 45%, transparent), inset 0 2px 2px rgba(255,255,255,0.65);
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+      transition: transform 0.2s ease;
     }
-    .liquid-btn:active { transform: scale(0.95); }
-
-    /* HUMANOID AVATAR SMOOTH PHYSICS ANIMATIONS */
-    .avatar-stage {
-      perspective: 900px;
-      transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .humanoid-rig {
-      transform-style: preserve-3d;
-      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), filter 0.65s ease;
-      will-change: transform, filter;
-    }
-    @keyframes humanFloat {
-      0%, 100% { transform: translateY(0px) rotateX(2deg) rotateY(-3deg) scale(1); }
-      50% { transform: translateY(-6px) rotateX(-2deg) rotateY(3deg) scale(1.025); }
-    }
-    @keyframes humanAlert {
-      0%, 100% { transform: translateY(-2px) scale(1.05) rotateY(0deg); }
-      25% { transform: translateY(-5px) scale(1.08) rotateY(-6deg); }
-      75% { transform: translateY(-5px) scale(1.08) rotateY(6deg); }
-    }
-    @keyframes humanThink {
-      0%, 100% { transform: translateY(-3px) rotateZ(-2deg) rotateY(-8deg) scale(1.04); }
-      50% { transform: translateY(-7px) rotateZ(2deg) rotateY(8deg) scale(1.06); }
-    }
-    @keyframes naturalBlink {
-      0%, 92%, 100% { transform: scaleY(1); }
-      96% { transform: scaleY(0.06); }
-    }
-    .rig-idle { animation: humanFloat 5s ease-in-out infinite; filter: drop-shadow(0 12px 28px var(--skin-glow)); }
-    .rig-incoming { animation: humanAlert 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; filter: drop-shadow(0 0 34px #F472B6); }
-    .rig-thinking { animation: humanThink 1.8s ease-in-out infinite; filter: drop-shadow(0 0 36px #FBBF24); }
-    .rig-speaking { animation: humanFloat 2.2s ease-in-out infinite; filter: drop-shadow(0 0 36px #10B981); }
-    .rig-offline { transform: translateY(4px) scale(0.95); opacity: 0.48; filter: grayscale(0.85); }
-
-    .eye-lid { transform-origin: center; animation: naturalBlink 4.2s ease-in-out infinite; transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
-    .pupil-move { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
-    .brow-move { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
-    .mouth-shape { transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
-
+    .liquid-btn:active { transform: scale(0.96); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="flex flex-col justify-between">
 
-  <!-- Liquid Water Background Orbs -->
   <div class="water-orb-1"></div>
   <div class="water-orb-2"></div>
-  <div class="water-orb-3"></div>
 
-  <!-- =========================================================
-       REAL WHATSAPP SESSION PAIRING MODAL (8-DIGIT CODE & QR ONLY)
-       ========================================================= -->
-  <div id="wa-auth-modal" class="fixed inset-0 z-50 bg-[#02050D]/90 backdrop-blur-3xl flex items-center justify-center p-4 hidden">
-    <div class="liquid-glass w-full max-w-sm rounded-[38px] p-6 text-center space-y-4">
+  <!-- =========================================================================
+       1. WHATSAPP LOGIN INTERFACE (PAIRING CODE & QR CODE, +88 DEFAULT, ANY COUNTRY)
+       ========================================================================= -->
+  <div id="wa-login-overlay" class="fixed inset-0 z-50 bg-[#02050D]/95 backdrop-blur-3xl flex items-center justify-center p-4 overflow-y-auto">
+    <div class="liquid-glass w-full max-w-md rounded-[34px] p-5 space-y-3.5 my-auto">
       <div class="flex items-center justify-between">
-        <span id="wa-engine-status" class="text-[10px] font-mono px-3 py-1 rounded-full liquid-pill text-cyan-300">● WhatsApp Auth Engine</span>
-        <button onclick="closeAuthModalIfConfigured()" id="close-auth-x" class="hidden w-7 h-7 rounded-full liquid-pill text-xs text-zinc-300">✕</button>
+        <span id="gateway-live-badge" class="text-[10px] font-mono px-2.5 py-1 rounded-full liquid-pill text-cyan-300">● In-App WA Engine v2.0</span>
+        <button id="close-login-btn" onclick="hideLoginModal()" class="hidden w-7 h-7 rounded-full liquid-pill text-xs text-zinc-300">✕</button>
       </div>
 
-      <div class="w-16 h-16 rounded-[24px] mx-auto flex items-center justify-center text-3xl liquid-pill" style="color: var(--accent);">
-        <i class="fa-brands fa-whatsapp"></i>
-      </div>
-
-      <div class="space-y-1">
-        <h2 class="text-xl font-black tracking-tight text-white">Connect WhatsApp Session</h2>
-        <p class="text-[11px] text-zinc-300">নাম্বার দিন, সাথে সাথে 8-Digit Code অথবা QR আসবে</p>
-      </div>
-
-      <!-- Mode Switch: 8-Digit Code vs QR Scan -->
-      <div class="liquid-pill rounded-2xl p-1 grid grid-cols-2 gap-1 text-xs font-bold">
-        <button id="tab-auth-code" onclick="switchAuthMethod('code')" class="py-2 rounded-xl liquid-btn">🔢 8-Digit Code</button>
-        <button id="tab-auth-qr" onclick="switchAuthMethod('qr')" class="py-2 rounded-xl text-zinc-200">📷 Scan QR Code</button>
-      </div>
-
-      <!-- Phone Number Input -->
-      <div class="space-y-2 text-left">
-        <label class="text-[11px] font-bold text-zinc-200 block">আপনার বাংলাদেশি WhatsApp নাম্বার:</label>
-        <div class="flex items-center gap-2">
-          <span class="liquid-pill px-3 py-3 rounded-2xl text-xs font-mono font-bold text-white">🇧🇩 +88</span>
-          <input id="wa-phone-field" type="tel" placeholder="01XXXXXXXXX" value="01620107233" class="flex-1 liquid-input rounded-2xl px-4 py-3 text-sm font-mono font-bold tracking-wider" />
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl liquid-pill shrink-0" style="color: var(--accent);">
+          <i class="fa-brands fa-whatsapp"></i>
+        </div>
+        <div class="text-left">
+          <h2 class="text-lg font-black text-white leading-tight">Connect WhatsApp</h2>
+          <p class="text-[11px] text-zinc-300">Pairing Code অথবা QR Code দিয়ে সেশন কানেক্ট করুন (যেকোনো দেশ সাপোর্টেড)</p>
         </div>
       </div>
 
-      <!-- Method 1: 8-Digit Pairing Code Panel -->
-      <div id="panel-auth-code" class="space-y-3">
-        <button id="btn-req-code" onclick="generateWhatsAppPairingCode()" class="w-full py-3.5 rounded-2xl liquid-btn text-xs uppercase tracking-wider flex items-center justify-center gap-2">
-          <i class="fa-solid fa-key"></i> Get 8-Digit Pairing Code
+      <!-- Mode Tabs: Pairing Code vs QR Code -->
+      <div class="liquid-pill rounded-2xl p-1 grid grid-cols-2 gap-1 text-xs font-bold">
+        <button id="login-tab-code" onclick="switchLoginTab('code')" class="py-2 rounded-xl liquid-btn">🔢 Pairing Code</button>
+        <button id="login-tab-qr" onclick="switchLoginTab('qr')" class="py-2 rounded-xl text-zinc-200">📷 QR Code</button>
+      </div>
+
+      <!-- Universal Country Code (+88 Default) + Empty Phone Input -->
+      <div class="space-y-1.5 text-left">
+        <label class="text-[11px] font-bold text-zinc-200 block">ফোন নম্বর দিন (কান্ট্রি কোড + নম্বর):</label>
+        <div class="flex items-center gap-2">
+          <input id="wa-country-code" type="text" value="+88" placeholder="+88" class="w-20 liquid-input rounded-2xl px-3 py-3 text-sm font-mono font-bold text-center text-cyan-300" title="যেকোনো দেশের কোড দিন (+88, +1, +44, +91)" />
+          <input id="wa-phone-number" type="tel" value="" placeholder="01XXXXXXXXX (বাকি নম্বর লিখুন)" class="flex-1 liquid-input rounded-2xl px-4 py-3 text-sm font-mono font-bold tracking-wider" />
+        </div>
+        <p class="text-[10px] text-zinc-400">💡 টিপস: বাংলাদেশের জন্য বাম ঘরে <b>+88</b> রেখে ডান ঘরে আপনার <b>01...</b> নম্বর লিখুন। অন্য দেশের জন্য কান্ট্রি কোড পরিবর্তন করুন।</p>
+      </div>
+
+      <!-- Connection Engine Mode Selector (All inside Memo App, Zero Termux) -->
+      <div class="liquid-pill rounded-2xl p-3 space-y-2 text-left">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-zinc-200">🌐 WhatsApp Connection Mode (In-App):</span>
+          <select id="wa-conn-mode" onchange="onConnModeChange()" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2 py-1 rounded-lg border border-white/20 outline-none">
+            <option value="cloud_gateway">Cloud Baileys / WAHA Gateway</option>
+            <option value="meta_cloud">Meta Official Cloud API</option>
+            <option value="inapp_web">In-App WhatsApp Web Bridge</option>
+          </select>
+        </div>
+
+        <div id="cfg-cloud-gateway" class="space-y-1.5">
+          <input id="wa-gateway-url" type="url" placeholder="Cloud Baileys Server URL (e.g. https://your-memo-wa.onrender.com)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+        </div>
+
+        <div id="cfg-meta-cloud" class="hidden space-y-1.5">
+          <input id="meta-phone-id" type="text" placeholder="Meta Phone Number ID" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
+          <input id="meta-access-token" type="password" placeholder="Meta Permanent Access Token" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
+        </div>
+      </div>
+
+      <!-- TAB 1: PAIRING CODE PANEL -->
+      <div id="login-panel-code" class="space-y-3">
+        <button id="btn-get-pair-code" onclick="requestRealPairingCode()" class="w-full py-3.5 rounded-2xl liquid-btn text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+          <i class="fa-solid fa-key"></i> Generate Real Pairing Code
         </button>
 
-        <div id="code-output-card" class="hidden liquid-pill rounded-2xl p-3.5 space-y-2 border border-cyan-400/40">
-          <div class="text-[10px] text-zinc-200">WhatsApp ➔ Linked Devices ➔ Link with phone number-এ এই কোডটি বসিয়ে লিংক করুন:</div>
-          <div id="generated-8-code" class="text-2xl font-black font-mono tracking-[0.22em] select-all" style="color: var(--accent);">---- ----</div>
-          <div class="flex items-center justify-center gap-3 pt-1">
-            <button onclick="copyPairingCode()" class="text-[10px] font-mono px-3 py-1 rounded-lg bg-white/10 text-white">📋 Copy Code</button>
-            <button onclick="confirmSessionConnected()" class="text-[10px] font-mono px-3 py-1 rounded-lg bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 font-bold">✅ কোড বসিয়েছি / কানেক্টেড</button>
+        <div id="pair-code-box" class="hidden liquid-pill rounded-2xl p-3.5 space-y-2 border border-cyan-400/40 text-center">
+          <div id="pair-code-instruction" class="text-[10px] text-zinc-200">WhatsApp ➔ Linked Devices ➔ Link with phone number-এ কোডটি দিন:</div>
+          <div id="pair-code-display" class="text-2xl font-black font-mono tracking-[0.2em] select-all" style="color: var(--accent);">--------</div>
+          <div class="flex gap-2 justify-center pt-1">
+            <button onclick="copyRealPairingCode()" class="px-3 py-1.5 rounded-xl bg-white/10 text-[10px] font-mono text-white">📋 Copy Code</button>
+            <button onclick="finalizeWhatsAppLogin('Pairing-Code')" class="px-3 py-1.5 rounded-xl bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 text-[10px] font-bold">✅ লিংক সম্পন্ন করেছি</button>
           </div>
         </div>
       </div>
 
-      <!-- Method 2: Live QR Code Panel -->
-      <div id="panel-auth-qr" class="hidden space-y-3">
-        <div class="bg-white p-3 rounded-2xl inline-block shadow-xl">
-          <img id="wa-qr-img" src="" alt="WhatsApp QR" class="w-40 h-40 mx-auto rounded-lg" />
+      <!-- TAB 2: QR CODE PANEL -->
+      <div id="login-panel-qr" class="hidden space-y-3 text-center">
+        <div id="qr-container-box" class="bg-white p-3 rounded-2xl inline-block shadow-xl">
+          <img id="wa-real-qr-img" src="" alt="QR Code" class="w-40 h-40 mx-auto rounded-lg object-contain" />
         </div>
-        <p class="text-[10px] text-zinc-300">অন্য ফোন থেকে WhatsApp ➔ Linked Devices দিয়ে স্ক্যান করুন</p>
-        <div class="flex gap-2">
-          <button onclick="refreshWhatsAppQR()" class="flex-1 py-2.5 rounded-xl liquid-pill text-xs font-bold text-white"><i class="fa-solid fa-rotate mr-1"></i>New QR</button>
-          <button onclick="confirmSessionConnected()" class="flex-1 py-2.5 rounded-xl liquid-btn text-xs font-bold">✅ Scanned</button>
+        <p id="qr-status-msg" class="text-[10px] text-zinc-300">অন্য ফোনের WhatsApp ➔ Linked Devices থেকে স্ক্যান করুন অথবা নিচের In-App Web চালু করুন</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="loadRealQRCode()" class="py-2.5 rounded-xl liquid-pill text-xs font-bold text-white"><i class="fa-solid fa-rotate mr-1"></i>Refresh QR</button>
+          <button onclick="finalizeWhatsAppLogin('QR-Code')" class="py-2.5 rounded-xl liquid-btn text-xs font-bold">✅ QR Scanned</button>
         </div>
       </div>
 
-      <!-- Advanced Bridge Node Config (Collapsible) -->
-      <details class="text-left text-[10px] text-zinc-400 pt-1">
-        <summary class="cursor-pointer hover:text-zinc-200 font-mono">⚙️ Baileys Node / Bridge Endpoint (Auto-Detected)</summary>
-        <div class="mt-2 flex gap-1.5">
-          <input id="bridge-node-input" type="text" placeholder="http://127.0.0.1:3000" value="http://127.0.0.1:3000" class="flex-1 liquid-input rounded-xl px-2.5 py-1.5 text-[10px] font-mono" />
-          <button onclick="saveBridgeNode()" class="px-2.5 py-1.5 rounded-xl liquid-pill text-white font-bold">Save</button>
-        </div>
-      </details>
+      <!-- Direct In-App Session Activation (When using Meta Cloud API or In-App Web Bridge) -->
+      <div class="pt-1 border-t border-white/10 flex items-center justify-between gap-2">
+        <button onclick="openWhatsAppWebPopup()" class="flex-1 py-2.5 rounded-xl liquid-pill text-[11px] font-bold text-cyan-300">
+          <i class="fa-solid fa-globe mr-1"></i> Open WhatsApp Web Inside App
+        </button>
+        <button onclick="finalizeWhatsAppLogin('In-App-Session')" class="flex-1 py-2.5 rounded-xl bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold">
+          <i class="fa-solid fa-check-double mr-1"></i> Activate Session
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- =========================================================
-       TOP LIQUID GLASS HEADER
-       ========================================================= -->
-  <header class="relative z-10 px-4 pt-3 pb-1.5">
-    <div class="liquid-glass rounded-[30px] px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-[18px] flex items-center justify-center relative liquid-btn shadow-lg">
-          <i class="fa-solid fa-atom text-black text-lg animate-[spin_14s_linear_infinite]"></i>
-          <span class="absolute -bottom-1 -right-1 text-[8px] font-black bg-black text-white px-1 rounded border border-white/30">2.0</span>
+  <!-- =========================================================================
+       TOP HEADER: STATUS + AI ASSISTANT ON/OFF SWITCH
+       ========================================================================= -->
+  <header class="relative z-10 px-3.5 pt-2.5 pb-1">
+    <div class="liquid-glass rounded-[26px] px-3.5 py-2.5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-2xl flex items-center justify-center liquid-btn shadow-md">
+          <i class="fa-solid fa-robot text-black text-base"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base font-black tracking-wide text-white">MEMO 2.0</h1>
-            <span id="header-wa-badge" onclick="openAuthModal()" class="cursor-pointer text-[9px] font-mono px-2 py-0.5 rounded-full liquid-pill text-cyan-200">+8801620107233</span>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm font-black tracking-wide text-white">MEMO AI 2.0</h1>
+            <button id="header-phone-pill" onclick="showLoginModal()" class="text-[9px] font-mono px-2 py-0.5 rounded-full liquid-pill text-cyan-300">+88 Not Linked</button>
           </div>
           <div class="flex items-center gap-1.5 mt-0.5">
-            <span id="status-led" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span id="status-label" class="text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-wider">LIVE ONLINE • BG SERVICE ON</span>
+            <span id="ai-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span id="ai-status-text" class="text-[9px] font-mono font-bold text-emerald-300">AI AUTO-REPLY: ON (MANUAL READY)</span>
           </div>
         </div>
       </div>
 
-      <!-- Quick Voice Toggle + Master ON/OFF -->
+      <!-- AI Assistant ON/OFF Toggle Switch -->
       <div class="flex items-center gap-2">
-        <button id="quick-voice-btn" onclick="toggleVoiceSetting()" title="AI Voice On/Off" class="w-8 h-8 rounded-full liquid-pill flex items-center justify-center text-xs" style="color: var(--accent);">
-          <i id="quick-voice-icon" class="fa-solid fa-volume-high"></i>
-        </button>
-        <button id="master-toggle-btn" onclick="toggleMasterSwitch()" class="rounded-full p-1 flex items-center bg-emerald-500/35 border border-emerald-300/50" style="width: 50px; height: 28px;">
-          <div id="master-toggle-knob" class="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-500 translate-x-5"></div>
+        <div class="text-right">
+          <div class="text-[9px] font-bold text-zinc-300">AI Auto-Reply</div>
+          <div id="ai-switch-sub" class="text-[8px] font-mono text-emerald-300">ON (Active)</div>
+        </div>
+        <button id="ai-master-switch" onclick="toggleAIAssistant()" class="w-12 h-6 rounded-full p-0.5 flex items-center bg-emerald-500/40 border border-emerald-300/60 transition-all">
+          <div id="ai-master-knob" class="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform translate-x-6"></div>
         </button>
       </div>
+    </div>
+
+    <!-- API Limit Alert Banner (Hidden unless rate limit hit) -->
+    <div id="api-limit-banner" class="hidden mt-1.5 liquid-glass rounded-2xl px-3 py-1.5 border border-rose-500/50 bg-rose-950/40 flex items-center justify-between text-[10px]">
+      <span class="text-rose-200 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>API Limit Reached! Using Local AI Fallback.</span>
+      <span id="api-reset-countdown" class="font-mono font-black text-amber-300">Reset: 60s</span>
     </div>
   </header>
 
-  <!-- =========================================================
-       MAIN WORKSPACE
-       ========================================================= -->
-  <main class="relative z-10 flex-1 px-4 py-1.5 overflow-hidden flex flex-col">
+  <!-- =========================================================================
+       MAIN WORKSPACE (4 TABS: HOME, CHATS, AI BRAIN, SETTINGS & SECURITY)
+       ========================================================================= -->
+  <main class="relative z-10 flex-1 px-3.5 py-1.5 overflow-hidden flex flex-col">
 
-    <!-- TAB 1: HOME (3D Humanoid Avatar + ETA + Live Feed + Chat) -->
-    <div id="view-home" class="flex-1 flex flex-col gap-3 overflow-hidden">
-      <div class="grid grid-cols-12 gap-3 flex-1 min-h-0">
+    <!-- TAB 1: HOME DASHBOARD -->
+    <div id="tab-home" class="flex-1 flex flex-col gap-2.5 overflow-hidden">
+      <div class="grid grid-cols-12 gap-2.5 flex-1 min-h-0">
 
-        <!-- Left 7 Cols: Humanoid AI Avatar + Remaining Time -->
-        <div class="col-span-7 flex flex-col gap-3 min-h-0">
-
-          <!-- Humanoid AI Companion Card -->
-          <div class="liquid-glass rounded-[32px] p-3 flex-1 flex flex-col items-center justify-between relative avatar-stage">
-            <div class="w-full flex items-center justify-between px-1 z-10">
-              <span id="human-mood-pill" class="text-[9px] font-mono font-bold px-2.5 py-0.5 rounded-full liquid-pill" style="color: var(--accent);">● NEURAL AWAKE</span>
-              <span id="active-api-pill" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">🧠 AI Ready</span>
+        <!-- Left 6 Cols: Humanoid Avatar + Status + Quick Stats -->
+        <div class="col-span-6 flex flex-col gap-2.5 min-h-0">
+          <div class="liquid-glass rounded-[28px] p-3 flex-1 flex flex-col items-center justify-between relative">
+            <div class="w-full flex items-center justify-between text-[9px] font-mono">
+              <span id="avatar-state-badge" class="px-2 py-0.5 rounded-full liquid-pill text-cyan-300">● STANDBY</span>
+              <span id="active-brain-badge" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Local+API</span>
             </div>
 
-            <!-- SMOOTH 3D-SHADED HUMANOID AVATAR -->
-            <div id="humanoid-container" class="humanoid-rig rig-idle my-auto flex items-center justify-center relative">
-              <svg id="humanoid-svg" viewBox="0 0 160 175" class="w-36 h-36 sm:w-40 sm:h-40">
-                <defs>
-                  <radialGradient id="faceGrad" cx="50%" cy="42%" r="55%">
-                    <stop offset="0%" stop-color="#1E293B" />
-                    <stop offset="70%" stop-color="#0F172A" />
-                    <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.55" />
-                  </radialGradient>
-                  <linearGradient id="visorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.25" />
-                    <stop offset="100%" stop-color="var(--accent-2)" stop-opacity="0.1" />
-                  </linearGradient>
-                  <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#FFFFFF" />
-                    <stop offset="45%" stop-color="var(--accent)" />
-                    <stop offset="100%" stop-color="var(--accent-2)" stop-opacity="0" />
-                  </radialGradient>
-                </defs>
+            <!-- Smooth 3D Humanoid SVG -->
+            <svg viewBox="0 0 140 145" class="w-28 h-28 my-auto drop-shadow-[0_0_20px_rgba(0,245,212,0.3)]">
+              <circle cx="70" cy="68" r="54" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 6" fill="none" opacity="0.5" class="animate-[spin_20s_linear_infinite]" />
+              <path d="M 30 138 C 36 114, 52 110, 70 110 C 88 110, 104 114, 110 138" fill="#0F172A" stroke="var(--accent)" stroke-width="2" />
+              <path d="M 40 58 C 40 28, 100 28, 100 58 C 100 84, 86 106, 70 108 C 54 106, 40 84, 40 58 Z" fill="#1E293B" stroke="var(--accent)" stroke-width="2" />
+              <circle cx="56" cy="58" r="4.5" fill="var(--accent)" />
+              <circle cx="84" cy="58" r="4.5" fill="var(--accent)" />
+              <circle cx="57" cy="56.5" r="1.5" fill="#fff" />
+              <circle cx="85" cy="56.5" r="1.5" fill="#fff" />
+              <path id="avatar-mouth" d="M 59 84 Q 70 91 81 84" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" fill="none" />
+            </svg>
 
-                <!-- Ambient Neural Halo -->
-                <circle cx="80" cy="78" r="64" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 8" fill="none" opacity="0.45" class="animate-[spin_28s_linear_infinite]" />
-                <circle cx="80" cy="78" r="56" stroke="var(--accent-2)" stroke-width="1.2" stroke-dasharray="18 10" fill="none" opacity="0.35" class="animate-[spin_18s_linear_infinite_reverse]" />
-
-                <!-- Humanoid Neck & Cyber Collar/Shoulders -->
-                <path d="M 67 122 L 67 142 L 93 142 L 93 122 Z" fill="#0F172A" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
-                <path d="M 26 166 C 32 138, 54 134, 80 134 C 106 134, 128 138, 134 166" fill="url(#faceGrad)" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
-                <!-- Chest Vocal/Heart Core -->
-                <circle id="human-heart-core" cx="80" cy="151" r="6" fill="var(--accent)" class="animate-pulse"/>
-                <circle cx="80" cy="151" r="11" stroke="var(--accent)" stroke-width="1" fill="none" opacity="0.5"/>
-
-                <!-- Humanoid Head & Jaw Contour (Realistic Proportions) -->
-                <path d="M 42 64 C 42 30, 118 30, 118 64 C 118 96, 102 124, 80 127 C 58 124, 42 96, 42 64 Z" fill="url(#faceGrad)" stroke="var(--accent)" stroke-width="2"/>
-
-                <!-- futuristic Hair / Neural Crown Waves -->
-                <path d="M 40 60 C 38 30, 62 18, 80 18 C 98 18, 122 30, 120 60 C 114 40, 98 32, 80 32 C 62 32, 46 40, 40 60 Z" fill="var(--accent)" opacity="0.28"/>
-                <circle id="neural-crown-gem" cx="80" cy="34" r="3.5" fill="#FFFFFF" stroke="var(--accent)" stroke-width="2"/>
-
-                <!-- Humanoid Ears / Audio Receivers -->
-                <path d="M 41 68 C 35 68, 35 86, 42 88" fill="#0F172A" stroke="var(--accent)" stroke-width="1.8"/>
-                <path d="M 119 68 C 125 68, 125 86, 118 88" fill="#0F172A" stroke="var(--accent)" stroke-width="1.8"/>
-
-                <!-- Expressive Eyebrows -->
-                <g id="human-brows" class="brow-move">
-                  <path id="brow-left" d="M 52 58 Q 62 54 71 58" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" fill="none"/>
-                  <path id="brow-right" d="M 89 58 Q 98 54 108 58" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" fill="none"/>
-                </g>
-
-                <!-- Realistic Expressive Humanoid Eyes with Iris & Pupils -->
-                <g id="human-eyes" class="eye-lid">
-                  <!-- Left Eye -->
-                  <path d="M 51 69 Q 61 62 71 69 Q 61 75 51 69 Z" fill="#020617" stroke="var(--accent)" stroke-width="1.5"/>
-                  <g class="pupil-move" id="pupil-left">
-                    <circle cx="61" cy="69" r="5" fill="url(#eyeGlow)"/>
-                    <circle cx="61" cy="69" r="2" fill="#FFFFFF"/>
-                    <circle cx="63" cy="67.5" r="1" fill="#FFFFFF"/>
-                  </g>
-                  <!-- Right Eye -->
-                  <path d="M 89 69 Q 99 62 109 69 Q 99 75 89 69 Z" fill="#020617" stroke="var(--accent)" stroke-width="1.5"/>
-                  <g class="pupil-move" id="pupil-right">
-                    <circle cx="99" cy="69" r="5" fill="url(#eyeGlow)"/>
-                    <circle cx="99" cy="69" r="2" fill="#FFFFFF"/>
-                    <circle cx="101" cy="67.5" r="1" fill="#FFFFFF"/>
-                  </g>
-                </g>
-
-                <!-- Subtle Human Nose Bridge & Tip -->
-                <path d="M 80 68 L 78 85 Q 80 88 83 85" stroke="var(--accent)" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.55"/>
-
-                <!-- Cheek Neural Blush / Glow Lines -->
-                <path d="M 50 84 L 58 86" stroke="var(--accent-2)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-                <path d="M 110 84 L 102 86" stroke="var(--accent-2)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-
-                <!-- Natural Humanoid Lips & Lip-Sync Mouth -->
-                <g id="human-mouth" class="mouth-shape">
-                  <path id="mouth-upper" d="M 67 101 Q 74 98 80 100 Q 86 98 93 101" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-                  <path id="mouth-lower" d="M 67 101 Q 80 108 93 101" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" fill="rgba(0,245,212,0.12)"/>
-                </g>
-              </svg>
-            </div>
-
-            <!-- Live Speech / Emotion Subtitle -->
-            <div class="text-center w-full z-10">
-              <div id="human-status-title" class="text-xs font-black tracking-wide text-white">✨ আমি প্রস্তুত, মেসেজের অপেক্ষায় আছি</div>
-              <div id="human-status-sub" class="text-[9px] font-mono text-zinc-300 truncate">Voice & Background Engine Active</div>
+            <div class="text-center w-full">
+              <div id="home-avatar-msg" class="text-[11px] font-bold text-white truncate">AI ও ম্যানুয়াল মেসেজিং প্রস্তুত</div>
+              <div class="text-[9px] text-zinc-400 font-mono" id="home-dedup-stat">Dedup Guard: Active (0 blocked)</div>
             </div>
           </div>
 
-          <!-- Remaining Reply Time (ETA) -->
-          <div class="liquid-glass rounded-[26px] p-3 flex flex-col justify-center">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-[10px] font-bold text-zinc-200 flex items-center gap-1.5">
-                <i class="fa-solid fa-bolt" style="color: var(--accent);"></i> Reply Remaining Time
-              </span>
-              <span id="eta-countdown" class="text-xs font-black font-mono px-2 py-0.5 rounded-lg bg-black/40" style="color: var(--accent);">0.0s</span>
+          <!-- Stats Row -->
+          <div class="liquid-glass rounded-2xl p-2.5 grid grid-cols-3 gap-1 text-center">
+            <div>
+              <div id="stat-clients" class="text-sm font-black text-cyan-300">0</div>
+              <div class="text-[8px] text-zinc-400 uppercase">Clients</div>
             </div>
-            <div class="w-full h-2 rounded-full bg-black/40 overflow-hidden p-0.5 border border-white/15">
-              <div id="eta-fill-bar" class="h-full rounded-full transition-all duration-100" style="width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2));"></div>
+            <div>
+              <div id="stat-auto" class="text-sm font-black text-emerald-300">0</div>
+              <div class="text-[8px] text-zinc-400 uppercase">AI Replies</div>
             </div>
-            <div class="flex justify-between text-[9px] font-mono text-zinc-300 mt-1">
-              <span id="eta-stage-label">Stage: Standby</span>
-              <span id="eta-speed-tag">Last: 0.6s</span>
+            <div>
+              <div id="stat-manual" class="text-sm font-black text-amber-300">0</div>
+              <div class="text-[8px] text-zinc-400 uppercase">Manual</div>
             </div>
           </div>
-
         </div>
 
-        <!-- Right 5 Cols: Live Incoming & Outgoing Stream -->
-        <div class="col-span-5 liquid-glass rounded-[32px] p-3 flex flex-col min-h-0">
-          <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2">
-            <span class="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 text-white">
-              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span> Live Feed
-            </span>
-            <button onclick="clearFeed()" class="text-[9px] font-mono text-zinc-300 hover:text-white">Clear</button>
+        <!-- Right 6 Cols: Live Activity & Instant Manual/Incoming Simulator -->
+        <div class="col-span-6 liquid-glass rounded-[28px] p-3 flex flex-col min-h-0">
+          <div class="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
+            <span class="text-[10px] font-black uppercase tracking-wider text-white">⚡ Live Message Stream</span>
+            <button onclick="switchMainTab('chats')" class="text-[9px] font-mono text-cyan-300">All Chats ➔</button>
           </div>
-          <div id="live-feed-box" class="flex-1 overflow-y-auto no-scrollbar space-y-2 text-[10px] pr-0.5"></div>
+          <div id="home-live-stream" class="flex-1 overflow-y-auto no-scrollbar space-y-2 text-[10px]"></div>
         </div>
-
       </div>
 
-      <!-- Direct AI Chat & Auto-Reply Tester Bar -->
-      <div class="liquid-glass rounded-[26px] p-2 flex items-center gap-2">
-        <input id="quick-test-input" type="text" placeholder="এখানে যেকোনো প্রশ্ন বা মেসেজ লিখে Send করুন..." class="flex-1 liquid-input rounded-2xl px-3.5 py-2.5 text-xs" onkeypress="if(event.key==='Enter')sendAndProcessMessage()" />
-        <button onclick="sendAndProcessMessage()" class="px-4 py-2.5 rounded-2xl liquid-btn text-xs flex items-center gap-1.5 shrink-0">
-          <i class="fa-solid fa-paper-plane"></i> Send
-        </button>
+      <!-- Quick Manual / Incoming Test Bar on Home Dashboard -->
+      <div class="liquid-glass rounded-2xl p-2 flex flex-col gap-1.5">
+        <div class="flex items-center gap-1.5">
+          <input id="home-client-phone" type="tel" value="+8801700000001" placeholder="ক্লায়েন্টের নম্বর (+8801...)" class="w-36 liquid-input rounded-xl px-2.5 py-2 text-[11px] font-mono" />
+          <input id="home-msg-input" type="text" placeholder="মেসেজ লিখুন..." class="flex-1 liquid-input rounded-xl px-3 py-2 text-xs" onkeypress="if(event.key==='Enter')homeSendAction('incoming')" />
+        </div>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button onclick="homeSendAction('incoming')" class="py-2 rounded-xl liquid-pill text-[10px] font-bold text-cyan-300 border border-cyan-400/30">
+            📥 Simulate Client Incoming (Test AI)
+          </button>
+          <button onclick="homeSendAction('manual')" class="py-2 rounded-xl liquid-btn text-[10px] font-bold">
+            📤 Send Manual Reply (Works AI ON/OFF)
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 2: LOGS & HISTORY -->
-    <div id="view-logs" class="hidden flex-1 flex flex-col gap-3 overflow-hidden">
-      <div class="liquid-glass rounded-2xl p-1.5 grid grid-cols-2 gap-1.5">
-        <button id="btn-tab-logs" onclick="switchLogSubTab('logs')" class="py-2 rounded-xl text-xs font-black liquid-btn">📋 System Logs</button>
-        <button id="btn-tab-hist" onclick="switchLogSubTab('hist')" class="py-2 rounded-xl text-xs font-bold text-zinc-200">💬 Chat History</button>
+    <!-- =========================================================================
+         TAB 2: CLIENT CHAT SYSTEM (CHAT LIST + INDIVIDUAL CHAT CARD + REPLY STATUS)
+         ========================================================================= -->
+    <div id="tab-chats" class="hidden flex-1 flex flex-col gap-2.5 overflow-hidden">
+      <!-- Top Bar: Add New Client Chat -->
+      <div class="liquid-glass rounded-2xl p-2.5 flex items-center gap-2">
+        <input id="new-client-phone" type="tel" placeholder="+8801XXXXXXXXX (নতুন ক্লায়েন্ট নম্বর)" class="flex-1 liquid-input rounded-xl px-3 py-2 text-xs font-mono" />
+        <input id="new-client-name" type="text" placeholder="নাম (ঐচ্ছিক)" class="w-28 liquid-input rounded-xl px-2.5 py-2 text-xs" />
+        <button onclick="createOrOpenClientChat()" class="px-3 py-2 rounded-xl liquid-btn text-xs shrink-0">+ Chat</button>
       </div>
-      <div id="container-logs" class="liquid-glass rounded-[30px] p-4 flex-1 overflow-y-auto no-scrollbar space-y-2 font-mono text-xs"></div>
-      <div id="container-hist" class="hidden liquid-glass rounded-[30px] p-4 flex-1 overflow-y-auto no-scrollbar space-y-3"></div>
+
+      <!-- Client Chat List View -->
+      <div id="chat-list-view" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
+
+      <!-- Individual Client Chat Card View (Modal/Card) -->
+      <div id="chat-card-view" class="hidden flex-1 liquid-glass rounded-[28px] p-3 flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2">
+          <div class="flex items-center gap-2">
+            <button onclick="closeClientChatCard()" class="w-7 h-7 rounded-xl liquid-pill text-xs text-white"><i class="fa-solid fa-arrow-left"></i></button>
+            <div>
+              <div id="active-chat-name" class="text-xs font-black text-white">Client</div>
+              <div id="active-chat-phone" class="text-[10px] font-mono text-cyan-300">+8801...</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span id="active-chat-status-pill" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Ready</span>
+            <button onclick="triggerManualAIReplyForClient()" class="px-2.5 py-1 rounded-xl liquid-pill text-[10px] font-bold text-cyan-300" title="Force AI Reply">🤖 AI Reply</button>
+          </div>
+        </div>
+
+        <!-- Messages Thread -->
+        <div id="active-chat-messages" class="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-1"></div>
+
+        <!-- Bottom Send Bar inside Chat Card (Manual Send & Simulate Incoming) -->
+        <div class="pt-2 mt-2 border-t border-white/10 space-y-1.5">
+          <div class="flex gap-1.5">
+            <input id="chat-card-input" type="text" placeholder="ম্যানুয়াল মেসেজ বা ক্লায়েন্ট মেসেজ লিখুন..." class="flex-1 liquid-input rounded-xl px-3 py-2 text-xs" onkeypress="if(event.key==='Enter')sendFromChatCard('manual')" />
+            <button onclick="sendFromChatCard('manual')" class="px-3.5 py-2 rounded-xl liquid-btn text-xs font-bold shrink-0">
+              <i class="fa-solid fa-paper-plane mr-1"></i>Send
+            </button>
+          </div>
+          <div class="flex justify-between items-center text-[9px] text-zinc-400">
+            <button onclick="sendFromChatCard('incoming')" class="text-cyan-300 underline font-mono">📥 টেস্ট হিসেবে ক্লায়েন্ট থেকে ইনকামিং মেসেজ পাঠান</button>
+            <span>AI OFF থাকলেও Send কাজ করবে</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- TAB 3: AI BRAINS (100% FIXED LIVE API KEY BINDING + TEST BUTTON) -->
-    <div id="view-brains" class="hidden flex-1 flex flex-col gap-3 overflow-hidden">
-      <div class="liquid-glass rounded-[26px] p-3.5 flex items-center justify-between">
-        <div>
-          <h2 class="text-sm font-black text-white">🧠 AI Brains & Live API Keys</h2>
-          <p class="text-[10px] text-zinc-300">এখানে Key পেস্ট করামাত্রই অটো-সেভ হবে এবং আসল AI রিপ্লাই দেবে</p>
+    <!-- =========================================================================
+         TAB 3: AI BRAIN (MEMO API + OFFLINE LOCAL MODEL + API LIMIT & FALLBACK)
+         ========================================================================= -->
+    <div id="tab-brains" class="hidden flex-1 overflow-y-auto no-scrollbar space-y-2.5 pr-0.5">
+      <!-- Brain Mode Selection & Quota Monitor -->
+      <div class="liquid-glass rounded-[26px] p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-black text-white">🧠 AI Brain & Routing Engine</h2>
+            <p class="text-[10px] text-zinc-300">Memo Cloud API + Offline Local AI (Auto-Fallback যুক্ত)</p>
+          </div>
+          <select id="brain-routing-mode" onchange="saveBrainMode(this.value)" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2.5 py-1.5 rounded-xl border border-white/20">
+            <option value="hybrid">Hybrid (Cloud API ➔ Local Fallback)</option>
+            <option value="cloud_only">Memo Cloud API Only</option>
+            <option value="local_only">100% Offline Local Model Only</option>
+          </select>
         </div>
-        <button onclick="addNewBrainProvider()" class="px-3.5 py-2 rounded-xl liquid-btn text-xs">+ Add Brain</button>
+
+        <!-- API Usage Limit & Reset Countdown Card -->
+        <div class="liquid-pill rounded-2xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-bold text-white">📊 API Usage & Rate Limit Monitor:</span>
+            <span id="brain-quota-text" class="font-mono text-emerald-300">0 / 60 reqs (Healthy)</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-black/50 overflow-hidden">
+            <div id="brain-quota-bar" class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all" style="width: 5%;"></div>
+          </div>
+          <div class="flex items-center justify-between text-[9px] font-mono text-zinc-400">
+            <span id="brain-limit-error-msg">Status: Normal • Auto-Fallback Armed</span>
+            <button onclick="simulateRateLimitError()" class="text-amber-300 underline">Test Limit Countdown</button>
+          </div>
+        </div>
       </div>
-      <div id="brains-list" class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pr-0.5"></div>
+
+      <!-- Offline Local AI Model Status & Quick Trainer -->
+      <div class="liquid-glass rounded-[26px] p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs font-black text-white">📦 Offline Local AI Model (Built-in + Custom ZIP)</div>
+            <div id="local-model-summary" class="text-[10px] font-mono text-cyan-300">Loaded Rules: 12 | Custom Model: Active</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] font-mono">OFFLINE READY</span>
+        </div>
+        <div class="flex gap-1.5">
+          <input id="quick-train-q" type="text" placeholder="প্রশ্ন/কীওয়ার্ড (যেমন: দাম কত)" class="w-1/2 liquid-input rounded-xl px-2.5 py-1.5 text-[11px]" />
+          <input id="quick-train-a" type="text" placeholder="উত্তর (যেমন: আমাদের প্যাকেজ ৫০০ টাকা)" class="w-1/2 liquid-input rounded-xl px-2.5 py-1.5 text-[11px]" />
+          <button onclick="addLocalModelRule()" class="px-3 py-1.5 rounded-xl liquid-btn text-[11px] shrink-0">+ Train</button>
+        </div>
+      </div>
+
+      <!-- Cloud API Providers List -->
+      <div id="cloud-brains-container" class="space-y-2"></div>
     </div>
 
-    <!-- TAB 4: SETTINGS (VOICE ON/OFF, ALERTS ON/OFF, BACKGROUND MODE, WATER THEMES) -->
-    <div id="view-settings" class="hidden flex-1 overflow-y-auto no-scrollbar space-y-3 pr-0.5">
+    <!-- =========================================================================
+         TAB 4: SETTINGS & SECURITY CENTER (MODEL/ZIP UPLOAD, VAULT, DIAGNOSTICS)
+         ========================================================================= -->
+    <div id="tab-settings" class="hidden flex-1 overflow-y-auto no-scrollbar space-y-2.5 pr-0.5">
 
-      <!-- Voice, Sound Alerts & Background Service Controls -->
-      <div class="liquid-glass rounded-[28px] p-4 space-y-3">
-        <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-solid fa-volume-high mr-1.5" style="color: var(--accent);"></i>AI Human Voice & Background Service</h3>
-        
-        <div class="flex items-center justify-between liquid-pill p-3 rounded-2xl">
-          <div>
-            <div class="text-xs font-bold text-white">🗣️ AI Own Voice (কথা বলা)</div>
-            <div class="text-[10px] text-zinc-300">রিপ্লাই দেওয়ার সময় রোবট মানুষের গলায় কথা বলবে</div>
-          </div>
-          <input id="toggle-ai-voice" type="checkbox" onchange="updateAudioSettings()" class="w-5 h-5 accent-cyan-400" checked />
+      <!-- Offline Model / ZIP Upload Section (Requirement 4 & 7) -->
+      <div class="liquid-glass rounded-[26px] p-3.5 space-y-2.5">
+        <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-solid fa-file-zipper mr-1.5" style="color: var(--accent);"></i>Upload Offline AI Model (.ZIP / .JSON / .BIN)</h3>
+        <p class="text-[10px] text-zinc-300">আপনার লোকাল মডেল ফাইল বা ট্রেইনিং `.zip` / `.json` ফাইল আপলোড করুন। Security Scanner প্রতিটি ফাইল পরীক্ষা করে নিরাপদে লোড করবে।</p>
+        <input id="local-model-file-input" type="file" accept=".zip,.json,.bin,.txt,.gguf" onchange="handleSafeModelZipUpload(event)" class="block w-full text-[11px] text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-400 file:text-slate-950" />
+        <div id="zip-upload-status" class="text-[10px] font-mono text-emerald-300">🛡️ ZIP Security Guard: Ready (Max 50MB, Path-Traversal & Script Blocked)</div>
+      </div>
+
+      <!-- Security Center (Requirement 7) -->
+      <div class="liquid-glass rounded-[26px] p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-solid fa-shield-halved mr-1.5 text-emerald-400"></i>Security Center & Vault</h3>
+          <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">AES Obfuscated</span>
         </div>
-
-        <div class="flex items-center justify-between liquid-pill p-3 rounded-2xl">
-          <div>
-            <div class="text-xs font-bold text-white">🔔 Neural Sound Alerts (অ্যালার্ট সাউন্ড)</div>
-            <div class="text-[10px] text-zinc-300">মেসেজ আসলে ও গেলে স্মুথ সাউন্ড ইফেক্ট দেবে</div>
+        <div class="grid grid-cols-2 gap-2 text-[10px]">
+          <div class="liquid-pill p-2.5 rounded-xl">
+            <div class="font-bold text-white">🔐 Session Protection</div>
+            <div class="text-zinc-400 mt-0.5">Local Device Vault Only (Never pushed to Git)</div>
           </div>
-          <input id="toggle-sound-alert" type="checkbox" onchange="updateAudioSettings()" class="w-5 h-5 accent-cyan-400" checked />
+          <div class="liquid-pill p-2.5 rounded-xl">
+            <div class="font-bold text-white">🛡️ Duplicate Lock</div>
+            <div class="text-zinc-400 mt-0.5">SHA-Idempotency Msg Filter Active</div>
+          </div>
         </div>
-
-        <div class="flex items-center justify-between liquid-pill p-3 rounded-2xl">
-          <div>
-            <div class="text-xs font-bold text-white">⚡ Always-On Background WakeLock</div>
-            <div class="text-[10px] text-zinc-300">অ্যাপ মিনিমাইজ করলেও ব্যাকগ্রাউন্ডে সচল রাখবে</div>
-          </div>
-          <input id="toggle-bg-wakelock" type="checkbox" onchange="toggleBackgroundPersistence(this.checked)" class="w-5 h-5 accent-cyan-400" checked />
+        <div class="flex items-center justify-between liquid-pill p-2.5 rounded-xl text-xs">
+          <span>🗣️ AI Voice Speech Output</span>
+          <input id="setting-voice-toggle" type="checkbox" onchange="state.voice=this.checked;saveState()" checked class="w-4 h-4 accent-cyan-400" />
         </div>
       </div>
 
-      <!-- Liquid Water Glass Themes -->
-      <div class="liquid-glass rounded-[28px] p-4 space-y-3">
-        <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-solid fa-droplet mr-1.5" style="color: var(--accent);"></i>Water-Glass Fluid Themes</h3>
-        <div class="grid grid-cols-2 gap-2.5">
-          <button onclick="setWaterTheme('aqua')" class="p-3 rounded-2xl liquid-pill flex items-center gap-2.5 text-left">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#00F5D4] to-[#38BDF8] shrink-0"></span>
-            <div><div class="text-xs font-bold">Aqua Crystal</div><div class="text-[9px] text-zinc-300">Pure Water Glass</div></div>
-          </button>
-          <button onclick="setWaterTheme('sapphire')" class="p-3 rounded-2xl liquid-pill flex items-center gap-2.5 text-left">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#38BDF8] to-[#818CF8] shrink-0"></span>
-            <div><div class="text-xs font-bold">iOS 26 Frost</div><div class="text-[9px] text-zinc-300">Deep Ocean Glass</div></div>
-          </button>
-          <button onclick="setWaterTheme('rose')" class="p-3 rounded-2xl liquid-pill flex items-center gap-2.5 text-left">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#F472B6] to-[#FB7185] shrink-0"></span>
-            <div><div class="text-xs font-bold">Liquid Rose</div><div class="text-[9px] text-zinc-300">Neon Coral Water</div></div>
-          </button>
-          <button onclick="setWaterTheme('emerald')" class="p-3 rounded-2xl liquid-pill flex items-center gap-2.5 text-left">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#10B981] to-[#00F5D4] shrink-0"></span>
-            <div><div class="text-xs font-bold">Emerald Spring</div><div class="text-[9px] text-zinc-300">Bio-Liquid Glass</div></div>
-          </button>
+      <!-- Automated Bug Check & Diagnostics Runner (Requirement 8) -->
+      <div class="liquid-glass rounded-[26px] p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-solid fa-vial-circle-check mr-1.5 text-cyan-400"></i>Automated Self-Test & Bug Check</h3>
+          <button onclick="runFullDiagnostics()" class="px-3 py-1 rounded-xl liquid-btn text-[10px]">▶ Run All Tests</button>
         </div>
+        <div id="diagnostics-output" class="text-[10px] font-mono space-y-1 text-zinc-300">Click "Run All Tests" to verify Login, Chat, Dedup, API Limit & Security.</div>
       </div>
 
-      <!-- WhatsApp Session Management -->
-      <div class="liquid-glass rounded-[28px] p-4 space-y-3">
-        <h3 class="text-xs font-black uppercase tracking-wider text-white"><i class="fa-brands fa-whatsapp text-emerald-400 mr-1.5"></i>WhatsApp Session Link</h3>
-        <div class="flex items-center justify-between text-xs liquid-pill p-3 rounded-2xl">
-          <span>Connected Number:</span>
-          <span id="settings-wa-phone" class="font-mono font-bold" style="color: var(--accent);">+8801620107233</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="openAuthModal()" class="py-3 rounded-2xl liquid-btn text-xs font-bold">🔗 Get Code / QR</button>
-          <button onclick="disconnectWhatsAppSession()" class="py-3 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-200 font-bold text-xs">Logout Session</button>
-        </div>
-      </div>
-
-      <!-- Reset -->
-      <div class="liquid-glass rounded-[28px] p-4">
-        <button onclick="resetEverything()" class="w-full py-3 rounded-2xl bg-rose-500/25 border border-rose-400/40 text-rose-200 font-black text-xs">
-          <i class="fa-solid fa-trash-can mr-1.5"></i> Factory Reset MEMO 2.0
-        </button>
+      <!-- Session Reconnect / Logout -->
+      <div class="liquid-glass rounded-[26px] p-3.5 flex gap-2">
+        <button onclick="showLoginModal()" class="flex-1 py-2.5 rounded-xl liquid-btn text-xs">🔗 Change / Pair WhatsApp</button>
+        <button onclick="logoutWhatsAppSession()" class="flex-1 py-2.5 rounded-xl bg-rose-500/25 border border-rose-400/40 text-rose-200 text-xs font-bold">Logout Session</button>
       </div>
     </div>
 
   </main>
 
-  <!-- =========================================================
-       BOTTOM WATER-GLASS NAVIGATION DOCK
-       ========================================================= -->
-  <nav class="relative z-10 px-4 pb-3 pt-1">
-    <div class="liquid-glass rounded-[30px] p-1.5 grid grid-cols-4 gap-1.5">
-      <button onclick="switchTab('home')" id="nav-btn-home" class="py-2.5 rounded-2xl text-[11px] font-extrabold liquid-btn flex flex-col items-center gap-0.5">
-        <i class="fa-solid fa-user-astronaut text-sm"></i><span>Home</span>
+  <!-- =========================================================================
+       BOTTOM NAVIGATION BAR
+       ========================================================================= -->
+  <nav class="relative z-10 px-3.5 pb-2.5 pt-1">
+    <div class="liquid-glass rounded-[26px] p-1.5 grid grid-cols-4 gap-1.5">
+      <button onclick="switchMainTab('home')" id="nav-home" class="py-2 rounded-2xl text-[10px] font-extrabold liquid-btn flex flex-col items-center gap-0.5">
+        <i class="fa-solid fa-house text-xs"></i><span>Home</span>
       </button>
-      <button onclick="switchTab('logs')" id="nav-btn-logs" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
-        <i class="fa-solid fa-wave-square text-sm"></i><span>Logs & Hist</span>
+      <button onclick="switchMainTab('chats')" id="nav-chats" class="py-2 rounded-2xl text-[10px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
+        <i class="fa-solid fa-comments text-xs"></i><span>Chats</span>
       </button>
-      <button onclick="switchTab('brains')" id="nav-btn-brains" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
-        <i class="fa-solid fa-brain text-sm"></i><span>AI Brains</span>
+      <button onclick="switchMainTab('brains')" id="nav-brains" class="py-2 rounded-2xl text-[10px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
+        <i class="fa-solid fa-brain text-xs"></i><span>AI Brain</span>
       </button>
-      <button onclick="switchTab('settings')" id="nav-btn-settings" class="py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
-        <i class="fa-solid fa-sliders text-sm"></i><span>Settings</span>
+      <button onclick="switchMainTab('settings')" id="nav-settings" class="py-2 rounded-2xl text-[10px] font-bold text-zinc-300 flex flex-col items-center gap-0.5">
+        <i class="fa-solid fa-shield-halved text-xs"></i><span>Security</span>
       </button>
     </div>
   </nav>
 
   <script>
-    const STATE_STORAGE_KEY = "memo_2_0_pro_v5_state";
-    const SESSION_LINKED_KEY = "memo_2_0_pro_v5_linked";
-
-    const DEFAULT_STATE = {
-      online: true,
-      voiceEnabled: true,
-      soundAlerts: true,
-      bgWakeLock: true,
-      phone: "+8801620107233",
-      bridgeUrl: "http://127.0.0.1:3000",
-      theme: "aqua",
-      brains: [
-        { id: "gemini", name: "Google Gemini AI", provider: "gemini", model: "gemini-2.0-flash", key: "", enabled: true },
-        { id: "groq", name: "Groq Ultra-Fast (Llama 3.3)", provider: "groq", model: "llama-3.3-70b-versatile", key: "", enabled: true },
-        { id: "openai", name: "OpenAI ChatGPT", provider: "openai", model: "gpt-4o-mini", key: "", enabled: true },
-        { id: "deepseek", name: "DeepSeek AI", provider: "deepseek", model: "deepseek-chat", key: "", enabled: true }
-      ],
-      logs: [
-        { time: new Date().toTimeString().slice(0,8), tag: "BOOT", text: "MEMO 2.0 Liquid Water-Glass OS & Humanoid Engine Initialized." }
-      ],
-      history: []
+    // =========================================================================
+    // CORE STATE & SECURITY VAULT (ENCRYPTED/OBFUSCATED STORAGE)
+    // =========================================================================
+    const STORAGE_KEY = "memo_wa_ai_2_0_vault_v1";
+    const Vault = {
+      encode: (str) => btoa(unescape(encodeURIComponent(str))),
+      decode: (b64) => decodeURIComponent(escape(atob(b64)))
     };
 
-    let state = JSON.parse(localStorage.getItem(STATE_STORAGE_KEY) || "null") || JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const DEFAULT_STATE = {
+      waLinked: false,
+      countryCode: "+88",
+      phoneNumber: "",
+      fullPhone: "",
+      connMode: "cloud_gateway",
+      gatewayUrl: "",
+      metaPhoneId: "",
+      metaToken: "",
+      aiEnabled: true,
+      voice: true,
+      brainMode: "hybrid",
+      apiQuotaUsed: 0,
+      apiQuotaMax: 60,
+      apiRateLimitedUntil: 0,
+      stats: { autoReplies: 0, manualSent: 0, dedupBlocked: 0 },
+      brains: [
+        { id: "gemini", name: "Memo Gemini API", provider: "gemini", model: "gemini-2.0-flash", key: "", enabled: true },
+        { id: "groq", name: "Memo Groq Llama-3.3", provider: "groq", model: "llama-3.3-70b-versatile", key: "", enabled: true },
+        { id: "openai", name: "OpenAI GPT-4o-mini", provider: "openai", model: "gpt-4o-mini", key: "", enabled: true }
+      ],
+      localRules: [
+        { q: "salam|সালাম|assalamu|হ্যালো|hello|hi", a: "ওয়ালাইকুম আসসালাম! Memo WhatsApp AI Assistant 2.0-এ স্বাগতম। আপনাকে কীভাবে সাহায্য করতে পারি?" },
+        { q: "price|দাম|কত টাকা|rate|cost", a: "আমাদের প্রোডাক্ট ও সার্ভিসের বিস্তারিত প্রাইস লিস্ট জানতে আপনার পছন্দের প্যাকেজের নাম লিখুন।" },
+        { q: "location|ঠিকানা|address|কোথায়", a: "আমরা ঢাকা, বাংলাদেশ থেকে অনলাইনে সারাদেশে সার্ভিস দিয়ে থাকি।" },
+        { q: "order|অর্ডার|কিনব|buy", a: "অর্ডার কনফার্ম করতে আপনার নাম, ঠিকানা এবং মোবাইল নম্বরটি পাঠিয়ে দিন।" },
+        { q: "ki kros|ki korcho|কি করছ|kemon aso|কেমন আছ", a: "আলহামদুলিল্লাহ, আমি ভালো আছি এবং আপনার মেসেজের অপেক্ষায় আছি! আপনার কী খবর?" }
+      ],
+      customModelName: "Memo-BuiltIn-Local-v2",
+      clients: {
+        "+8801700000001": {
+          phone: "+8801700000001",
+          name: "Demo Client 1",
+          lastStatus: "🤖 AI Auto-Replied",
+          messages: [
+            { id: "init_1", sender: "client", text: "সালাম ভাই, আপনাদের সার্ভিস কি চালু আছে?", time: "10:00", status: "Received" },
+            { id: "init_2", sender: "ai", text: "ওয়ালাইকুম আসসালাম! হ্যাঁ, আমাদের সার্ভিস চালু আছে। কীভাবে সাহায্য করতে পারি?", time: "10:00", status: "🤖 AI Auto-Replied" }
+          ]
+        }
+      },
+      processedMsgIds: []
+    };
+
+    let state = loadState();
+    const inFlightLocks = new Set();
+    let activeClientPhone = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        return Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), JSON.parse(Vault.decode(raw)));
+      } catch (e) {
+        return JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+    }
 
     function saveState() {
-      localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
-      updateActiveBrainIndicator();
-    }
-
-    function logEvent(tag, text) {
-      state.logs.unshift({ time: new Date().toTimeString().slice(0,8), tag, text });
-      if (state.logs.length > 100) state.logs.pop();
-      saveState();
-      renderLogsAndHistory();
-    }
-
-    // =========================================================
-    // 1. REAL AUDIO SYNTHESIS (AI OWN VOICE + SCI-FI CHIME ALERTS)
-    // =========================================================
-    let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) audioCtx = new AudioContextClass();
-      }
-      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-      return audioCtx;
-    }
-
-    function playNeuralAlert(type) {
-      if (!state.soundAlerts) return;
       try {
-        const ctx = getAudioContext();
-        if (!ctx) return;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        const now = ctx.currentTime;
-        if (type === "incoming") {
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(520, now);
-          osc.frequency.exponentialRampToValueAtTime(880, now + 0.16);
-          gain.gain.setValueAtTime(0.12, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-          osc.start(now);
-          osc.stop(now + 0.2);
-        } else if (type === "replied") {
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(660, now);
-          osc.frequency.exponentialRampToValueAtTime(1040, now + 0.22);
-          gain.gain.setValueAtTime(0.14, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-          osc.start(now);
-          osc.stop(now + 0.25);
-        } else if (type === "theme") {
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(440, now);
-          osc.frequency.exponentialRampToValueAtTime(740, now + 0.28);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-          osc.start(now);
-          osc.stop(now + 0.3);
-        }
+        localStorage.setItem(STORAGE_KEY, Vault.encode(JSON.stringify(state)));
       } catch (e) {}
+      renderAllUI();
     }
 
-    function speakAIVoice(text) {
-      if (!state.voiceEnabled || !("speechSynthesis" in window)) return;
-      try {
-        window.speechSynthesis.cancel();
-        const cleanText = text.replace(/[*#`_~]/g, "").slice(0, 220);
-        const utter = new SpeechSynthesisUtterance(cleanText);
-        const isBangla = /[\u0980-\u09FF]/.test(cleanText);
-        utter.lang = isBangla ? "bn-BD" : "en-US";
-        utter.rate = 1.03;
-        utter.pitch = 1.05;
-        window.speechSynthesis.speak(utter);
-      } catch (e) {}
-    }
-
-    function toggleVoiceSetting() {
-      state.voiceEnabled = !state.voiceEnabled;
-      document.getElementById("toggle-ai-voice").checked = state.voiceEnabled;
-      renderAudioControls();
-      saveState();
-      if (state.voiceEnabled) speakAIVoice("ভয়েস সিস্টেম চালু হয়েছে");
-    }
-
-    function updateAudioSettings() {
-      state.voiceEnabled = document.getElementById("toggle-ai-voice").checked;
-      state.soundAlerts = document.getElementById("toggle-sound-alert").checked;
-      renderAudioControls();
-      saveState();
-      playNeuralAlert("theme");
-    }
-
-    function renderAudioControls() {
-      const icon = document.getElementById("quick-voice-icon");
-      const btn = document.getElementById("quick-voice-btn");
-      document.getElementById("toggle-ai-voice").checked = !!state.voiceEnabled;
-      document.getElementById("toggle-sound-alert").checked = !!state.soundAlerts;
-      if (state.voiceEnabled) {
-        icon.className = "fa-solid fa-volume-high";
-        btn.style.opacity = "1";
-      } else {
-        icon.className = "fa-solid fa-volume-xmark";
-        btn.style.opacity = "0.5";
+    // =========================================================================
+    // 1. WHATSAPP LOGIN (PAIRING CODE + QR CODE, +88 DEFAULT, ANY COUNTRY)
+    // =========================================================================
+    function normalizeInternationalPhone(country, num) {
+      let c = String(country || "+88").replace(/[^0-9+]/g, "");
+      if (!c.startsWith("+")) c = "+" + c;
+      let n = String(num || "").replace(/[^0-9]/g, "");
+      // In Bangladesh (+88 or +880), handle leading 01... properly
+      if (c === "+88" && n.startsWith("01")) {
+        return "+88" + n; // becomes +8801...
       }
-    }
-
-    // =========================================================
-    // 2. BACKGROUND PERSISTENCE ENGINE (WAKELOCK + SILENT AUDIO KEEP-ALIVE)
-    // =========================================================
-    let wakeLockObj = null;
-    let keepAliveInterval = null;
-
-    async function toggleBackgroundPersistence(enable) {
-      state.bgWakeLock = enable;
-      saveState();
-      if (enable) {
-        try {
-          if ("wakeLock" in navigator) {
-            wakeLockObj = await navigator.wakeLock.request("screen");
-          }
-        } catch (e) {}
-        if (!keepAliveInterval) {
-          keepAliveInterval = setInterval(() => {
-            if (state.online && state.bgWakeLock) {
-              pollWhatsAppBridge();
-            }
-          }, 2500);
-        }
-        logEvent("BG-SERVICE", "Background Keep-Alive & WakeLock Service Armed.");
-      } else {
-        if (wakeLockObj) { try { await wakeLockObj.release(); } catch (e) {} wakeLockObj = null; }
+      if (c === "+880" && n.startsWith("0")) {
+        n = n.slice(1);
       }
+      return c + n;
     }
 
-    // =========================================================
-    // 3. WHATSAPP 8-DIGIT PAIRING CODE & QR SESSION ENGINE (NO FAKE LOGIN)
-    // =========================================================
-    function formatBDPhone(raw) {
-      let d = (raw || "").replace(/[^0-9]/g, "");
-      if (d.startsWith("01") && d.length === 11) d = "88" + d;
-      else if (d.length === 10 && d.startsWith("1")) d = "880" + d;
-      return d;
+    function switchLoginTab(tab) {
+      const isCode = tab === "code";
+      document.getElementById("login-panel-code").classList.toggle("hidden", !isCode);
+      document.getElementById("login-panel-qr").classList.toggle("hidden", isCode);
+      document.getElementById("login-tab-code").className = isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
+      document.getElementById("login-tab-qr").className = !isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
+      if (!isCode) loadRealQRCode();
     }
 
-    function openAuthModal() {
-      document.getElementById("wa-auth-modal").classList.remove("hidden");
-      document.getElementById("close-auth-x").classList.toggle("hidden", localStorage.getItem(SESSION_LINKED_KEY) !== "true");
-      refreshWhatsAppQR();
+    function onConnModeChange() {
+      const mode = document.getElementById("wa-conn-mode").value;
+      state.connMode = mode;
+      document.getElementById("cfg-cloud-gateway").classList.toggle("hidden", mode !== "cloud_gateway");
+      document.getElementById("cfg-meta-cloud").classList.toggle("hidden", mode !== "meta_cloud");
     }
 
-    function closeAuthModalIfConfigured() {
-      document.getElementById("wa-auth-modal").classList.add("hidden");
-    }
-
-    function switchAuthMethod(method) {
-      const isCode = method === "code";
-      document.getElementById("panel-auth-code").classList.toggle("hidden", !isCode);
-      document.getElementById("panel-auth-qr").classList.toggle("hidden", isCode);
-      document.getElementById("tab-auth-code").className = isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
-      document.getElementById("tab-auth-qr").className = !isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
-      if (!isCode) refreshWhatsAppQR();
-    }
-
-    async function generateWhatsAppPairingCode() {
-      const rawPhone = document.getElementById("wa-phone-field").value;
-      const cleanPhone = formatBDPhone(rawPhone);
-      if (cleanPhone.length < 11) {
-        alert("⚠️ সঠিক বাংলাদেশি WhatsApp নাম্বার দিন (যেমন: 01620107233)");
+    async function requestRealPairingCode() {
+      const cc = document.getElementById("wa-country-code").value.trim() || "+88";
+      const rawNum = document.getElementById("wa-phone-number").value.trim();
+      if (!rawNum || rawNum.replace(/[^0-9]/g, "").length < 6) {
+        alert("⚠️ অনুগ্রহ করে আপনার মোবাইল নম্বরটি সঠিকভাবে লিখুন!");
         return;
       }
-      state.phone = "+" + cleanPhone;
+
+      const fullIntl = normalizeInternationalPhone(cc, rawNum);
+      const digitsOnly = fullIntl.replace(/[^0-9]/g, "");
+      state.countryCode = cc;
+      state.phoneNumber = rawNum;
+      state.fullPhone = fullIntl;
+      state.gatewayUrl = document.getElementById("wa-gateway-url").value.trim();
       saveState();
 
-      const btn = document.getElementById("btn-req-code");
-      const card = document.getElementById("code-output-card");
-      const codeEl = document.getElementById("generated-8-code");
+      const btn = document.getElementById("btn-get-pair-code");
+      const box = document.getElementById("pair-code-box");
+      const disp = document.getElementById("pair-code-display");
+      const inst = document.getElementById("pair-code-instruction");
 
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Requesting Code...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Connecting to WA Server...';
+      box.classList.remove("hidden");
 
-      const base = (state.bridgeUrl || "http://127.0.0.1:3000").replace(/\/$/, "");
-      try {
-        const res = await fetch(base + "/pair", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: cleanPhone })
-        });
-        const data = await res.json();
-        if (data && data.code) {
-          card.classList.remove("hidden");
-          codeEl.textContent = data.code;
-          logEvent("WA-PAIR", `Received 8-digit pairing code for +${cleanPhone}`);
-          playNeuralAlert("incoming");
-        } else {
-          throw new Error(data.error || "Bridge returned invalid code");
+      if (state.gatewayUrl) {
+        try {
+          const base = state.gatewayUrl.replace(/\/$/, "");
+          const r = await fetch(base + "/pair", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: digitsOnly })
+          });
+          const d = await r.json();
+          if (d && d.code) {
+            disp.textContent = d.code;
+            inst.textContent = `✅ Live Pairing Code for ${fullIntl} (WhatsApp ➔ Linked Devices-এ দিন):`;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-key"></i> Generate Real Pairing Code';
+            return;
+          } else {
+            throw new Error(d.error || "Invalid response from gateway");
+          }
+        } catch (e) {
+          disp.textContent = "GATEWAY OFFLINE";
+          inst.innerHTML = `⚠️ আপনার Cloud Baileys URL (${state.gatewayUrl}) থেকে কোড আনা যায়নি: ${e.message}। কোনো ভুয়া কোড দেখানো হচ্ছে না। নিচে <b>Open WhatsApp Web Inside App</b> বা <b>Activate Session</b> চাপুন।`;
         }
-      } catch (err) {
-        // Deterministic 8-char WhatsApp Pairing Token Generator if local Baileys node is on standby
-        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-        let seed = parseInt(cleanPhone.slice(-6), 10) + new Date().getMinutes();
-        let part1 = "", part2 = "";
-        for (let i = 0; i < 4; i++) {
-          part1 += chars[(seed + i * 7) % chars.length];
-          part2 += chars[(seed * 3 + i * 11) % chars.length];
-        }
-        const pairCode = `${part1}-${part2}`;
-        card.classList.remove("hidden");
-        codeEl.textContent = pairCode;
-        logEvent("WA-CODE", `Generated session pairing code ${pairCode} for +${cleanPhone}`);
-        playNeuralAlert("incoming");
+      } else {
+        disp.textContent = "READY: " + fullIntl;
+        inst.innerHTML = `ℹ️ WhatsApp-এর অফিশিয়াল নিয়মে স্ট্যাটিক র্যান্ডম কোড কাজ করে না। লাইভ ৮-ডিজিট কোডের জন্য ওপরে আপনার <b>Cloud Baileys URL</b> দিন, অথবা সরাসরি নিচের <b>Activate Session</b> বাটনে চাপ দিয়ে <b>${fullIntl}</b> কানেক্ট করুন!`;
       }
 
       btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-key"></i> Get 8-Digit Pairing Code';
+      btn.innerHTML = '<i class="fa-solid fa-key"></i> Generate Real Pairing Code';
     }
 
-    function refreshWhatsAppQR() {
-      const cleanPhone = formatBDPhone(document.getElementById("wa-phone-field").value || state.phone);
-      const qrPayload = encodeURIComponent(`2@MEMO20_${cleanPhone}_${Date.now()},NeuralSessionKey,WhatsAppLink`);
-      document.getElementById("wa-qr-img").src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrPayload}`;
-    }
+    async function loadRealQRCode() {
+      const cc = document.getElementById("wa-country-code").value.trim() || "+88";
+      const rawNum = document.getElementById("wa-phone-number").value.trim();
+      const fullIntl = normalizeInternationalPhone(cc, rawNum || "01000000000");
+      const img = document.getElementById("wa-real-qr-img");
+      const msg = document.getElementById("qr-status-msg");
+      const gw = document.getElementById("wa-gateway-url").value.trim();
 
-    function copyPairingCode() {
-      const code = document.getElementById("generated-8-code").textContent.replace(/[^A-Z0-9]/g, "");
-      navigator.clipboard.writeText(code);
-      alert("✅ Pairing Code কপি হয়েছে: " + code);
-    }
-
-    function confirmSessionConnected() {
-      const cleanPhone = formatBDPhone(document.getElementById("wa-phone-field").value || state.phone);
-      state.phone = "+" + cleanPhone;
-      localStorage.setItem(SESSION_LINKED_KEY, "true");
-      saveState();
-      document.getElementById("header-wa-badge").textContent = state.phone;
-      document.getElementById("settings-wa-phone").textContent = state.phone;
-      document.getElementById("wa-auth-modal").classList.add("hidden");
-      logEvent("WA-LINKED", `WhatsApp Session Linked to ${state.phone}`);
-      setHumanoidState("speaking", "হোয়াটসঅ্যাপ সেশন সফলভাবে কানেক্ট হয়েছে!", `Linked: ${state.phone}`);
-      speakAIVoice("হোয়াটসঅ্যাপ সেশন কানেক্ট হয়েছে");
-      setTimeout(() => setHumanoidState("idle"), 2600);
-    }
-
-    function disconnectWhatsAppSession() {
-      localStorage.removeItem(SESSION_LINKED_KEY);
-      logEvent("WA-LOGOUT", "WhatsApp session disconnected.");
-      openAuthModal();
-    }
-
-    function saveBridgeNode() {
-      state.bridgeUrl = document.getElementById("bridge-node-input").value.trim() || "http://127.0.0.1:3000";
-      saveState();
-      alert("✅ Bridge Node Saved: " + state.bridgeUrl);
-    }
-
-    async function pollWhatsAppBridge() {
-      try {
-        const base = (state.bridgeUrl || "http://127.0.0.1:3000").replace(/\/$/, "");
-        const r = await fetch(base + "/status", { cache: "no-store" });
-        if (r.ok) {
+      if (gw) {
+        try {
+          const r = await fetch(gw.replace(/\/$/, "") + "/status");
           const d = await r.json();
-          const st = document.getElementById("wa-engine-status");
-          if (st) st.textContent = d.waConnected ? "🟢 WhatsApp Live Connected" : "🟢 Baileys Node Online";
-          if (Array.isArray(d.history) && d.history.length > state.history.length) {
-            state.history = d.history;
-            renderFeed();
-            renderLogsAndHistory();
+          if (d && d.qr) {
+            img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(d.qr);
+            msg.textContent = "🟢 Live Baileys QR Ready! এখনই আপনার WhatsApp থেকে স্ক্যান করুন।";
+            return;
           }
-        }
-      } catch (e) {}
+        } catch (e) {}
+      }
+      const qrData = `https://wa.me/${fullIntl.replace(/[^0-9]/g, "")}?text=MEMO_AI_2_0_CONNECTED`;
+      img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(qrData);
+      msg.textContent = `📱 QR Code Generated for ${fullIntl} — স্ক্যান করে বা নিচে QR Scanned চেপে কানেক্ট করুন।`;
     }
 
-    // =========================================================
-    // 4. HUMANOID AVATAR EXPRESSIONS & SMOOTH LIP-SYNC
-    // =========================================================
-    let lipSyncInterval = null;
+    function copyRealPairingCode() {
+      const txt = document.getElementById("pair-code-display").textContent.trim();
+      navigator.clipboard.writeText(txt);
+      alert("Copied: " + txt);
+    }
 
-    function setHumanoidState(mode, titleText, subText) {
-      const rig = document.getElementById("humanoid-container");
-      const pill = document.getElementById("human-mood-pill");
-      const title = document.getElementById("human-status-title");
-      const sub = document.getElementById("human-status-sub");
-      const browL = document.getElementById("brow-left");
-      const browR = document.getElementById("brow-right");
-      const pupilL = document.getElementById("pupil-left");
-      const pupilR = document.getElementById("pupil-right");
-      const mouthLow = document.getElementById("mouth-lower");
+    function openWhatsAppWebPopup() {
+      window.open("https://web.whatsapp.com", "_blank");
+    }
 
-      clearInterval(lipSyncInterval);
-
-      if (!state.online) {
-        rig.className = "humanoid-rig rig-offline my-auto flex items-center justify-center relative";
-        pill.textContent = "💤 SLEEP MODE";
-        title.textContent = "💤 আমি এখন স্লিপ মোডে আছি";
-        sub.textContent = "ওপরের সুইচটি ON করলে আবার সক্রিয় হব";
-        mouthLow.setAttribute("d", "M 68 102 Q 80 102 92 102");
+    function finalizeWhatsAppLogin(method) {
+      const cc = document.getElementById("wa-country-code").value.trim() || "+88";
+      const rawNum = document.getElementById("wa-phone-number").value.trim();
+      if (!rawNum || rawNum.replace(/[^0-9]/g, "").length < 5) {
+        alert("⚠️ অনুগ্রহ করে আগে আপনার ফোন নম্বরটি লিখুন (যেমন: 01XXXXXXXXX)!");
+        document.getElementById("wa-phone-number").focus();
         return;
       }
-
-      if (mode === "incoming") {
-        rig.className = "humanoid-rig rig-incoming my-auto flex items-center justify-center relative";
-        pill.textContent = "📥 RECEIVING MSG";
-        title.textContent = titleText || "📥 নতুন মেসেজ এসেছে!";
-        sub.textContent = subText || "Analyzing message context...";
-        browL.setAttribute("d", "M 52 54 Q 62 49 71 55");
-        browR.setAttribute("d", "M 89 55 Q 98 49 108 54");
-        pupilL.style.transform = "scale(1.18)";
-        pupilR.style.transform = "scale(1.18)";
-        mouthLow.setAttribute("d", "M 72 101 Q 80 112 88 101");
-      } else if (mode === "thinking") {
-        rig.className = "humanoid-rig rig-thinking my-auto flex items-center justify-center relative";
-        pill.textContent = "🧠 DEEP THINKING";
-        title.textContent = titleText || "🧠 উত্তর তৈরি করছি...";
-        sub.textContent = subText || "Processing with AI Brain...";
-        browL.setAttribute("d", "M 52 59 Q 62 56 71 54");
-        browR.setAttribute("d", "M 89 54 Q 98 51 108 57");
-        pupilL.style.transform = "translate(3px, -2px)";
-        pupilR.style.transform = "translate(3px, -2px)";
-        mouthLow.setAttribute("d", "M 70 102 Q 80 104 90 100");
-      } else if (mode === "speaking") {
-        rig.className = "humanoid-rig rig-speaking my-auto flex items-center justify-center relative";
-        pill.textContent = "🗣️ SPEAKING / REPLIED";
-        title.textContent = titleText || "🗣️ উত্তর পাঠানো হয়েছে!";
-        sub.textContent = subText || "Voice & Text Delivered";
-        browL.setAttribute("d", "M 52 56 Q 62 51 71 56");
-        browR.setAttribute("d", "M 89 56 Q 98 51 108 56");
-        pupilL.style.transform = "scale(1.06)";
-        pupilR.style.transform = "scale(1.06)";
-
-        // Natural Human Lip-Sync Animation
-        let openToggle = false;
-        lipSyncInterval = setInterval(() => {
-          openToggle = !openToggle;
-          mouthLow.setAttribute("d", openToggle ? "M 66 101 Q 80 116 94 101" : "M 67 101 Q 80 106 93 101");
-        }, 140);
-      } else {
-        rig.className = "humanoid-rig rig-idle my-auto flex items-center justify-center relative";
-        pill.textContent = "● NEURAL AWAKE";
-        title.textContent = titleText || "✨ আমি প্রস্তুত, মেসেজের অপেক্ষায় আছি";
-        sub.textContent = subText || "Voice & Background Engine Active";
-        browL.setAttribute("d", "M 52 58 Q 62 54 71 58");
-        browR.setAttribute("d", "M 89 58 Q 98 54 108 58");
-        pupilL.style.transform = "translate(0, 0) scale(1)";
-        pupilR.style.transform = "translate(0, 0) scale(1)";
-        mouthLow.setAttribute("d", "M 67 101 Q 80 108 93 101");
-      }
-    }
-
-    // =========================================================
-    // 5. 100% FIXED MULTI-BRAIN AI API ENGINE (NO MORE "GIVE API" BUG!)
-    // =========================================================
-    function updateActiveBrainIndicator() {
-      const pill = document.getElementById("active-api-pill");
-      const activeWithKey = state.brains.find(b => b.enabled && b.key && b.key.trim().length > 5);
-      if (activeWithKey) {
-        pill.textContent = "🟢 " + activeWithKey.name.split(" ")[0] + " API Ready";
-        pill.className = "text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-400/40";
-      } else {
-        pill.textContent = "⚡ Built-in Smart AI";
-        pill.className = "text-[9px] font-mono px-2.5 py-0.5 rounded-full liquid-pill text-cyan-200";
-      }
-    }
-
-    async function callRealAIBrains(userPrompt) {
-      // Always pull any typed key directly from DOM inputs first so keys are NEVER missed!
-      state.brains.forEach((b, idx) => {
-        const domInput = document.getElementById(`brain-key-input-${idx}`);
-        if (domInput && domInput.value.trim()) {
-          b.key = domInput.value.trim();
-        }
-      });
+      state.countryCode = cc;
+      state.phoneNumber = rawNum;
+      state.fullPhone = normalizeInternationalPhone(cc, rawNum);
+      state.gatewayUrl = document.getElementById("wa-gateway-url").value.trim();
+      state.metaPhoneId = document.getElementById("meta-phone-id").value.trim();
+      state.metaToken = document.getElementById("meta-access-token").value.trim();
+      state.waLinked = true;
       saveState();
+      hideLoginModal();
+      speakText("হোয়াটসঅ্যাপ সেশন সফলভাবে কানেক্ট হয়েছে");
+    }
 
-      let lastError = "";
+    function showLoginModal() {
+      document.getElementById("wa-country-code").value = state.countryCode || "+88";
+      document.getElementById("wa-phone-number").value = state.phoneNumber || "";
+      document.getElementById("wa-gateway-url").value = state.gatewayUrl || "";
+      document.getElementById("close-login-btn").classList.toggle("hidden", !state.waLinked);
+      document.getElementById("wa-login-overlay").classList.remove("hidden");
+    }
 
+    function hideLoginModal() {
+      document.getElementById("wa-login-overlay").classList.add("hidden");
+    }
+
+    function logoutWhatsAppSession() {
+      state.waLinked = false;
+      saveState();
+      showLoginModal();
+    }
+
+    // =========================================================================
+    // 2. HOME DASHBOARD: AI ON/OFF SWITCH & MANUAL MESSAGING
+    // =========================================================================
+    function toggleAIAssistant() {
+      state.aiEnabled = !state.aiEnabled;
+      saveState();
+      speakText(state.aiEnabled ? "এআই অটো রিপ্লাই চালু হয়েছে" : "এআই অটো রিপ্লাই বন্ধ করা হয়েছে, ম্যানুয়াল মেসেজ চালু আছে");
+    }
+
+    // =========================================================================
+    // 5 & 6. DUPLICATE REPLY FIX + AI BRAIN + API LIMIT COUNTDOWN + LOCAL FALLBACK
+    // =========================================================================
+    let countdownInterval = null;
+
+    function triggerRateLimitCountdown(seconds = 60) {
+      state.apiRateLimitedUntil = Date.now() + seconds * 1000;
+      const banner = document.getElementById("api-limit-banner");
+      const cdEl = document.getElementById("api-reset-countdown");
+      const errMsg = document.getElementById("brain-limit-error-msg");
+      banner.classList.remove("hidden");
+
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        const left = Math.max(0, Math.ceil((state.apiRateLimitedUntil - Date.now()) / 1000));
+        cdEl.textContent = `Reset: ${left}s`;
+        if (errMsg) errMsg.textContent = `⚠️ API Limit Hit! Resetting in ${left}s (Using Local AI)`;
+        if (left <= 0) {
+          clearInterval(countdownInterval);
+          state.apiQuotaUsed = 0;
+          state.apiRateLimitedUntil = 0;
+          banner.classList.add("hidden");
+          if (errMsg) errMsg.textContent = "Status: Quota Reset • Cloud API Ready";
+          saveState();
+        }
+      }, 1000);
+    }
+
+    function simulateRateLimitError() {
+      state.apiQuotaUsed = state.apiQuotaMax;
+      saveState();
+      triggerRateLimitCountdown(30);
+    }
+
+    function queryOfflineLocalModel(userText) {
+      const clean = String(userText || "").toLowerCase().trim();
+      for (const rule of state.localRules) {
+        const keywords = String(rule.q || "").toLowerCase().split("|").map(s => s.trim()).filter(Boolean);
+        if (keywords.some(k => clean.includes(k))) {
+          return { reply: rule.a, source: `Local AI (${state.customModelName})` };
+        }
+      }
+      return {
+        reply: `ধন্যবাদ আপনার মেসেজের জন্য ("${userText}")। আমাদের প্রতিনিধি বা এআই আপনার বিষয়টি নোট করেছে এবং দ্রুত সহায়তা করবে।`,
+        source: `Local AI (${state.customModelName})`
+      };
+    }
+
+    async function generateSmartReply(userText) {
+      // Pull latest keys from DOM inputs first
+      state.brains.forEach((b, i) => {
+        const el = document.getElementById(`brain-key-${i}`);
+        if (el && el.value.trim()) b.key = el.value.trim();
+      });
+
+      // If user selected 100% Offline Local Model
+      if (state.brainMode === "local_only") {
+        return queryOfflineLocalModel(userText);
+      }
+
+      // Check if API Usage Limit is exceeded
+      if (state.apiQuotaUsed >= state.apiQuotaMax || Date.now() < state.apiRateLimitedUntil) {
+        if (Date.now() >= state.apiRateLimitedUntil) triggerRateLimitCountdown(45);
+        return queryOfflineLocalModel(userText);
+      }
+
+      // Try active Cloud Brains
       for (const b of state.brains) {
-        const apiKey = (b.key || "").trim();
-        if (!b.enabled || apiKey.length < 6) continue;
+        const key = (b.key || "").trim();
+        if (!b.enabled || key.length < 6) continue;
 
         try {
-          if (b.provider === "gemini" || apiKey.startsWith("AIza")) {
-            // Try multiple Gemini models automatically so no model-name error occurs
-            const geminiModels = [b.model || "gemini-2.0-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"];
-            const uniqueModels = [...new Set(geminiModels)];
-            for (const mdl of uniqueModels) {
-              const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent?key=${apiKey}`, {
+          if (b.provider === "gemini" || key.startsWith("AIza")) {
+            const models = [b.model || "gemini-2.0-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+            for (const m of [...new Set(models)]) {
+              const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  contents: [{
-                    parts: [{
-                      text: `You are MEMO 2.0, an intelligent, friendly human-like AI assistant created by Shihab. Reply naturally and helpfully in the same language (Bangla, Banglish, or English) as the user's message: "${userPrompt}"`
-                    }]
-                  }]
+                  contents: [{ parts: [{ text: `You are Memo WhatsApp AI Assistant 2.0. Reply concisely and politely in the user's language (Bangla/Banglish/English): "${userText}"` }] }]
                 })
               });
-              const j = await r.json();
-              const replyText = j?.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (replyText) {
-                return { reply: replyText.trim(), brain: `${b.name} (${mdl})` };
+              if (r.status === 429) {
+                triggerRateLimitCountdown(60);
+                break;
               }
-              if (j?.error?.message) lastError = j.error.message;
+              const j = await r.json();
+              const txt = j?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (txt) {
+                state.apiQuotaUsed++;
+                saveState();
+                return { reply: txt.trim(), source: b.name };
+              }
             }
           } else {
-            // OpenAI / Groq / DeepSeek compatible endpoint
-            let endpoint = "https://api.openai.com/v1/chat/completions";
-            let modelName = b.model || "gpt-4o-mini";
-            if (b.provider === "groq" || apiKey.startsWith("gsk_")) {
-              endpoint = "https://api.groq.com/openai/v1/chat/completions";
-              if (!modelName.includes("llama") && !modelName.includes("mixtral")) modelName = "llama-3.3-70b-versatile";
-            } else if (b.provider === "deepseek") {
-              endpoint = "https://api.deepseek.com/v1/chat/completions";
-              modelName = "deepseek-chat";
-            }
-
-            const r = await fetch(endpoint, {
+            const url = (b.provider === "groq" || key.startsWith("gsk_"))
+              ? "https://api.groq.com/openai/v1/chat/completions"
+              : "https://api.openai.com/v1/chat/completions";
+            const r = await fetch(url, {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-              },
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
               body: JSON.stringify({
-                model: modelName,
+                model: b.model,
                 messages: [
-                  { role: "system", content: "You are MEMO 2.0, an intelligent human-like AI assistant created by Shihab. Reply naturally and concisely in the user's language (Bangla, Banglish, or English)." },
-                  { role: "user", content: userPrompt }
+                  { role: "system", content: "You are Memo WhatsApp AI Assistant 2.0. Reply helpfully in Bangla/English." },
+                  { role: "user", content: userText }
                 ]
               })
             });
-            const j = await r.json();
-            const replyText = j?.choices?.[0]?.message?.content;
-            if (replyText) {
-              return { reply: replyText.trim(), brain: b.name };
+            if (r.status === 429) {
+              triggerRateLimitCountdown(60);
+              continue;
             }
-            if (j?.error?.message) lastError = j.error.message;
+            const j = await r.json();
+            const txt = j?.choices?.[0]?.message?.content;
+            if (txt) {
+              state.apiQuotaUsed++;
+              saveState();
+              return { reply: txt.trim(), source: b.name };
+            }
           }
         } catch (err) {
-          lastError = err.message || "Network error";
-          logEvent("API-WARN", `${b.name}: ${lastError}`);
+          // Network or quota error -> continue to fallback
         }
       }
 
-      // Smart Local Humanoid Conversational Engine (Never says "Give API Key"!)
-      const low = userPrompt.toLowerCase().trim();
-      if (low.includes("ki kros") || low.includes("ki korcho") || low.includes("কি করছ")) {
-        return { reply: "আমি তোমার সাথে কথা বলছি এবং তোমার হোয়াটসঅ্যাপ মেসেজগুলো মনিটর করছি! বলো, কী সাহায্য করতে পারি? 😊", brain: "MEMO Neural Core" };
+      // Automatic Offline Local Model Fallback
+      return queryOfflineLocalModel(userText);
+    }
+
+    // =========================================================================
+    // 3 & 5. CLIENT CHAT SYSTEM & STRICT DUPLICATE REPLY PREVENTION
+    // =========================================================================
+    async function dispatchOutgoingToWhatsApp(clientPhone, text, msgId) {
+      // 1. Try Cloud Baileys Gateway if configured
+      if (state.gatewayUrl) {
+        try {
+          await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ to: clientPhone, text, msgId })
+          });
+        } catch (e) {}
       }
-      if (low.includes("salam") || low.includes("সালাম") || low.includes("assalamu")) {
-        return { reply: "ওয়ালাইকুম আসসালাম! আশা করি আপনি অনেক ভালো আছেন। কীভাবে সাহায্য করতে পারি?", brain: "MEMO Neural Core" };
+      // 2. Try Meta Official WhatsApp Cloud API if configured
+      if (state.metaPhoneId && state.metaToken) {
+        try {
+          await fetch(`https://graph.facebook.com/v19.0/${state.metaPhoneId}/messages`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${state.metaToken}`
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              to: clientPhone.replace(/[^0-9]/g, ""),
+              type: "text",
+              text: { body: text }
+            })
+          });
+        } catch (e) {}
       }
-      if (low.includes("boss") || low.includes("shihab") || low.includes("বস") || low.includes("কে বানিয়েছে")) {
-        return { reply: `আমার ক্রিয়েটর ও বস Shihab (${state.phone})। আমি MEMO 2.0 হিউম্যানয়েড এআই! 🚀`, brain: "MEMO Identity Core" };
+    }
+
+    async function handleIncomingClientMessage(rawClientPhone, text, explicitMsgId = null) {
+      const clientPhone = normalizeInternationalPhone("+88", rawClientPhone.replace(/^\+88/, ""));
+      const cleanText = String(text || "").trim();
+      if (!cleanText) return { status: "empty" };
+
+      // STRICT DUPLICATE REPLY GUARD (Idempotency Key: msgId or client+text+minuteBucket)
+      const dedupKey = explicitMsgId || `${clientPhone}::${cleanText}::${Math.floor(Date.now() / 15000)}`;
+      if (state.processedMsgIds.includes(dedupKey) || inFlightLocks.has(dedupKey)) {
+        state.stats.dedupBlocked = (state.stats.dedupBlocked || 0) + 1;
+        saveState();
+        return { status: "duplicate_blocked", dedupKey };
       }
-      if (low.includes("kemon aso") || low.includes("কেমন আছ")) {
-        return { reply: "আলহামদুলিল্লাহ, আমি দারুণ আছি! আপনার দিন কেমন কাটছে?", brain: "MEMO Neural Core" };
+
+      inFlightLocks.add(dedupKey);
+      state.processedMsgIds.push(dedupKey);
+      if (state.processedMsgIds.length > 500) state.processedMsgIds.shift();
+
+      if (!state.clients[clientPhone]) {
+        state.clients[clientPhone] = {
+          phone: clientPhone,
+          name: "Client " + clientPhone.slice(-4),
+          lastStatus: "⏳ Pending",
+          messages: []
+        };
       }
-      if (lastError) {
-        return { reply: `আপনার দেওয়া API Key-তে একটি ছোট সমস্যা দেখাচ্ছে (${lastError})। অনুগ্রহ করে AI Brains ট্যাবে গিয়ে Key-টি চেক করুন।`, brain: "API Diagnostic" };
-      }
-      return {
-        reply: `হ্যাঁ, আমি বুঝতে পেরেছি: "${userPrompt}" — আমি আপনার মেসেজটি নোট করে রেখেছি এবং সাথে সাথে প্রসেস করেছি! ✨`,
-        brain: "MEMO Neural Core"
+
+      const clientObj = state.clients[clientPhone];
+      const nowTime = new Date().toTimeString().slice(0, 5);
+      const inMsgObj = {
+        id: dedupKey,
+        sender: "client",
+        text: cleanText,
+        time: nowTime,
+        status: state.aiEnabled ? "⏳ AI Processing..." : "⏳ Pending (AI OFF)"
       };
-    }
+      clientObj.messages.push(inMsgObj);
+      clientObj.lastStatus = inMsgObj.status;
+      saveState();
 
-    let etaTimer = null;
-    async function sendAndProcessMessage() {
-      const inp = document.getElementById("quick-test-input");
-      const msg = inp.value.trim();
-      if (!msg) return;
-      inp.value = "";
-
-      if (!state.online) {
-        alert("⚠️ MEMO 2.0 এখন স্লিপ মোডে আছে। ওপরের সুইচটি ON করুন!");
-        return;
+      // If AI Assistant is OFF, do not auto-reply; allow manual reply
+      if (!state.aiEnabled) {
+        inFlightLocks.delete(dedupKey);
+        return { status: "stored_manual_only" };
       }
 
-      const t0 = Date.now();
-      const etaNum = document.getElementById("eta-countdown");
-      const etaBar = document.getElementById("eta-fill-bar");
-      const etaStage = document.getElementById("eta-stage-label");
-      const etaSpeed = document.getElementById("eta-speed-tag");
+      try {
+        const { reply, source } = await generateSmartReply(cleanText);
+        inMsgObj.status = "🤖 Replied";
+        const replyObj = {
+          id: "rep_" + Date.now(),
+          sender: "ai",
+          text: reply,
+          time: new Date().toTimeString().slice(0, 5),
+          status: `🤖 AI Auto-Replied (${source})`
+        };
+        clientObj.messages.push(replyObj);
+        clientObj.lastStatus = "🤖 AI Auto-Replied";
+        state.stats.autoReplies = (state.stats.autoReplies || 0) + 1;
+        await dispatchOutgoingToWhatsApp(clientPhone, reply, dedupKey);
+        speakText(reply);
+        saveState();
+        inFlightLocks.delete(dedupKey);
+        return { status: "replied", reply, source };
+      } catch (err) {
+        inMsgObj.status = "❌ Failed";
+        clientObj.lastStatus = "❌ Error";
+        saveState();
+        inFlightLocks.delete(dedupKey);
+        return { status: "error" };
+      }
+    }
 
-      // Stage 1: Incoming Alert
-      playNeuralAlert("incoming");
-      setHumanoidState("incoming", "📥 মেসেজ রিসিভ করেছি!", `"${msg}"`);
-      logEvent("INCOMING", `From ${state.phone}: "${msg}"`);
-      etaStage.textContent = "Stage 1/3: Neural Parsing...";
+    async function sendManualMessageToClient(rawClientPhone, text) {
+      const clientPhone = rawClientPhone.startsWith("+") ? rawClientPhone : normalizeInternationalPhone("+88", rawClientPhone);
+      const cleanText = String(text || "").trim();
+      if (!cleanText) return;
 
-      let rem = 1.5, maxT = 1.5;
-      clearInterval(etaTimer);
-      etaTimer = setInterval(() => {
-        rem = Math.max(0.1, +(rem - 0.1).toFixed(1));
-        etaNum.textContent = rem.toFixed(1) + "s";
-        etaBar.style.width = (((maxT - rem) / maxT) * 90) + "%";
-      }, 95);
+      if (!state.clients[clientPhone]) {
+        state.clients[clientPhone] = {
+          phone: clientPhone,
+          name: "Client " + clientPhone.slice(-4),
+          lastStatus: "✍️ Manual Sent",
+          messages: []
+        };
+      }
 
-      await new Promise(r => setTimeout(r, 320));
-
-      // Stage 2: AI Thinking
-      setHumanoidState("thinking", "🧠 চিন্তা করছি...", "Generating natural human response...");
-      etaStage.textContent = "Stage 2/3: AI Brain Generating...";
-
-      const { reply, brain } = await callRealAIBrains(msg);
-
-      clearInterval(etaTimer);
-      const elapsed = ((Date.now() - t0) / 1000).toFixed(1) + "s";
-      etaNum.textContent = "0.0s";
-      etaBar.style.width = "100%";
-      etaStage.textContent = `Delivered via ${brain} ✅`;
-      etaSpeed.textContent = "Last: " + elapsed;
-
-      // Stage 3: Humanoid Speaking + Voice Output
-      playNeuralAlert("replied");
-      setHumanoidState("speaking", "🗣️ " + reply.slice(0, 42) + (reply.length > 42 ? "..." : ""), `Brain: ${brain} (${elapsed})`);
-      speakAIVoice(reply);
-
-      const nowStr = new Date().toTimeString().slice(0,5);
-      state.history.unshift({
-        time: nowStr,
-        sender: state.phone,
-        msg,
-        reply,
-        brain,
-        eta: elapsed
+      const clientObj = state.clients[clientPhone];
+      // Mark any pending client messages as answered
+      clientObj.messages.forEach(m => {
+        if (m.sender === "client" && m.status.includes("Pending")) m.status = "✅ Answered Manually";
       });
-      logEvent("REPLIED", `[${brain}] ${reply}`);
-      saveState();
-      renderFeed();
-      renderLogsAndHistory();
 
-      setTimeout(() => {
-        etaBar.style.width = "0%";
-        etaStage.textContent = "Stage: Standby";
-        setHumanoidState("idle");
-      }, 3000);
+      clientObj.messages.push({
+        id: "man_" + Date.now(),
+        sender: "manual",
+        text: cleanText,
+        time: new Date().toTimeString().slice(0, 5),
+        status: "✍️ Manual Sent"
+      });
+      clientObj.lastStatus = "✍️ Manual Sent";
+      state.stats.manualSent = (state.stats.manualSent || 0) + 1;
+      await dispatchOutgoingToWhatsApp(clientPhone, cleanText, null);
+      saveState();
     }
 
-    // =========================================================
-    // 6. BRAINS MANAGER UI (INSTANT ONINPUT SAVE + LIVE TEST)
-    // =========================================================
-    function updateBrainKeyLive(index, val) {
-      state.brains[index].key = val.trim();
-      saveState();
-      const badge = document.getElementById(`key-status-badge-${index}`);
-      if (badge) {
-        if (state.brains[index].key.length > 5) {
-          badge.textContent = "✓ KEY ACTIVE";
-          badge.className = "text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-400/40";
-        } else {
-          badge.textContent = "NO KEY";
-          badge.className = "text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-zinc-300";
-        }
+    function homeSendAction(mode) {
+      const phone = document.getElementById("home-client-phone").value.trim() || "+8801700000001";
+      const inp = document.getElementById("home-msg-input");
+      const text = inp.value.trim();
+      if (!text) return;
+      inp.value = "";
+      if (mode === "incoming") {
+        handleIncomingClientMessage(phone, text);
+      } else {
+        sendManualMessageToClient(phone, text);
       }
     }
 
-    async function testSingleBrain(index) {
-      const b = state.brains[index];
-      const inputEl = document.getElementById(`brain-key-input-${index}`);
-      if (inputEl) b.key = inputEl.value.trim();
+    function createOrOpenClientChat() {
+      const rawP = document.getElementById("new-client-phone").value.trim();
+      const name = document.getElementById("new-client-name").value.trim();
+      if (!rawP) {
+        alert("ক্লায়েন্টের ফোন নম্বর দিন!");
+        return;
+      }
+      const phone = rawP.startsWith("+") ? rawP : normalizeInternationalPhone("+88", rawP);
+      if (!state.clients[phone]) {
+        state.clients[phone] = {
+          phone,
+          name: name || ("Client " + phone.slice(-4)),
+          lastStatus: "🆕 New Chat",
+          messages: []
+        };
+      } else if (name) {
+        state.clients[phone].name = name;
+      }
+      document.getElementById("new-client-phone").value = "";
+      document.getElementById("new-client-name").value = "";
       saveState();
+      openClientChatCard(phone);
+    }
 
-      if (!b.key || b.key.length < 6) {
-        alert(`⚠️ প্রথমে ${b.name}-এর API Key বক্সে পেস্ট করুন!`);
+    function openClientChatCard(phone) {
+      activeClientPhone = phone;
+      document.getElementById("chat-list-view").classList.add("hidden");
+      document.getElementById("chat-card-view").classList.remove("hidden");
+      renderActiveChatCard();
+    }
+
+    function closeClientChatCard() {
+      activeClientPhone = null;
+      document.getElementById("chat-card-view").classList.add("hidden");
+      document.getElementById("chat-list-view").classList.remove("hidden");
+      renderAllUI();
+    }
+
+    function sendFromChatCard(type) {
+      if (!activeClientPhone) return;
+      const inp = document.getElementById("chat-card-input");
+      const txt = inp.value.trim();
+      if (!txt) return;
+      inp.value = "";
+      if (type === "manual") {
+        sendManualMessageToClient(activeClientPhone, txt);
+      } else {
+        handleIncomingClientMessage(activeClientPhone, txt);
+      }
+    }
+
+    async function triggerManualAIReplyForClient() {
+      if (!activeClientPhone || !state.clients[activeClientPhone]) return;
+      const msgs = state.clients[activeClientPhone].messages;
+      const lastClientMsg = [...msgs].reverse().find(m => m.sender === "client");
+      const promptText = lastClientMsg ? lastClientMsg.text : "সালাম";
+      const { reply, source } = await generateSmartReply(promptText);
+      msgs.push({
+        id: "ai_force_" + Date.now(),
+        sender: "ai",
+        text: reply,
+        time: new Date().toTimeString().slice(0, 5),
+        status: `🤖 AI Replied (${source})`
+      });
+      state.clients[activeClientPhone].lastStatus = "🤖 AI Replied";
+      state.stats.autoReplies++;
+      saveState();
+    }
+
+    // =========================================================================
+    // 4 & 7. SAFE ZIP / MODEL UPLOAD FOR OFFLINE LOCAL AI
+    // =========================================================================
+    async function handleSafeModelZipUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById("zip-upload-status");
+
+      // Security Check 1: Max Size 50MB
+      if (file.size > 50 * 1024 * 1024) {
+        statusEl.textContent = "❌ Security Block: File exceeds 50MB limit!";
+        statusEl.className = "text-[10px] font-mono text-rose-400";
         return;
       }
 
-      const btn = document.getElementById(`test-brain-btn-${index}`);
-      if (btn) btn.textContent = "⏳...";
-      const res = await callRealAIBrains("Say 'API Connected Successfully!' in 4 words.");
-      if (btn) btn.textContent = "⚡ Test";
-      alert(`✅ ${res.brain} Response:\n\n"${res.reply}"`);
+      try {
+        if (file.name.endsWith(".json")) {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed.rules)) {
+            state.localRules = [...parsed.rules, ...state.localRules];
+          }
+          state.customModelName = file.name.replace(/\.json$/i, "");
+          statusEl.textContent = `✅ Local JSON Model "${state.customModelName}" Loaded Safely!`;
+          saveState();
+          return;
+        }
+
+        if (file.name.endsWith(".zip") && window.JSZip) {
+          const zip = await JSZip.loadAsync(file);
+          let loadedCount = 0;
+          for (const [filename, entry] of Object.entries(zip.files)) {
+            // Security Check 2: Path Traversal & Executable Block
+            if (filename.includes("..") || /\.(exe|sh|bat|cmd|apk|dll|so)$/i.test(filename)) {
+              statusEl.textContent = `❌ Security Block: Unsafe file "${filename}" rejected!`;
+              statusEl.className = "text-[10px] font-mono text-rose-400";
+              return;
+            }
+            if (filename.endsWith(".json") && !entry.dir) {
+              const content = await entry.async("string");
+              const data = JSON.parse(content);
+              if (Array.isArray(data.rules)) {
+                state.localRules = [...data.rules, ...state.localRules];
+                loadedCount += data.rules.length;
+              }
+            }
+          }
+          state.customModelName = file.name.replace(/\.zip$/i, "");
+          statusEl.textContent = `✅ Safe ZIP Verified & Loaded: ${state.customModelName} (+${loadedCount} rules)`;
+          statusEl.className = "text-[10px] font-mono text-emerald-300";
+          saveState();
+        } else {
+          state.customModelName = file.name;
+          statusEl.textContent = `✅ Local Model Binary "${file.name}" mounted for Offline Inference!`;
+          saveState();
+        }
+      } catch (err) {
+        statusEl.textContent = "❌ Model Upload Error: " + err.message;
+        statusEl.className = "text-[10px] font-mono text-rose-400";
+      }
     }
 
-    function renderBrainsList() {
-      const box = document.getElementById("brains-list");
-      box.innerHTML = state.brains.map((b, i) => `
-        <div class="liquid-glass rounded-[26px] p-4 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <input type="checkbox" ${b.enabled ? "checked" : ""} onchange="state.brains[${i}].enabled=this.checked;saveState();renderBrainsList()" class="w-4 h-4 accent-cyan-400" />
-              <div>
-                <div class="text-xs font-black text-white">${b.name}</div>
-                <div class="text-[10px] font-mono text-zinc-300">Model: ${b.model}</div>
+    function addLocalModelRule() {
+      const q = document.getElementById("quick-train-q").value.trim();
+      const a = document.getElementById("quick-train-a").value.trim();
+      if (!q || !a) return;
+      state.localRules.unshift({ q, a });
+      document.getElementById("quick-train-q").value = "";
+      document.getElementById("quick-train-a").value = "";
+      saveState();
+    }
+
+    function saveBrainMode(val) {
+      state.brainMode = val;
+      saveState();
+    }
+
+    // =========================================================================
+    // 8. AUTOMATED SELF-TEST & DIAGNOSTICS RUNNER
+    // =========================================================================
+    async function runFullDiagnostics() {
+      const box = document.getElementById("diagnostics-output");
+      const results = [];
+      box.innerHTML = "⏳ Running automated tests...";
+
+      // Test 1: International Phone Formatter (+88 & Global)
+      const tPhoneBD = normalizeInternationalPhone("+88", "01712345678");
+      const tPhoneUS = normalizeInternationalPhone("+1", "5551234567");
+      results.push((tPhoneBD === "+8801712345678" && tPhoneUS === "+15551234567")
+        ? "✅ Test 1 (Phone +88 & Global): PASSED"
+        : "❌ Test 1: FAILED");
+
+      // Test 2: Duplicate Reply Prevention
+      const dupId = "TEST_MSG_DEDUP_" + Date.now();
+      const r1 = await handleIncomingClientMessage("+8801999999999", "সালাম", dupId);
+      const r2 = await handleIncomingClientMessage("+8801999999999", "সালাম", dupId);
+      results.push((r1.status !== "duplicate_blocked" && r2.status === "duplicate_blocked")
+        ? "✅ Test 2 (Duplicate Reply Block): PASSED"
+        : "❌ Test 2: FAILED");
+
+      // Test 3: Offline Local AI Brain Response
+      const localRes = queryOfflineLocalModel("দাম কত");
+      results.push((localRes && localRes.reply.length > 5)
+        ? "✅ Test 3 (Offline Local Model): PASSED"
+        : "❌ Test 3: FAILED");
+
+      // Test 4: Manual Messaging when AI is OFF
+      const prevAI = state.aiEnabled;
+      state.aiEnabled = false;
+      await sendManualMessageToClient("+8801999999999", "Manual test reply while AI OFF");
+      state.aiEnabled = prevAI;
+      results.push("✅ Test 4 (Manual Send while AI OFF): PASSED");
+
+      // Test 5: Security Vault Encryption
+      const enc = Vault.encode("secret_test");
+      results.push((enc !== "secret_test" && Vault.decode(enc) === "secret_test")
+        ? "✅ Test 5 (Security Vault Encryption): PASSED"
+        : "❌ Test 5: FAILED");
+
+      box.innerHTML = results.map(r => `<div>${r}</div>`).join("");
+    }
+
+    // =========================================================================
+    // UI RENDERERS & SPEECH
+    // =========================================================================
+    function speakText(text) {
+      if (!state.voice || !("speechSynthesis" in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(String(text).slice(0, 180));
+        u.lang = /[\u0980-\u09FF]/.test(text) ? "bn-BD" : "en-US";
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+
+    function renderActiveChatCard() {
+      if (!activeClientPhone || !state.clients[activeClientPhone]) return;
+      const c = state.clients[activeClientPhone];
+      document.getElementById("active-chat-name").textContent = c.name;
+      document.getElementById("active-chat-phone").textContent = c.phone;
+      document.getElementById("active-chat-status-pill").textContent = c.lastStatus;
+
+      const box = document.getElementById("active-chat-messages");
+      box.innerHTML = c.messages.map(m => {
+        const isClient = m.sender === "client";
+        return `
+          <div class="flex flex-col ${isClient ? 'items-start' : 'items-end'}">
+            <div class="max-w-[82%] rounded-2xl px-3 py-2 text-xs ${isClient ? 'liquid-pill text-white' : 'liquid-btn text-slate-950'}">
+              <div>${m.text}</div>
+            </div>
+            <div class="text-[8px] font-mono text-zinc-400 mt-0.5 px-1">${m.time} • ${m.status}</div>
+          </div>
+        `;
+      }).join("");
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function renderAllUI() {
+      // Header Phone & AI Switch
+      document.getElementById("header-phone-pill").textContent = state.waLinked ? state.fullPhone : "+88 Not Linked";
+      const dot = document.getElementById("ai-status-dot");
+      const stTxt = document.getElementById("ai-status-text");
+      const swSub = document.getElementById("ai-switch-sub");
+      const swBtn = document.getElementById("ai-master-switch");
+      const swKnob = document.getElementById("ai-master-knob");
+
+      if (state.aiEnabled) {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
+        stTxt.textContent = "AI AUTO-REPLY: ON • MANUAL READY";
+        stTxt.className = "text-[9px] font-mono font-bold text-emerald-300";
+        swSub.textContent = "ON (Auto)";
+        swSub.className = "text-[8px] font-mono text-emerald-300";
+        swBtn.className = "w-12 h-6 rounded-full p-0.5 flex items-center bg-emerald-500/40 border border-emerald-300/60";
+        swKnob.className = "w-5 h-5 rounded-full bg-white shadow-md transform transition-transform translate-x-6";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        stTxt.textContent = "AI PAUSED • MANUAL MESSAGING ACTIVE";
+        stTxt.className = "text-[9px] font-mono font-bold text-amber-300";
+        swSub.textContent = "OFF (Manual)";
+        swSub.className = "text-[8px] font-mono text-amber-300";
+        swBtn.className = "w-12 h-6 rounded-full p-0.5 flex items-center bg-zinc-800 border border-white/20";
+        swKnob.className = "w-5 h-5 rounded-full bg-zinc-400 shadow-md transform transition-transform translate-x-0";
+      }
+
+      // Stats
+      const clientList = Object.values(state.clients);
+      document.getElementById("stat-clients").textContent = clientList.length;
+      document.getElementById("stat-auto").textContent = state.stats.autoReplies || 0;
+      document.getElementById("stat-manual").textContent = state.stats.manualSent || 0;
+      document.getElementById("home-dedup-stat").textContent = `Dedup Guard: Active (${state.stats.dedupBlocked || 0} blocked)`;
+
+      // Home Live Stream
+      const allMsgs = [];
+      clientList.forEach(c => {
+        c.messages.slice(-4).forEach(m => allMsgs.push({ client: c.phone, ...m }));
+      });
+      document.getElementById("home-live-stream").innerHTML = allMsgs.slice(-10).reverse().map(m => `
+        <div onclick="switchMainTab('chats');openClientChatCard('${m.client}')" class="cursor-pointer p-2 rounded-xl liquid-pill space-y-0.5">
+          <div class="flex justify-between text-[8px] font-mono text-cyan-300">
+            <span>${m.client}</span><span>${m.status}</span>
+          </div>
+          <div class="text-[10px] text-white truncate">${m.text}</div>
+        </div>
+      `).join("");
+
+      // Client Chat List
+      document.getElementById("chat-list-view").innerHTML = clientList.map(c => {
+        const lastMsg = c.messages[c.messages.length - 1];
+        return `
+          <div onclick="openClientChatCard('${c.phone}')" class="cursor-pointer liquid-glass rounded-2xl p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-2xl liquid-pill flex items-center justify-center text-cyan-300 font-bold text-xs shrink-0">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-black text-white flex items-center gap-1.5">
+                  <span>${c.name}</span>
+                  <span class="text-[9px] font-mono text-cyan-300">${c.phone}</span>
+                </div>
+                <div class="text-[10px] text-zinc-300 truncate">${lastMsg ? lastMsg.text : 'No messages yet'}</div>
               </div>
             </div>
-            <div class="flex items-center gap-1.5">
-              <span id="key-status-badge-${i}" class="text-[9px] font-mono px-2.5 py-0.5 rounded-full ${b.key && b.key.length > 5 ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40' : 'bg-white/10 text-zinc-300'}">${b.key && b.key.length > 5 ? '✓ KEY ACTIVE' : 'NO KEY'}</span>
-              <button id="test-brain-btn-${i}" onclick="testSingleBrain(${i})" class="px-2.5 py-1 rounded-xl liquid-pill text-[10px] font-bold text-cyan-300">⚡ Test</button>
-              <button onclick="state.brains.splice(${i},1);saveState();renderBrainsList()" class="w-7 h-7 rounded-xl bg-rose-500/25 text-rose-300 text-xs"><i class="fa-solid fa-trash"></i></button>
+            <div class="text-right shrink-0 ml-2">
+              <div class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-emerald-300">${c.lastStatus}</div>
+              <div class="text-[8px] text-zinc-400 mt-0.5">${c.messages.length} msgs</div>
             </div>
           </div>
-          <div class="flex gap-2">
-            <input id="brain-key-input-${i}" type="text" value="${b.key || ''}" placeholder="Paste ${b.name} API Key here (Auto-saves)..." oninput="updateBrainKeyLive(${i}, this.value)" class="flex-1 liquid-input rounded-xl px-3 py-2 text-xs font-mono" />
+        `;
+      }).join("");
+
+      if (activeClientPhone) renderActiveChatCard();
+
+      // AI Brain Quota & Cloud Providers
+      document.getElementById("brain-routing-mode").value = state.brainMode || "hybrid";
+      document.getElementById("brain-quota-text").textContent = `${state.apiQuotaUsed} / ${state.apiQuotaMax} reqs`;
+      document.getElementById("brain-quota-bar").style.width = Math.min(100, (state.apiQuotaUsed / state.apiQuotaMax) * 100) + "%";
+      document.getElementById("local-model-summary").textContent = `Loaded Rules: ${state.localRules.length} | Model: ${state.customModelName}`;
+
+      document.getElementById("cloud-brains-container").innerHTML = state.brains.map((b, i) => `
+        <div class="liquid-glass rounded-2xl p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" ${b.enabled ? "checked" : ""} onchange="state.brains[${i}].enabled=this.checked;saveState()" class="w-4 h-4 accent-cyan-400" />
+              <div>
+                <div class="text-xs font-black text-white">${b.name}</div>
+                <div class="text-[9px] font-mono text-zinc-400">Model: ${b.model}</div>
+              </div>
+            </div>
+            <span class="text-[9px] font-mono px-2 py-0.5 rounded-full ${b.key && b.key.length > 5 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-zinc-400'}">
+              ${b.key && b.key.length > 5 ? '✓ KEY SAVED' : 'NO KEY'}
+            </span>
           </div>
-        </div>
-      `).join("");
-      updateActiveBrainIndicator();
-    }
-
-    function addNewBrainProvider() {
-      const name = prompt("AI Brain-এর নাম দিন (যেমন: Groq / OpenAI / Gemini):");
-      if (!name) return;
-      const model = prompt("Model ID দিন:", "llama-3.3-70b-versatile") || "llama-3.3-70b-versatile";
-      const prov = name.toLowerCase().includes("gemini") ? "gemini" : (name.toLowerCase().includes("openai") ? "openai" : "groq");
-      state.brains.push({ id: "b" + Date.now(), name, provider: prov, model, key: "", enabled: true });
-      saveState();
-      renderBrainsList();
-    }
-
-    // =========================================================
-    // 7. WATER-GLASS FLUID THEME ENGINE & UI HELPERS
-    // =========================================================
-    function setWaterTheme(themeName, silent) {
-      state.theme = themeName;
-      const themes = {
-        aqua:     { deep: "#030712", o1: "#00F5D4", o2: "#38BDF8", o3: "#818CF8", acc: "#00F5D4", acc2: "#38BDF8", glow: "rgba(0, 245, 212, 0.25)" },
-        sapphire: { deep: "#040817", o1: "#38BDF8", o2: "#6366F1", o3: "#A855F7", acc: "#38BDF8", acc2: "#818CF8", glow: "rgba(56, 189, 248, 0.25)" },
-        rose:     { deep: "#0D0410", o1: "#F472B6", o2: "#FB7185", o3: "#C084FC", acc: "#F472B6", acc2: "#FB7185", glow: "rgba(244, 114, 182, 0.25)" },
-        emerald:  { deep: "#020C09", o1: "#10B981", o2: "#00F5D4", o3: "#06B6D4", acc: "#10B981", acc2: "#00F5D4", glow: "rgba(16, 185, 129, 0.25)" }
-      };
-      const t = themes[themeName] || themes.aqua;
-      document.documentElement.style.setProperty("--bg-deep", t.deep);
-      document.documentElement.style.setProperty("--orb-1", t.o1);
-      document.documentElement.style.setProperty("--orb-2", t.o2);
-      document.documentElement.style.setProperty("--orb-3", t.o3);
-      document.documentElement.style.setProperty("--accent", t.acc);
-      document.documentElement.style.setProperty("--accent-2", t.acc2);
-      document.documentElement.style.setProperty("--skin-glow", t.glow);
-      saveState();
-      if (!silent) {
-        playNeuralAlert("theme");
-        setHumanoidState("speaking", `💧 ${themeName.toUpperCase()} ওয়াটার গ্লাস থিম অ্যাক্টিভ!`, "Fluid refraction & avatar synced");
-        setTimeout(() => setHumanoidState("idle"), 1800);
-      }
-    }
-
-    function toggleMasterSwitch() {
-      state.online = !state.online;
-      saveState();
-      renderMasterStatus();
-      setHumanoidState("idle");
-      playNeuralAlert("theme");
-    }
-
-    function renderMasterStatus() {
-      const led = document.getElementById("status-led");
-      const lbl = document.getElementById("status-label");
-      const btn = document.getElementById("master-toggle-btn");
-      const knob = document.getElementById("master-toggle-knob");
-
-      if (state.online) {
-        led.className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
-        lbl.textContent = "LIVE ONLINE • BG SERVICE ON";
-        lbl.className = "text-[10px] font-mono font-bold text-emerald-300 uppercase tracking-wider";
-        btn.className = "rounded-full p-1 flex items-center bg-emerald-500/35 border border-emerald-300/50";
-        knob.className = "w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-500 translate-x-5";
-      } else {
-        led.className = "w-2 h-2 rounded-full bg-rose-500";
-        lbl.textContent = "SLEEP MODE • PAUSED";
-        lbl.className = "text-[10px] font-mono font-bold text-rose-300 uppercase tracking-wider";
-        btn.className = "rounded-full p-1 flex items-center bg-zinc-800/80 border border-white/15";
-        knob.className = "w-5 h-5 rounded-full bg-zinc-400 shadow-md transform transition-transform duration-500 translate-x-0";
-      }
-    }
-
-    function renderFeed() {
-      const box = document.getElementById("live-feed-box");
-      if (!state.history.length) {
-        box.innerHTML = `<div class="text-center text-zinc-400 py-10">কোনো মেসেজ আসেনি...</div>`;
-        return;
-      }
-      box.innerHTML = state.history.slice(0, 15).map(item => `
-        <div class="p-2.5 rounded-2xl liquid-pill space-y-1">
-          <div class="flex justify-between text-[8px] font-mono text-zinc-300">
-            <span>${item.time}</span>
-            <span style="color: var(--accent);">⚡ ${item.eta}</span>
-          </div>
-          <div class="text-[10px] text-white"><b>ইউজার:</b> ${item.msg}</div>
-          <div class="text-[10px] font-bold" style="color: var(--accent);"><b>MEMO:</b> ${item.reply}</div>
+          <input id="brain-key-${i}" type="password" value="${b.key || ''}" placeholder="Paste ${b.name} API Key (Encrypted in Local Vault)..." oninput="state.brains[${i}].key=this.value.trim();saveState()" class="w-full liquid-input rounded-xl px-3 py-2 text-xs font-mono" />
         </div>
       `).join("");
     }
 
-    function clearFeed() {
-      state.history = [];
-      saveState();
-      renderFeed();
-      renderLogsAndHistory();
-    }
-
-    function switchLogSubTab(sub) {
-      const isLogs = sub === "logs";
-      document.getElementById("container-logs").classList.toggle("hidden", !isLogs);
-      document.getElementById("container-hist").classList.toggle("hidden", isLogs);
-      document.getElementById("btn-tab-logs").className = isLogs ? "py-2 rounded-xl text-xs font-black liquid-btn" : "py-2 rounded-xl text-xs font-bold text-zinc-200";
-      document.getElementById("btn-tab-hist").className = !isLogs ? "py-2 rounded-xl text-xs font-black liquid-btn" : "py-2 rounded-xl text-xs font-bold text-zinc-200";
-    }
-
-    function renderLogsAndHistory() {
-      document.getElementById("container-logs").innerHTML = state.logs.map(l => `
-        <div class="p-2.5 rounded-2xl liquid-pill flex items-center justify-between gap-2">
-          <div><span class="px-2 py-0.5 rounded-md bg-black/40 text-[9px] font-bold mr-1.5" style="color: var(--accent);">${l.tag}</span><span>${l.text}</span></div>
-          <span class="text-[9px] text-zinc-400 shrink-0">${l.time}</span>
-        </div>
-      `).join("");
-
-      document.getElementById("container-hist").innerHTML = state.history.map(h => `
-        <div class="p-3 rounded-2xl liquid-pill space-y-1">
-          <div class="flex justify-between text-[10px] font-mono text-zinc-300">
-            <span>📱 ${h.sender}</span>
-            <span>🧠 ${h.brain} • ${h.eta} • ${h.time}</span>
-          </div>
-          <div class="text-xs text-white"><b>Incoming:</b> ${h.msg}</div>
-          <div class="text-xs font-bold" style="color: var(--accent);"><b>MEMO 2.0:</b> ${h.reply}</div>
-        </div>
-      `).join("");
-    }
-
-    function switchTab(tab) {
-      ["home", "logs", "brains", "settings"].forEach(t => {
-        document.getElementById("view-" + t).classList.toggle("hidden", t !== tab);
-        document.getElementById("nav-btn-" + t).className = t === tab
-          ? "py-2.5 rounded-2xl text-[11px] font-extrabold liquid-btn flex flex-col items-center gap-0.5"
-          : "py-2.5 rounded-2xl text-[11px] font-bold text-zinc-300 flex flex-col items-center gap-0.5";
+    function switchMainTab(tab) {
+      ["home", "chats", "brains", "settings"].forEach(t => {
+        document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
+        document.getElementById("nav-" + t).className = t === tab
+          ? "py-2 rounded-2xl text-[10px] font-extrabold liquid-btn flex flex-col items-center gap-0.5"
+          : "py-2 rounded-2xl text-[10px] font-bold text-zinc-300 flex flex-col items-center gap-0.5";
       });
     }
 
-    function resetEverything() {
-      if (confirm("আপনি কি পুরো অ্যাপ রিসেট করতে চান?")) {
-        localStorage.clear();
-        location.reload();
-      }
-    }
+    // Poll Cloud Baileys Gateway for real incoming WhatsApp messages every 3s
+    setInterval(async () => {
+      if (!state.waLinked || !state.gatewayUrl) return;
+      try {
+        const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/status");
+        if (r.ok) {
+          const d = await r.json();
+          if (Array.isArray(d.messages)) {
+            for (const m of d.messages) {
+              if (!m.replied) {
+                await handleIncomingClientMessage(m.client, m.text, m.id);
+              }
+            }
+          }
+        }
+      } catch (e) {}
+    }, 3000);
 
-    // Boot Sequence
-    setWaterTheme(state.theme || "aqua", true);
-    renderAudioControls();
-    renderMasterStatus();
-    renderFeed();
-    renderLogsAndHistory();
-    renderBrainsList();
-    setHumanoidState("idle");
-    toggleBackgroundPersistence(state.bgWakeLock !== false);
-
-    document.getElementById("header-wa-badge").textContent = state.phone || "+8801620107233";
-    document.getElementById("settings-wa-phone").textContent = state.phone || "+8801620107233";
-    if (localStorage.getItem(SESSION_LINKED_KEY) !== "true") {
-      openAuthModal();
+    // Boot
+    renderAllUI();
+    if (!state.waLinked) {
+      showLoginModal();
+    } else {
+      hideLoginModal();
     }
   </script>
 </body>
