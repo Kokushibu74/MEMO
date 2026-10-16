@@ -1,43 +1,132 @@
-name: Build MEMO Android APK
+name: Build MEMO 2.0 Pro Android APK
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build-android-apk:
+  build-apk:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Setup Java JDK 21 for Capacitor 6
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Install Capacitor & Generate Android Project
+      - name: Prepare Web Assets & Custom App Icon Generator
         run: |
-          npm install
-          rm -rf android
+          mkdir -p www
+          cp -f index.html www/index.html
+          python3 - << 'PYICON'
+          import struct, zlib, math
+
+          def make_memo_icon(size=512):
+              raw = bytearray()
+              cx, cy = size / 2.0, size / 2.0
+              r_card = size * 0.46
+              for y in range(size):
+                  raw.append(0)
+                  for x in range(size):
+                      dx, dy = x - cx, y - cy
+                      dist = math.hypot(dx, dy)
+                      # Rounded squircle mask
+                      nx, ny = abs(dx) / r_card, abs(dy) / r_card
+                      squircle = (nx**4 + ny**4)**0.25
+                      if squircle > 1.0:
+                          raw.extend((0, 0, 0, 0))
+                          continue
+                      # Deep liquid glass background gradient
+                      bg_r = int(6 + 18 * (y / size))
+                      bg_g = int(12 + 28 * (x / size))
+                      bg_b = int(32 + 45 * (y / size))
+                      # Outer glowing cyan ring
+                      ring1 = abs(dist - size * 0.34)
+                      ring2 = abs(dist - size * 0.24)
+                      core = dist < size * 0.14
+                      if core:
+                          t = dist / (size * 0.14)
+                          r = int(0 * (1-t) + 56 * t)
+                          g = int(245 * (1-t) + 189 * t)
+                          b = int(212 * (1-t) + 248 * t)
+                      elif ring1 < size * 0.022:
+                          r, g, b = 0, 245, 212
+                      elif ring2 < size * 0.016:
+                          r, g, b = 244, 114, 182
+                      else:
+                          # Specular glass sheen
+                          sheen = max(0.0, 1.0 - math.hypot(x - size*0.32, y - size*0.28) / (size*0.55))
+                          r = min(255, int(bg_r + sheen * 45))
+                          g = min(255, int(bg_g + sheen * 85))
+                          b = min(255, int(bg_b + sheen * 110))
+                      raw.extend((r, g, b, 255))
+
+              def chunk(tag, data):
+                  return struct.pack("!I", len(data)) + tag + data + struct.pack("!I", zlib.crc32(tag + data) & 0xffffffff)
+
+              png = b"\x89PNG\r\n\x1a\n"
+              png += chunk(b"IHDR", struct.pack("!IIBBBBB", size, size, 8, 6, 0, 0, 0))
+              png += chunk(b"IDAT", zlib.compress(bytes(raw), 9))
+              png += chunk(b"IEND", b"")
+              return png
+
+          icon_bytes = make_memo_icon(512)
+          with open("www/icon.png", "wb") as f:
+              f.write(icon_bytes)
+          PYICON
+
+      - name: Initialize Capacitor Android Project & Inject Icon + Background Permissions
+        run: |
+          rm -rf android package.json package-lock.json capacitor.config.json
+          npm init -y
+          npm install @capacitor/core@6.0.0 @capacitor/cli@6.0.0 @capacitor/android@6.0.0
+          cat << 'CAPEOF' > capacitor.config.json
+          {
+            "appId": "com.shihab.memo20",
+            "appName": "MEMO 2.0",
+            "webDir": "www",
+            "bundledWebRuntime": false
+          }
+          CAPEOF
           npx cap add android
-          npx cap sync android
+          npx cap copy android
 
-      - name: Compile Debug APK via Gradle
+          # Replace all mipmap launcher icons & remove default Android green adaptive XML icon
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+          rm -rf android/app/src/main/res/drawable-anydpi-v24
+          for dir in android/app/src/main/res/mipmap-*; do
+            if [ -d "$dir" ]; then
+              cp -f www/icon.png "$dir/ic_launcher.png"
+              cp -f www/icon.png "$dir/ic_launcher_round.png"
+              cp -f www/icon.png "$dir/ic_launcher_foreground.png"
+            fi
+          done
+
+          # Enable Cleartext Traffic + Background WakeLock & Foreground Service Permissions
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          sed -i 's/<application/<application android:usesCleartextTraffic="true"/' "$MANIFEST"
+          sed -i '/<uses-permission android:name="android.permission.INTERNET" \/>/a \    <uses-permission android:name="android.permission.WAKE_LOCK" \/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" \/>\n    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" \/>' "$MANIFEST"
+
+      - name: Build Debug APK
+        working-directory: android
         run: |
-          cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug
 
-      - name: Upload Ready-to-Install APK Artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MEMO-2.0-Standalone-APK
+          name: MEMO-2.0-Complete-Fixed-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
