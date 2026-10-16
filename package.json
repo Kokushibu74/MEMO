@@ -1,36 +1,14 @@
 {
-  "name": "memo",
-  "version": "1.5.0",
-  "description": "MEMO 1.5 — Multi-AI WhatsApp Assistant & Android Agent by Shihab",
-  "type": "module",
-  "main": "memo.js",
+  "name": "memo-wa-bridge",
+  "version": "2.0.0",
+  "description": "Memo WhatsApp Baileys Bridge",
+  "main": "server/index.js",
   "scripts": {
-    "start": "node memo.js",
-    "whatsapp": "node whatsapp.js",
-    "login": "node memo_login.js",
-    "menu": "node memo_menu.js"
+    "start": "node server/index.js"
   },
   "dependencies": {
-    "@capacitor/android": "^6.0.0",
-    "@capacitor/core": "^6.0.0",
-    "@google/genai": "^2.27.0",
-    "@hapi/boom": "^10.0.1",
-    "@whiskeysockets/baileys": "^6.7.24",
-    "blessed": "^0.1.81",
-    "pino": "^10.4.0"
-  },
-  "devDependencies": {
-    "@capacitor/cli": "^6.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Kokushibu74/MEMO.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Kokushibu74/MEMO/issues"
-  },
-  "homepage": "https://github.com/Kokushibu74/MEMO#readme"
+    "@whiskeysockets/baileys": "^6.7.5",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
 }
