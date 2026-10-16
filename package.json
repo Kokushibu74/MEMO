@@ -1,7 +1,6 @@
 {
   "name": "memo-wa-bridge",
   "version": "2.0.0",
-  "description": "Memo WhatsApp Baileys Bridge",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js"
