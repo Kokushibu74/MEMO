@@ -74,6 +74,7 @@ app.get('/health', (_req, res) => {
 app.use('/status', requireGatewayToken);
 app.use('/pair', requireGatewayToken);
 app.use('/send', requireGatewayToken);
+app.use('/ack', requireGatewayToken);
 
 async function initWhatsApp() {
   if (initInProgress) return;
