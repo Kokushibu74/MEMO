@@ -782,20 +782,24 @@
     // =========================================================================
     // 3 & 5. CLIENT CHAT SYSTEM & STRICT DUPLICATE REPLY PREVENTION
     // =========================================================================
-    async function dispatchOutgoingToWhatsApp(clientPhone, text, msgId) {
+    async function dispatchOutgoingToWhatsApp(clientPhone, text, msgId, recipientJid = "") {
       if (!state.gatewayUrl || !state.gatewayToken) {
         throw new Error("Memo WhatsApp Gateway is not configured");
       }
       const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
         method: "POST",
         headers: gatewayHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ to: clientPhone, text, msgId })
+        body: JSON.stringify({ to: recipientJid || clientPhone, text, msgId })
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || data.ok !== true) {
         throw new Error(data.error || ("WhatsApp send failed: HTTP " + r.status));
       }
       return data;
+    }
+
+    function deliveryLabel(status) {
+      return ({ accepted: "📨 Accepted • delivery pending", server_accepted: "📨 Server accepted • delivery pending", delivered: "✅ Delivered", read: "👁️ Read", failed: "❌ Failed" })[status] || "📨 Sent to gateway • checking status";
     }
 
     async function acknowledgeIncomingMessage(msgId) {
@@ -810,7 +814,7 @@
       return data;
     }
 
-    async function handleIncomingClientMessage(rawClientPhone, text, explicitMsgId = null) {
+    async function handleIncomingClientMessage(rawClientPhone, text, explicitMsgId = null, explicitJid = null) {
       const incomingPhone = String(rawClientPhone || "").trim();
       const clientPhone = incomingPhone.startsWith("+")
         ? "+" + incomingPhone.replace(/[^0-9]/g, "")
@@ -840,6 +844,7 @@
       }
 
       const clientObj = state.clients[clientPhone];
+      if (explicitJid && /^(\\d+@(s\\.whatsapp\\.net|lid))$/.test(explicitJid)) clientObj.jid = explicitJid;
       const nowTime = new Date().toTimeString().slice(0, 5);
       let inMsgObj = clientObj.messages.find(m => m.id === dedupKey && m.sender === "client");
       if (!inMsgObj) {
@@ -877,14 +882,15 @@
       try {
         const { reply, source } = await generateSmartReply(cleanText);
         // Only display a successful reply after WhatsApp confirms the send.
-        await dispatchOutgoingToWhatsApp(clientPhone, reply, dedupKey);
+        await dispatchOutgoingToWhatsApp(clientPhone, reply, dedupKey, clientObj.jid || '');
         inMsgObj.status = "🤖 Replied";
         const replyObj = {
           id: "rep_" + Date.now(),
+          gatewayMsgId: dedupKey,
           sender: "ai",
           text: reply,
           time: new Date().toTimeString().slice(0, 5),
-          status: `🤖 AI Auto-Replied (${source})`
+          status: deliveryLabel("accepted") + ` • AI (${source})`
         };
         clientObj.messages.push(replyObj);
         clientObj.lastStatus = "🤖 AI Auto-Replied";
@@ -921,18 +927,19 @@
       const clientObj = state.clients[clientPhone];
       const manualId = "man_" + Date.now();
       try {
-        await dispatchOutgoingToWhatsApp(clientPhone, cleanText, manualId);
+        const sendResult = await dispatchOutgoingToWhatsApp(clientPhone, cleanText, manualId, clientObj.jid || '');
         clientObj.messages.forEach(m => {
           if (m.sender === "client" && m.status.includes("Pending")) m.status = "✅ Answered Manually";
         });
         clientObj.messages.push({
           id: manualId,
+          gatewayMsgId: manualId,
           sender: "manual",
           text: cleanText,
           time: new Date().toTimeString().slice(0, 5),
-          status: "✍️ Manual Sent"
+          status: deliveryLabel(sendResult.status || "accepted")
         });
-        clientObj.lastStatus = "✍️ Manual Sent";
+        clientObj.lastStatus = deliveryLabel(sendResult.status || "accepted");
         state.stats.manualSent = (state.stats.manualSent || 0) + 1;
         saveState();
       } catch (err) {
@@ -1310,9 +1317,30 @@
           if (state.waLinked && Array.isArray(d.messages)) {
             for (const m of d.messages) {
               if (!m.handled && !m.replied) {
-                await handleIncomingClientMessage(m.client, m.text, m.id);
+                await handleIncomingClientMessage(m.client, m.text, m.id, m.clientJid || null);
               }
             }
+          }
+          if (state.waLinked && Array.isArray(d.outgoing)) {
+            let changed = false;
+            for (const out of d.outgoing) {
+              for (const client of Object.values(state.clients || {})) {
+                for (const msg of client.messages || []) {
+                  if ((msg.gatewayMsgId || msg.id) === out.id) {
+                    const label = deliveryLabel(out.status);
+                    if (msg.status !== label && !msg.status.includes("AI (")) {
+                      msg.status = label;
+                      changed = true;
+                    } else if (msg.status.includes("AI (")) {
+                      const suffix = msg.status.slice(msg.status.indexOf(" • AI ("));
+                      const next = label + suffix;
+                      if (msg.status !== next) { msg.status = next; changed = true; }
+                    }
+                  }
+                }
+              }
+            }
+            if (changed) saveState();
           }
         }
       } catch (e) {}
