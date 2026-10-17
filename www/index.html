@@ -1014,20 +1014,29 @@
 
     async function triggerManualAIReplyForClient() {
       if (!activeClientPhone || !state.clients[activeClientPhone]) return;
-      const msgs = state.clients[activeClientPhone].messages;
+      const client = state.clients[activeClientPhone];
+      const msgs = client.messages;
       const lastClientMsg = [...msgs].reverse().find(m => m.sender === "client");
       const promptText = lastClientMsg ? lastClientMsg.text : "সালাম";
-      const { reply, source } = await generateSmartReply(promptText);
-      msgs.push({
-        id: "ai_force_" + Date.now(),
-        sender: "ai",
-        text: reply,
-        time: new Date().toTimeString().slice(0, 5),
-        status: `🤖 AI Replied (${source})`
-      });
-      state.clients[activeClientPhone].lastStatus = "🤖 AI Replied";
-      state.stats.autoReplies++;
-      saveState();
+      const forceId = "ai_force_" + Date.now();
+      try {
+        const { reply, source } = await generateSmartReply(promptText);
+        const sent = await dispatchOutgoingToWhatsApp(client.phone, reply, forceId, client.jid || "");
+        msgs.push({
+          id: forceId,
+          gatewayMsgId: forceId,
+          sender: "ai",
+          text: reply,
+          time: new Date().toTimeString().slice(0, 5),
+          status: deliveryLabel(sent.status || "accepted") + ` • AI (${source})`
+        });
+        client.lastStatus = deliveryLabel(sent.status || "accepted");
+        state.stats.autoReplies++;
+        saveState();
+      } catch (err) {
+        alert("AI reply WhatsApp-এ পাঠানো যায়নি: " + err.message);
+        console.error("MEMO forced AI reply failed:", err.message);
+      }
     }
 
     // =========================================================================
