@@ -612,19 +612,16 @@
       state.phoneNumber = rawNum;
       state.fullPhone = fullIntl;
       persistGatewaySettings();
-      if (!state.gatewayUrl || !state.gatewayToken) {
-        alert("প্রথমবার ব্যবহার করার আগে Memo Gateway URL এবং Access Token সেট করতে হবে।");
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-key"></i> Generate Real Pairing Code';
-        box.classList.add("hidden");
-        return;
-      }
-      saveState();
 
       const btn = document.getElementById("btn-get-pair-code");
       const box = document.getElementById("pair-code-box");
       const disp = document.getElementById("pair-code-display");
       const inst = document.getElementById("pair-code-instruction");
+      if (!state.gatewayUrl || !state.gatewayToken) {
+        alert("প্রথমবার ব্যবহার করার আগে Memo Gateway URL এবং Access Token সেট করতে হবে।");
+        return;
+      }
+      saveState();
 
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Connecting to WA Server...';
@@ -1387,7 +1384,7 @@
 
     // Poll Cloud Baileys Gateway for real incoming WhatsApp messages every 3s
     setInterval(async () => {
-      if (!state.waLinked || !state.gatewayUrl) return;
+      if (!state.gatewayUrl) return;
       try {
         const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/status", { headers: gatewayHeaders(), cache: "no-store" });
         if (r.ok) {
@@ -1403,7 +1400,7 @@
             saveState();
             showLoginModal();
           }
-          if (Array.isArray(d.messages)) {
+          if (state.waLinked && Array.isArray(d.messages)) {
             for (const m of d.messages) {
               if (!m.replied) {
                 await handleIncomingClientMessage(m.client, m.text, m.id);
