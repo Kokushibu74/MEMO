@@ -75,6 +75,7 @@ app.use('/status', requireGatewayToken);
 app.use('/pair', requireGatewayToken);
 app.use('/send', requireGatewayToken);
 app.use('/ack', requireGatewayToken);
+app.use('/logout', requireGatewayToken);
 
 async function initWhatsApp() {
   if (initInProgress) return;
@@ -228,6 +229,32 @@ app.post('/ack', (req, res) => {
   if (!item) return res.status(404).json({ error: 'Incoming message not found' });
   item.handled = true;
   res.json({ ok: true, replied: item.replied });
+});
+
+
+app.post('/logout', async (_req, res) => {
+  const currentSock = sock;
+  try {
+    if (currentSock && waConnected) await currentSock.logout();
+  } catch (err) {
+    console.warn('WhatsApp logout handshake failed; clearing local session:', err.message || err);
+  }
+  try {
+    fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+  } catch (err) {
+    return res.status(500).json({ error: 'Could not clear the saved WhatsApp session' });
+  }
+  sock = null;
+  waConnected = false;
+  socketReady = false;
+  authRegistered = false;
+  latestQR = '';
+  connectedPhone = '';
+  connectionState = 'initializing';
+  pairingRequestedAt = 0;
+  initInProgress = false;
+  setTimeout(() => initWhatsApp(), 500);
+  res.json({ ok: true });
 });
 
 app.post('/send', async (req, res) => {
