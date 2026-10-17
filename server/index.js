@@ -285,8 +285,8 @@ app.post('/send', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log('MEMO WhatsApp Gateway listening on port ' + PORT);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('MEMO WhatsApp Gateway listening on 0.0.0.0:' + PORT);
   if (!GATEWAY_TOKEN) console.error('FATAL CONFIG: Set MEMO_GATEWAY_TOKEN before exposing this gateway publicly.');
   initWhatsApp();
 });
