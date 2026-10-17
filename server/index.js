@@ -293,11 +293,11 @@ app.post('/send', async (req, res) => {
     // Preserve an actual WhatsApp JID from an incoming message (including @lid).
     // Never strip a LID down to digits and rebuild it as @s.whatsapp.net.
     let recipientJid;
-    if (/^\\d+@(s\\.whatsapp\\.net|lid)$/.test(rawTo)) {
+    if (/^\d+@(s\.whatsapp\.net|lid)$/.test(rawTo)) {
       recipientJid = rawTo;
     } else {
       const clean = rawTo.replace(/[^0-9]/g, '');
-      if (!/^\\d{8,15}$/.test(clean)) {
+      if (!/^\d{8,15}$/.test(clean)) {
         return res.status(400).json({ error: 'Enter a valid international number or WhatsApp JID' });
       }
       const lookup = await sock.onWhatsApp(clean);
