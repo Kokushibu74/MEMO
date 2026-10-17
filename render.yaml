@@ -1,7 +1,20 @@
 services:
   - type: web
     name: memo-wa-bridge
-    env: node
+    runtime: node
+    region: singapore
+    plan: starter
     buildCommand: npm install
-    startCommand: node server/index.js
-    plan: free
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: memo-wa-auth
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MEMO_AUTH_DIR
+        value: /var/data/auth_info_baileys
+      - key: MEMO_GATEWAY_TOKEN
+        generateValue: true
