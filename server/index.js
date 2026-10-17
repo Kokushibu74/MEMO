@@ -140,6 +140,21 @@ async function initWhatsApp() {
       }
     });
 
+    currentSock.ev.on('messages.update', (updates) => {
+      for (const entry of updates || []) {
+        const messageId = entry?.key?.id;
+        if (!messageId) continue;
+        const status = entry?.update?.status;
+        const record = [...outgoingStore.values()].find(item => item.messageId === messageId);
+        if (!record) continue;
+        // Baileys message status: 2=server ack, 3=delivery ack, 4=read, 5=played.
+        if (status === 3 || status === 4 || status === 5) record.status = status === 3 ? 'delivered' : 'read';
+        else if (status === 2 && record.status === 'accepted') record.status = 'server_accepted';
+        else if (status === 0) record.status = 'failed';
+        record.updatedAt = Date.now();
+      }
+    });
+
     currentSock.ev.on('messages.upsert', ({ messages, type }) => {
       if (type !== 'notify') return;
       for (const m of messages || []) {
