@@ -26,7 +26,7 @@ jobs:
       - name: Run Automated Security & Feature Verification Tests
         run: |
           python3 - << 'PYTEST'
-          with open("www/index.html", "r", encoding="utf-8") as f:
+          with open("index.html", "r", encoding="utf-8") as f:
               html = f.read()
           assert 'value="+88"' in html, "Missing +88 default country code"
           assert 'value="" placeholder="01XXXXXXXXX' in html, "Phone number field must be empty by default"
@@ -35,7 +35,10 @@ jobs:
           assert 'handleSafeModelZipUpload' in html, "Missing ZIP local model uploader"
           assert 'triggerRateLimitCountdown' in html, "Missing API limit countdown"
           assert 'DLT2' not in html, "Fake static code must not exist"
-          print("✅ ALL 9 REQUIREMENTS & SECURITY CHECKS PASSED!")
+          assert 'memoWaFab' not in html, "Obsolete bottom-right WhatsApp floating button must be removed"
+          assert 'MEMO_AI_2_0_CONNECTED' not in html, "Fake QR link must not exist"
+          assert 'status.waConnected !== true' in html, "WhatsApp login must verify a real gateway session"
+          print("✅ UI, real-session and duplicate-widget checks passed!")
           PYTEST
 
       - name: Build Capacitor Android APK
