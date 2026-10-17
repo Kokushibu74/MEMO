@@ -525,6 +525,11 @@
     };
 
     let state = loadState();
+    // Remove the old seeded demo chat from existing installs as well as fresh installs.
+    if (state.clients && state.clients["+8801700000001"]?.name === "Demo Client 1") {
+      delete state.clients["+8801700000001"];
+      try { localStorage.setItem(STORAGE_KEY, Vault.encode(JSON.stringify(state))); } catch (e) {}
+    }
     const inFlightLocks = new Set();
     let activeClientPhone = null;
 
