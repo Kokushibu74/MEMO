@@ -9,6 +9,30 @@
 
 ---
 
+## 📱 Real WhatsApp Pairing in the Android APK
+
+The APK UI does **not** run Node.js/Baileys by itself. A real WhatsApp Web session needs the gateway service below. This is not a demo pairing flow.
+
+### One-time gateway deployment
+
+1. Open [Deploy MEMO Gateway to Render](https://render.com/deploy?repo=https://github.com/Kokushibu74/MEMO).
+2. Render reads `render.yaml`, builds the Node service, generates `MEMO_GATEWAY_TOKEN`, and mounts persistent storage for WhatsApp credentials.
+3. This blueprint uses a paid Render Starter web service and a persistent disk. A free, ephemeral service can lose the linked WhatsApp session when it restarts, so it is not configured for this real-session setup.
+4. After the service becomes live, copy its public HTTPS URL. In Render's service environment settings, copy the generated `MEMO_GATEWAY_TOKEN` value.
+5. Open MEMO APK → expand **প্রথমবারের Gateway সেটআপ** → paste the service URL and token once. Then return to the phone-number field and tap **Generate Real Pairing Code**.
+6. On WhatsApp, open **Linked Devices → Link with phone number** and enter the code. Keep MEMO open until it detects the live connection.
+
+The token protects pairing, status, and message-sending endpoints. Never share it or commit it into source code. The gateway's persistent disk stores the WhatsApp session, so anyone with access to the Render service or its disk could control that linked session.
+
+### Real connection checks
+
+- `GET /health` is a public service-health check only.
+- `GET /status`, `POST /pair`, and `POST /send` require the `X-MEMO-Token` header.
+- MEMO only marks WhatsApp connected after the gateway reports a live Baileys socket.
+- Pairing-code requests are rate-limited and duplicate sends are guarded within the running gateway process.
+
+---
+
 ## ✨ What is MEMO?
 
 **MEMO** is a personal WhatsApp AI assistant designed to run directly on **Android using Termux**.
