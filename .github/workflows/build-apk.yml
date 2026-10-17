@@ -5,6 +5,10 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+concurrency:
+  group: memo-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-and-build-apk:
     runs-on: ubuntu-latest
