@@ -121,26 +121,29 @@
         <p class="text-[10px] text-zinc-400">💡 টিপস: বাংলাদেশের জন্য বাম ঘরে <b>+88</b> রেখে ডান ঘরে আপনার <b>01...</b> নম্বর লিখুন। অন্য দেশের জন্য কান্ট্রি কোড পরিবর্তন করুন।</p>
       </div>
 
-      <!-- Connection Engine Mode Selector (All inside Memo App, Zero Termux) -->
-      <div class="liquid-pill rounded-2xl p-3 space-y-2 text-left">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-bold text-zinc-200">🌐 WhatsApp Connection Mode (In-App):</span>
-          <select id="wa-conn-mode" onchange="onConnModeChange()" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2 py-1 rounded-lg border border-white/20 outline-none">
-            <option value="cloud_gateway">Cloud Baileys / WAHA Gateway</option>
-            <option value="meta_cloud">Meta Official Cloud API</option>
-            <option value="inapp_web">In-App WhatsApp Web Bridge</option>
-          </select>
+      <!-- One-time setup is collapsed so normal login only asks for the phone number. -->
+      <details id="gateway-setup-details" class="liquid-pill rounded-2xl p-3 text-left">
+        <summary class="cursor-pointer text-[10px] font-bold text-zinc-200">⚙️ প্রথমবারের Gateway সেটআপ (একবারই)</summary>
+        <div class="space-y-2 pt-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-zinc-200">WhatsApp Engine</span>
+            <select id="wa-conn-mode" onchange="onConnModeChange()" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2 py-1 rounded-lg border border-white/20 outline-none">
+              <option value="cloud_gateway">Cloud Baileys Gateway</option>
+              <option value="meta_cloud">Meta Official Cloud API</option>
+              <option value="inapp_web">In-App Web Bridge (not pairing)</option>
+            </select>
+          </div>
+          <div id="cfg-cloud-gateway" class="space-y-1.5">
+            <input id="wa-gateway-url" type="url" placeholder="Memo Gateway URL (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+            <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+            <p class="text-[9px] text-zinc-400">সার্ভার ডিপ্লয় করার পর URL ও Access Token একবার বসাও। এরপর শুধু নম্বর দিলেই কোড চাইতে পারবে। Token কাউকে দেবে না।</p>
+          </div>
+          <div id="cfg-meta-cloud" class="hidden space-y-1.5">
+            <input id="meta-phone-id" type="text" placeholder="Meta Phone Number ID" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
+            <input id="meta-access-token" type="password" placeholder="Meta Permanent Access Token" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
+          </div>
         </div>
-
-        <div id="cfg-cloud-gateway" class="space-y-1.5">
-          <input id="wa-gateway-url" type="url" placeholder="Cloud Baileys Server URL (e.g. https://your-memo-wa.onrender.com)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-        </div>
-
-        <div id="cfg-meta-cloud" class="hidden space-y-1.5">
-          <input id="meta-phone-id" type="text" placeholder="Meta Phone Number ID" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-          <input id="meta-access-token" type="password" placeholder="Meta Permanent Access Token" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-        </div>
-      </div>
+      </details>
 
       <!-- TAB 1: PAIRING CODE PANEL -->
       <div id="login-panel-code" class="space-y-3">
@@ -494,6 +497,7 @@
       fullPhone: "",
       connMode: "cloud_gateway",
       gatewayUrl: "",
+      gatewayToken: "",
       metaPhoneId: "",
       metaToken: "",
       aiEnabled: true,
@@ -516,17 +520,7 @@
         { q: "ki kros|ki korcho|কি করছ|kemon aso|কেমন আছ", a: "আলহামদুলিল্লাহ, আমি ভালো আছি এবং আপনার মেসেজের অপেক্ষায় আছি! আপনার কী খবর?" }
       ],
       customModelName: "Memo-BuiltIn-Local-v2",
-      clients: {
-        "+8801700000001": {
-          phone: "+8801700000001",
-          name: "Demo Client 1",
-          lastStatus: "🤖 AI Auto-Replied",
-          messages: [
-            { id: "init_1", sender: "client", text: "সালাম ভাই, আপনাদের সার্ভিস কি চালু আছে?", time: "10:00", status: "Received" },
-            { id: "init_2", sender: "ai", text: "ওয়ালাইকুম আসসালাম! হ্যাঁ, আমাদের সার্ভিস চালু আছে। কীভাবে সাহায্য করতে পারি?", time: "10:00", status: "🤖 AI Auto-Replied" }
-          ]
-        }
-      },
+      clients: {},
       processedMsgIds: []
     };
 
@@ -582,6 +576,18 @@
       state.connMode = mode;
       document.getElementById("cfg-cloud-gateway").classList.toggle("hidden", mode !== "cloud_gateway");
       document.getElementById("cfg-meta-cloud").classList.toggle("hidden", mode !== "meta_cloud");
+      saveState();
+    }
+
+    function gatewayHeaders(extra = {}) {
+      const token = document.getElementById("wa-gateway-token")?.value.trim() || state.gatewayToken || "";
+      return { ...extra, "X-MEMO-Token": token };
+    }
+
+    function persistGatewaySettings() {
+      state.gatewayUrl = document.getElementById("wa-gateway-url").value.trim().replace(/\/$/, "");
+      state.gatewayToken = document.getElementById("wa-gateway-token").value.trim();
+      saveState();
     }
 
     async function requestRealPairingCode() {
@@ -597,13 +603,17 @@
       state.countryCode = cc;
       state.phoneNumber = rawNum;
       state.fullPhone = fullIntl;
-      state.gatewayUrl = document.getElementById("wa-gateway-url").value.trim();
-      saveState();
+      persistGatewaySettings();
 
       const btn = document.getElementById("btn-get-pair-code");
       const box = document.getElementById("pair-code-box");
       const disp = document.getElementById("pair-code-display");
       const inst = document.getElementById("pair-code-instruction");
+      if (!state.gatewayUrl || !state.gatewayToken) {
+        alert("প্রথমবার ব্যবহার করার আগে Memo Gateway URL এবং Access Token সেট করতে হবে।");
+        return;
+      }
+      saveState();
 
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Connecting to WA Server...';
@@ -614,7 +624,7 @@
           const base = state.gatewayUrl.replace(/\/$/, "");
           const r = await fetch(base + "/pair", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: gatewayHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify({ phone: digitsOnly })
           });
           const d = await r.json();
@@ -629,11 +639,11 @@
           }
         } catch (e) {
           disp.textContent = "GATEWAY OFFLINE";
-          inst.innerHTML = `⚠️ আপনার Cloud Baileys URL (${state.gatewayUrl}) থেকে কোড আনা যায়নি: ${e.message}। কোনো ভুয়া কোড দেখানো হচ্ছে না। নিচে <b>Open WhatsApp Web Inside App</b> বা <b>Activate Session</b> চাপুন।`;
+          inst.innerHTML = `❌ আসল Pairing Code পাওয়া যায়নি: ${e.message}। সার্ভার URL/Token যাচাই করুন। কোনো ভুয়া কোড দেখানো হচ্ছে না।`;
         }
       } else {
-        disp.textContent = "READY: " + fullIntl;
-        inst.innerHTML = `ℹ️ WhatsApp-এর অফিশিয়াল নিয়মে স্ট্যাটিক র্যান্ডম কোড কাজ করে না। লাইভ ৮-ডিজিট কোডের জন্য ওপরে আপনার <b>Cloud Baileys URL</b> দিন, অথবা সরাসরি নিচের <b>Activate Session</b> বাটনে চাপ দিয়ে <b>${fullIntl}</b> কানেক্ট করুন!`;
+        disp.textContent = "GATEWAY REQUIRED";
+        inst.textContent = "আসল Pairing Code পেতে Memo Gateway URL ও Access Token দিন। কোনো ডেমো কোড দেখানো হবে না।";
       }
 
       btn.disabled = false;
@@ -650,7 +660,7 @@
         return;
       }
       try {
-        const r = await fetch(gw.replace(/\/$/, "") + "/status");
+        const r = await fetch(gw.replace(/\/$/, "") + "/status", { headers: gatewayHeaders(), cache: "no-store" });
         if (!r.ok) throw new Error("Gateway HTTP " + r.status);
         const d = await r.json();
         if (d && d.qr) {
@@ -686,7 +696,8 @@
       }
 
       const mode = document.getElementById("wa-conn-mode").value;
-      const gateway = document.getElementById("wa-gateway-url").value.trim().replace(/\/$/, "");
+      persistGatewaySettings();
+      const gateway = state.gatewayUrl;
       if (mode !== "cloud_gateway") {
         alert("এই মোডে ব্যক্তিগত WhatsApp Linked Devices pairing যাচাই করা যায় না। Cloud Baileys Gateway ব্যবহার করুন।");
         return;
@@ -697,7 +708,7 @@
       }
 
       try {
-        const response = await fetch(gateway + "/status", { cache: "no-store" });
+        const response = await fetch(gateway + "/status", { headers: gatewayHeaders(), cache: "no-store" });
         if (!response.ok) throw new Error("Gateway HTTP " + response.status);
         const status = await response.json();
         if (!status || status.waConnected !== true) {
@@ -721,6 +732,7 @@
       document.getElementById("wa-country-code").value = state.countryCode || "+88";
       document.getElementById("wa-phone-number").value = state.phoneNumber || "";
       document.getElementById("wa-gateway-url").value = state.gatewayUrl || "";
+      document.getElementById("wa-gateway-token").value = state.gatewayToken || "";
       document.getElementById("close-login-btn").classList.toggle("hidden", !state.waLinked);
       document.getElementById("wa-login-overlay").classList.remove("hidden");
     }
@@ -881,12 +893,13 @@
       // 1. Try Cloud Baileys Gateway if configured
       if (state.gatewayUrl) {
         try {
-          await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
+          const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: gatewayHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify({ to: clientPhone, text, msgId })
           });
-        } catch (e) {}
+          if (!r.ok) throw new Error("WhatsApp send failed: HTTP " + r.status);
+        } catch (e) { console.error("MEMO gateway send error:", e.message); }
       }
       // 2. Try Meta Official WhatsApp Cloud API if configured
       if (state.metaPhoneId && state.metaToken) {
@@ -909,7 +922,10 @@
     }
 
     async function handleIncomingClientMessage(rawClientPhone, text, explicitMsgId = null) {
-      const clientPhone = normalizeInternationalPhone("+88", rawClientPhone.replace(/^\+88/, ""));
+      const incomingPhone = String(rawClientPhone || "").trim();
+      const clientPhone = incomingPhone.startsWith("+")
+        ? "+" + incomingPhone.replace(/[^0-9]/g, "")
+        : normalizeInternationalPhone("+88", incomingPhone);
       const cleanText = String(text || "").trim();
       if (!cleanText) return { status: "empty" };
 
@@ -1363,12 +1379,23 @@
 
     // Poll Cloud Baileys Gateway for real incoming WhatsApp messages every 3s
     setInterval(async () => {
-      if (!state.waLinked || !state.gatewayUrl) return;
+      if (!state.gatewayUrl) return;
       try {
-        const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/status");
+        const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/status", { headers: gatewayHeaders(), cache: "no-store" });
         if (r.ok) {
           const d = await r.json();
-          if (Array.isArray(d.messages)) {
+          if (d.waConnected === true && !state.waLinked) {
+            state.waLinked = true;
+            state.fullPhone = d.phone ? "+" + String(d.phone).replace(/[^0-9]/g, "") : state.fullPhone;
+            saveState();
+            hideLoginModal();
+            speakText("WhatsApp সত্যিকারভাবে কানেক্ট হয়েছে");
+          } else if (d.waConnected !== true && state.waLinked) {
+            state.waLinked = false;
+            saveState();
+            showLoginModal();
+          }
+          if (state.waLinked && Array.isArray(d.messages)) {
             for (const m of d.messages) {
               if (!m.replied) {
                 await handleIncomingClientMessage(m.client, m.text, m.id);
