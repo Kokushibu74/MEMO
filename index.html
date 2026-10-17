@@ -1416,7 +1416,7 @@
           }
           if (state.waLinked && Array.isArray(d.messages)) {
             for (const m of d.messages) {
-              if (!m.replied) {
+              if (!m.handled && !m.replied) {
                 await handleIncomingClientMessage(m.client, m.text, m.id);
               }
             }
