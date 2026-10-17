@@ -91,7 +91,7 @@
   <div id="wa-login-overlay" class="fixed inset-0 z-50 bg-[#02050D]/95 backdrop-blur-3xl flex items-center justify-center p-4 overflow-y-auto">
     <div class="liquid-glass w-full max-w-md rounded-[34px] p-5 space-y-3.5 my-auto">
       <div class="flex items-center justify-between">
-        <span id="gateway-live-badge" class="text-[10px] font-mono px-2.5 py-1 rounded-full liquid-pill text-cyan-300">● In-App WA Engine v2.0</span>
+        <span id="gateway-live-badge" class="text-[10px] font-mono px-2.5 py-1 rounded-full liquid-pill text-cyan-300">● Real WhatsApp Pairing</span>
         <button id="close-login-btn" onclick="hideLoginModal()" class="hidden w-7 h-7 rounded-full liquid-pill text-xs text-zinc-300">✕</button>
       </div>
 
@@ -101,14 +101,8 @@
         </div>
         <div class="text-left">
           <h2 class="text-lg font-black text-white leading-tight">Connect WhatsApp</h2>
-          <p class="text-[11px] text-zinc-300">Pairing Code অথবা QR Code দিয়ে সেশন কানেক্ট করুন (যেকোনো দেশ সাপোর্টেড)</p>
+          <p class="text-[11px] text-zinc-300">আসল Pairing Code দিয়ে WhatsApp কানেক্ট করুন (যেকোনো দেশ সাপোর্টেড)</p>
         </div>
-      </div>
-
-      <!-- Mode Tabs: Pairing Code vs QR Code -->
-      <div class="liquid-pill rounded-2xl p-1 grid grid-cols-2 gap-1 text-xs font-bold">
-        <button id="login-tab-code" onclick="switchLoginTab('code')" class="py-2 rounded-xl liquid-btn">🔢 Pairing Code</button>
-        <button id="login-tab-qr" onclick="switchLoginTab('qr')" class="py-2 rounded-xl text-zinc-200">📷 QR Code</button>
       </div>
 
       <!-- Universal Country Code (+88 Default) + Empty Phone Input -->
@@ -125,23 +119,9 @@
       <details id="gateway-setup-details" class="liquid-pill rounded-2xl p-3 text-left">
         <summary class="cursor-pointer text-[10px] font-bold text-zinc-200">⚙️ প্রথমবারের Gateway সেটআপ (একবারই)</summary>
         <div class="space-y-2 pt-3">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold text-zinc-200">WhatsApp Engine</span>
-            <select id="wa-conn-mode" onchange="onConnModeChange()" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2 py-1 rounded-lg border border-white/20 outline-none">
-              <option value="cloud_gateway">Cloud Baileys Gateway</option>
-              <option value="meta_cloud">Meta Official Cloud API</option>
-              <option value="inapp_web">In-App Web Bridge (not pairing)</option>
-            </select>
-          </div>
-          <div id="cfg-cloud-gateway" class="space-y-1.5">
-            <input id="wa-gateway-url" type="url" placeholder="Memo Gateway URL (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-            <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-            <p class="text-[9px] text-zinc-400">সার্ভার ডিপ্লয় করার পর URL ও Access Token একবার বসাও। এরপর শুধু নম্বর দিলেই কোড চাইতে পারবে। Token কাউকে দেবে না।</p>
-          </div>
-          <div id="cfg-meta-cloud" class="hidden space-y-1.5">
-            <input id="meta-phone-id" type="text" placeholder="Meta Phone Number ID" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-            <input id="meta-access-token" type="password" placeholder="Meta Permanent Access Token" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-          </div>
+          <input id="wa-gateway-url" type="url" placeholder="Memo Gateway URL (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+          <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+          <p class="text-[9px] text-zinc-400">সার্ভার ডিপ্লয় করার পর URL ও Access Token একবার বসাও। এরপর শুধু নম্বর দিলেই কোড চাইতে পারবে। Token কাউকে দেবে না।</p>
         </div>
       </details>
 
@@ -156,32 +136,12 @@
           <div id="pair-code-display" class="text-2xl font-black font-mono tracking-[0.2em] select-all" style="color: var(--accent);">--------</div>
           <div class="flex gap-2 justify-center pt-1">
             <button onclick="copyRealPairingCode()" class="px-3 py-1.5 rounded-xl bg-white/10 text-[10px] font-mono text-white">📋 Copy Code</button>
-            <button onclick="finalizeWhatsAppLogin('Pairing-Code')" class="px-3 py-1.5 rounded-xl bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 text-[10px] font-bold">✅ লিংক সম্পন্ন করেছি</button>
+            
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: QR CODE PANEL -->
-      <div id="login-panel-qr" class="hidden space-y-3 text-center">
-        <div id="qr-container-box" class="bg-white p-3 rounded-2xl inline-block shadow-xl">
-          <img id="wa-real-qr-img" src="" alt="QR Code" class="w-40 h-40 mx-auto rounded-lg object-contain" />
-        </div>
-        <p id="qr-status-msg" class="text-[10px] text-zinc-300">অন্য ফোনের WhatsApp ➔ Linked Devices থেকে স্ক্যান করুন অথবা নিচের In-App Web চালু করুন</p>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="loadRealQRCode()" class="py-2.5 rounded-xl liquid-pill text-xs font-bold text-white"><i class="fa-solid fa-rotate mr-1"></i>Refresh QR</button>
-          <button onclick="finalizeWhatsAppLogin('QR-Code')" class="py-2.5 rounded-xl liquid-btn text-xs font-bold">✅ QR Scanned</button>
-        </div>
-      </div>
 
-      <!-- Direct In-App Session Activation (When using Meta Cloud API or In-App Web Bridge) -->
-      <div class="pt-1 border-t border-white/10 flex items-center justify-between gap-2">
-        <button onclick="openWhatsAppWebPopup()" class="flex-1 py-2.5 rounded-xl liquid-pill text-[11px] font-bold text-cyan-300">
-          <i class="fa-solid fa-globe mr-1"></i> Open WhatsApp Web Inside App
-        </button>
-        <button onclick="finalizeWhatsAppLogin('In-App-Session')" class="flex-1 py-2.5 rounded-xl bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold">
-          <i class="fa-solid fa-check-double mr-1"></i> Activate Session
-        </button>
-      </div>
     </div>
   </div>
 
@@ -525,6 +485,11 @@
     };
 
     let state = loadState();
+    // Remove the old seeded demo chat from existing installs as well as fresh installs.
+    if (state.clients && state.clients["+8801700000001"]?.name === "Demo Client 1") {
+      delete state.clients["+8801700000001"];
+      try { localStorage.setItem(STORAGE_KEY, Vault.encode(JSON.stringify(state))); } catch (e) {}
+    }
     const inFlightLocks = new Set();
     let activeClientPhone = null;
 
@@ -560,23 +525,6 @@
         n = n.slice(1);
       }
       return c + n;
-    }
-
-    function switchLoginTab(tab) {
-      const isCode = tab === "code";
-      document.getElementById("login-panel-code").classList.toggle("hidden", !isCode);
-      document.getElementById("login-panel-qr").classList.toggle("hidden", isCode);
-      document.getElementById("login-tab-code").className = isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
-      document.getElementById("login-tab-qr").className = !isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
-      if (!isCode) loadRealQRCode();
-    }
-
-    function onConnModeChange() {
-      const mode = document.getElementById("wa-conn-mode").value;
-      state.connMode = mode;
-      document.getElementById("cfg-cloud-gateway").classList.toggle("hidden", mode !== "cloud_gateway");
-      document.getElementById("cfg-meta-cloud").classList.toggle("hidden", mode !== "meta_cloud");
-      saveState();
     }
 
     function gatewayHeaders(extra = {}) {
@@ -650,82 +598,10 @@
       btn.innerHTML = '<i class="fa-solid fa-key"></i> Generate Real Pairing Code';
     }
 
-    async function loadRealQRCode() {
-      const img = document.getElementById("wa-real-qr-img");
-      const msg = document.getElementById("qr-status-msg");
-      const gw = document.getElementById("wa-gateway-url").value.trim();
-      img.removeAttribute("src");
-      if (!gw) {
-        msg.textContent = "⚠️ আসল WhatsApp QR পেতে আগে একটি চালু Cloud Baileys Gateway URL দিতে হবে। ভুয়া QR দেখানো হবে না।";
-        return;
-      }
-      try {
-        const r = await fetch(gw.replace(/\/$/, "") + "/status", { headers: gatewayHeaders(), cache: "no-store" });
-        if (!r.ok) throw new Error("Gateway HTTP " + r.status);
-        const d = await r.json();
-        if (d && d.qr) {
-          img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(d.qr);
-          msg.textContent = "🟢 Live WhatsApp QR পাওয়া গেছে। WhatsApp > Linked Devices থেকে স্ক্যান করুন।";
-        } else if (d && d.waConnected) {
-          msg.textContent = "✅ Gateway-তে WhatsApp ইতিমধ্যে সংযুক্ত আছে।";
-        } else {
-          msg.textContent = "⏳ Gateway চালু, কিন্তু এখনো QR আসেনি। কিছুক্ষণ পরে Refresh QR চাপুন।";
-        }
-      } catch (e) {
-        msg.textContent = "❌ Gateway-তে সংযোগ হয়নি: " + e.message;
-      }
-    }
-
     function copyRealPairingCode() {
       const txt = document.getElementById("pair-code-display").textContent.trim();
       navigator.clipboard.writeText(txt);
       alert("Copied: " + txt);
-    }
-
-    function openWhatsAppWebPopup() {
-      window.open("https://web.whatsapp.com", "_blank");
-    }
-
-    async function finalizeWhatsAppLogin(method) {
-      const cc = document.getElementById("wa-country-code").value.trim() || "+88";
-      const rawNum = document.getElementById("wa-phone-number").value.trim();
-      if (!rawNum || rawNum.replace(/[^0-9]/g, "").length < 5) {
-        alert("⚠️ অনুগ্রহ করে আগে আপনার ফোন নম্বরটি লিখুন (যেমন: 01XXXXXXXXX)!");
-        document.getElementById("wa-phone-number").focus();
-        return;
-      }
-
-      const mode = document.getElementById("wa-conn-mode").value;
-      persistGatewaySettings();
-      const gateway = state.gatewayUrl;
-      if (mode !== "cloud_gateway") {
-        alert("এই মোডে ব্যক্তিগত WhatsApp Linked Devices pairing যাচাই করা যায় না। Cloud Baileys Gateway ব্যবহার করুন।");
-        return;
-      }
-      if (!gateway) {
-        alert("WhatsApp এখনো কানেক্ট হয়নি। আগে একটি চালু Cloud Baileys Gateway URL দিন, তারপর Pairing Code বা আসল QR দিয়ে লিংক করুন।");
-        return;
-      }
-
-      try {
-        const response = await fetch(gateway + "/status", { headers: gatewayHeaders(), cache: "no-store" });
-        if (!response.ok) throw new Error("Gateway HTTP " + response.status);
-        const status = await response.json();
-        if (!status || status.waConnected !== true) {
-          alert("WhatsApp সেশন এখনো কানেক্টেড নয়। Pairing Code/QR দিয়ে লিংক সম্পন্ন করে আবার চেষ্টা করুন।");
-          return;
-        }
-        state.countryCode = cc;
-        state.phoneNumber = rawNum;
-        state.fullPhone = status.phone ? "+" + String(status.phone).replace(/[^0-9]/g, "") : normalizeInternationalPhone(cc, rawNum);
-        state.gatewayUrl = gateway;
-        state.waLinked = true;
-        saveState();
-        hideLoginModal();
-        speakText("হোয়াটসঅ্যাপ সেশন যাচাই করে কানেক্ট হয়েছে");
-      } catch (error) {
-        alert("WhatsApp Gateway যাচাই করা যায়নি: " + error.message + "। সেশন Connected দেখানো হয়নি।");
-      }
     }
 
     function showLoginModal() {
@@ -890,35 +766,31 @@
     // 3 & 5. CLIENT CHAT SYSTEM & STRICT DUPLICATE REPLY PREVENTION
     // =========================================================================
     async function dispatchOutgoingToWhatsApp(clientPhone, text, msgId) {
-      // 1. Try Cloud Baileys Gateway if configured
-      if (state.gatewayUrl) {
-        try {
-          const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
-            method: "POST",
-            headers: gatewayHeaders({ "Content-Type": "application/json" }),
-            body: JSON.stringify({ to: clientPhone, text, msgId })
-          });
-          if (!r.ok) throw new Error("WhatsApp send failed: HTTP " + r.status);
-        } catch (e) { console.error("MEMO gateway send error:", e.message); }
+      if (!state.gatewayUrl || !state.gatewayToken) {
+        throw new Error("Memo WhatsApp Gateway is not configured");
       }
-      // 2. Try Meta Official WhatsApp Cloud API if configured
-      if (state.metaPhoneId && state.metaToken) {
-        try {
-          await fetch(`https://graph.facebook.com/v19.0/${state.metaPhoneId}/messages`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${state.metaToken}`
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: clientPhone.replace(/[^0-9]/g, ""),
-              type: "text",
-              text: { body: text }
-            })
-          });
-        } catch (e) {}
+      const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
+        method: "POST",
+        headers: gatewayHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ to: clientPhone, text, msgId })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || data.ok !== true) {
+        throw new Error(data.error || ("WhatsApp send failed: HTTP " + r.status));
       }
+      return data;
+    }
+
+    async function acknowledgeIncomingMessage(msgId) {
+      if (!state.gatewayUrl || !state.gatewayToken || !msgId) throw new Error("Gateway is not configured");
+      const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/ack", {
+        method: "POST",
+        headers: gatewayHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ msgId })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || data.ok !== true) throw new Error(data.error || ("Message acknowledgement failed: HTTP " + r.status));
+      return data;
     }
 
     async function handleIncomingClientMessage(rawClientPhone, text, explicitMsgId = null) {
@@ -952,25 +824,43 @@
 
       const clientObj = state.clients[clientPhone];
       const nowTime = new Date().toTimeString().slice(0, 5);
-      const inMsgObj = {
-        id: dedupKey,
-        sender: "client",
-        text: cleanText,
-        time: nowTime,
-        status: state.aiEnabled ? "⏳ AI Processing..." : "⏳ Pending (AI OFF)"
-      };
-      clientObj.messages.push(inMsgObj);
+      let inMsgObj = clientObj.messages.find(m => m.id === dedupKey && m.sender === "client");
+      if (!inMsgObj) {
+        inMsgObj = {
+          id: dedupKey,
+          sender: "client",
+          text: cleanText,
+          time: nowTime,
+          status: state.aiEnabled ? "⏳ AI Processing..." : "⏳ Pending (AI OFF)"
+        };
+        clientObj.messages.push(inMsgObj);
+      } else {
+        inMsgObj.text = cleanText;
+        inMsgObj.status = state.aiEnabled ? "⏳ AI Processing..." : "⏳ Pending (AI OFF)";
+      }
       clientObj.lastStatus = inMsgObj.status;
       saveState();
 
-      // If AI Assistant is OFF, do not auto-reply; allow manual reply
+      // AI OFF: acknowledge receipt but leave the message pending for manual reply.
       if (!state.aiEnabled) {
-        inFlightLocks.delete(dedupKey);
-        return { status: "stored_manual_only" };
+        try {
+          await acknowledgeIncomingMessage(dedupKey);
+          inFlightLocks.delete(dedupKey);
+          return { status: "stored_manual_only" };
+        } catch (err) {
+          state.processedMsgIds = state.processedMsgIds.filter(id => id !== dedupKey);
+          inMsgObj.status = "⏳ Pending (manual reply)";
+          clientObj.lastStatus = inMsgObj.status;
+          saveState();
+          inFlightLocks.delete(dedupKey);
+          return { status: "ack_failed" };
+        }
       }
 
       try {
         const { reply, source } = await generateSmartReply(cleanText);
+        // Only display a successful reply after WhatsApp confirms the send.
+        await dispatchOutgoingToWhatsApp(clientPhone, reply, dedupKey);
         inMsgObj.status = "🤖 Replied";
         const replyObj = {
           id: "rep_" + Date.now(),
@@ -982,16 +872,17 @@
         clientObj.messages.push(replyObj);
         clientObj.lastStatus = "🤖 AI Auto-Replied";
         state.stats.autoReplies = (state.stats.autoReplies || 0) + 1;
-        await dispatchOutgoingToWhatsApp(clientPhone, reply, dedupKey);
         speakText(reply);
         saveState();
         inFlightLocks.delete(dedupKey);
         return { status: "replied", reply, source };
       } catch (err) {
-        inMsgObj.status = "❌ Failed";
-        clientObj.lastStatus = "❌ Error";
+        state.processedMsgIds = state.processedMsgIds.filter(id => id !== dedupKey);
+        inMsgObj.status = "⚠️ Send failed — retry pending";
+        clientObj.lastStatus = "⚠️ Retry pending";
         saveState();
         inFlightLocks.delete(dedupKey);
+        console.error("MEMO auto-reply failed:", err.message);
         return { status: "error" };
       }
     }
@@ -1011,22 +902,26 @@
       }
 
       const clientObj = state.clients[clientPhone];
-      // Mark any pending client messages as answered
-      clientObj.messages.forEach(m => {
-        if (m.sender === "client" && m.status.includes("Pending")) m.status = "✅ Answered Manually";
-      });
-
-      clientObj.messages.push({
-        id: "man_" + Date.now(),
-        sender: "manual",
-        text: cleanText,
-        time: new Date().toTimeString().slice(0, 5),
-        status: "✍️ Manual Sent"
-      });
-      clientObj.lastStatus = "✍️ Manual Sent";
-      state.stats.manualSent = (state.stats.manualSent || 0) + 1;
-      await dispatchOutgoingToWhatsApp(clientPhone, cleanText, null);
-      saveState();
+      const manualId = "man_" + Date.now();
+      try {
+        await dispatchOutgoingToWhatsApp(clientPhone, cleanText, manualId);
+        clientObj.messages.forEach(m => {
+          if (m.sender === "client" && m.status.includes("Pending")) m.status = "✅ Answered Manually";
+        });
+        clientObj.messages.push({
+          id: manualId,
+          sender: "manual",
+          text: cleanText,
+          time: new Date().toTimeString().slice(0, 5),
+          status: "✍️ Manual Sent"
+        });
+        clientObj.lastStatus = "✍️ Manual Sent";
+        state.stats.manualSent = (state.stats.manualSent || 0) + 1;
+        saveState();
+      } catch (err) {
+        alert("WhatsApp-এ মেসেজ পাঠানো যায়নি: " + err.message);
+        console.error("MEMO manual send failed:", err.message);
+      }
     }
 
     function homeSendAction(mode) {
@@ -1397,7 +1292,7 @@
           }
           if (state.waLinked && Array.isArray(d.messages)) {
             for (const m of d.messages) {
-              if (!m.replied) {
+              if (!m.handled && !m.replied) {
                 await handleIncomingClientMessage(m.client, m.text, m.id);
               }
             }
