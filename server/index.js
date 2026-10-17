@@ -37,6 +37,7 @@ let pairingRequestedAt = 0;
 const processedMsgIds = new Set();
 const sentMsgIds = new Set();
 const messagesStore = [];
+const outgoingStore = new Map();
 const pairAttempts = new Map();
 
 function secureEqual(a, b) {
@@ -146,7 +147,8 @@ async function initWhatsApp() {
         processedMsgIds.add(m.key.id);
         const jid = m.key.remoteJid || '';
         if (jid.endsWith('@g.us') || jid.endsWith('@broadcast') || jid === 'status@broadcast') continue;
-        const sender = jid.replace('@s.whatsapp.net', '').replace('@lid', '');
+        const displayJid = m.key.remoteJidAlt || jid;
+        const sender = displayJid.replace('@s.whatsapp.net', '').replace('@lid', '').replace(/:.*/, '');
         const messageText = m.message.conversation
           || m.message.extendedTextMessage?.text
           || m.message.imageMessage?.caption
@@ -156,6 +158,7 @@ async function initWhatsApp() {
         messagesStore.unshift({
           id: m.key.id,
           client: '+' + sender,
+          clientJid: jid,
           text: messageText.trim(),
           timestamp: Date.now(),
           replied: sentMsgIds.has(m.key.id),
@@ -186,7 +189,8 @@ app.get('/status', (_req, res) => {
     waConnected,
     phone: connectedPhone,
     qr: latestQR,
-    messages: merged
+    messages: merged,
+    outgoing: [...outgoingStore.values()].slice(-100)
   });
 });
 
@@ -260,25 +264,44 @@ app.post('/logout', async (_req, res) => {
 app.post('/send', async (req, res) => {
   try {
     const { to, text, msgId } = req.body || {};
-    const clean = String(to || '').replace(/[^0-9]/g, '');
+    const rawTo = String(to || '').trim();
     const messageText = String(text || '').trim();
-    if (!/^\d{8,15}$/.test(clean) || !messageText) {
-      return res.status(400).json({ error: 'Valid recipient number and non-empty message are required' });
+    if (!rawTo || !messageText) {
+      return res.status(400).json({ error: 'Recipient and non-empty message are required' });
     }
     if (!waConnected || !sock) return res.status(503).json({ error: 'WhatsApp not connected' });
     if (msgId && sentMsgIds.has(String(msgId))) {
-      return res.json({ ok: true, duplicate: true });
+      const previous = outgoingStore.get(String(msgId));
+      return res.json({ ok: true, duplicate: true, status: previous?.status || 'accepted', messageId: previous?.messageId || null });
     }
 
-    await sock.sendMessage(clean + '@s.whatsapp.net', { text: messageText });
-    if (msgId) {
-      const id = String(msgId);
-      sentMsgIds.add(id);
-      if (sentMsgIds.size > 1000) sentMsgIds.delete(sentMsgIds.values().next().value);
-      const item = messagesStore.find(m => m.id === id);
-      if (item) { item.replied = true; item.handled = true; }
+    // Preserve an actual WhatsApp JID from an incoming message (including @lid).
+    // Never strip a LID down to digits and rebuild it as @s.whatsapp.net.
+    let recipientJid;
+    if (/^\\d+@(s\\.whatsapp\\.net|lid)$/.test(rawTo)) {
+      recipientJid = rawTo;
+    } else {
+      const clean = rawTo.replace(/[^0-9]/g, '');
+      if (!/^\\d{8,15}$/.test(clean)) {
+        return res.status(400).json({ error: 'Enter a valid international number or WhatsApp JID' });
+      }
+      const lookup = await sock.onWhatsApp(clean);
+      const match = Array.isArray(lookup) ? lookup.find(item => item && item.exists && item.jid) : null;
+      if (!match) return res.status(422).json({ error: 'This number is not registered on WhatsApp; no message was sent' });
+      recipientJid = match.jid;
     }
-    res.json({ ok: true });
+
+    const sent = await sock.sendMessage(recipientJid, { text: messageText });
+    if (!sent?.key?.id) throw new Error('WhatsApp did not return a message ID; delivery is unconfirmed');
+    const id = String(msgId || sent.key.id);
+    sentMsgIds.add(id);
+    if (sentMsgIds.size > 1000) sentMsgIds.delete(sentMsgIds.values().next().value);
+    const record = { id, messageId: sent.key.id, to: recipientJid, status: 'accepted', createdAt: Date.now(), text: messageText.slice(0, 500) };
+    outgoingStore.set(id, record);
+    if (outgoingStore.size > 500) outgoingStore.delete(outgoingStore.keys().next().value);
+    const item = messagesStore.find(m => m.id === id);
+    if (item) { item.replied = true; item.handled = true; }
+    res.json({ ok: true, status: 'accepted', delivered: false, messageId: sent.key.id, recipientJid });
   } catch (err) {
     console.error('WhatsApp send failed:', err.message || err);
     res.status(502).json({ error: err.message || 'WhatsApp send failed' });
