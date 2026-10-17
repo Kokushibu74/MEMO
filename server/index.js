@@ -156,7 +156,8 @@ async function initWhatsApp() {
           client: '+' + sender,
           text: messageText.trim(),
           timestamp: Date.now(),
-          replied: sentMsgIds.has(m.key.id)
+          replied: sentMsgIds.has(m.key.id),
+          handled: sentMsgIds.has(m.key.id)
         });
         if (messagesStore.length > 500) messagesStore.length = 500;
       }
@@ -172,7 +173,7 @@ async function initWhatsApp() {
 }
 
 app.get('/status', (_req, res) => {
-  const unhandled = messagesStore.filter(m => !m.replied);
+  const unhandled = messagesStore.filter(m => !m.handled && !m.replied);
   const latest = messagesStore.slice(0, 50);
   const merged = [...new Map([...unhandled, ...latest].map(m => [m.id, m])).values()];
   res.json({
@@ -189,9 +190,6 @@ app.get('/status', (_req, res) => {
 
 app.post('/pair', async (req, res) => {
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
-  if (pairRateLimited(ip)) {
-    return res.status(429).json({ error: 'Too many pairing requests. Wait 10 minutes and try again.' });
-  }
   try {
     const phone = String(req.body.phone || '').replace(/[^0-9]/g, '');
     if (!/^\d{8,15}$/.test(phone)) {
@@ -206,6 +204,9 @@ app.post('/pair', async (req, res) => {
     if (Date.now() - pairingRequestedAt < 30_000) {
       return res.status(429).json({ error: 'A pairing code was just requested. Wait 30 seconds before requesting another.' });
     }
+    if (pairRateLimited(ip)) {
+      return res.status(429).json({ error: 'Too many pairing requests. Wait 10 minutes and try again.' });
+    }
 
     pairingRequestedAt = Date.now();
     const code = await sock.requestPairingCode(phone);
@@ -216,6 +217,16 @@ app.post('/pair', async (req, res) => {
     console.error('Pairing code request failed:', err.message || err);
     res.status(502).json({ error: err.message || 'Failed to request a real WhatsApp pairing code' });
   }
+});
+
+
+app.post('/ack', (req, res) => {
+  const msgId = String(req.body?.msgId || '');
+  if (!msgId) return res.status(400).json({ error: 'msgId is required' });
+  const item = messagesStore.find(m => m.id === msgId);
+  if (!item) return res.status(404).json({ error: 'Incoming message not found' });
+  item.handled = true;
+  res.json({ ok: true, replied: item.replied });
 });
 
 app.post('/send', async (req, res) => {
@@ -237,7 +248,7 @@ app.post('/send', async (req, res) => {
       sentMsgIds.add(id);
       if (sentMsgIds.size > 1000) sentMsgIds.delete(sentMsgIds.values().next().value);
       const item = messagesStore.find(m => m.id === id);
-      if (item) item.replied = true;
+      if (item) { item.replied = true; item.handled = true; }
     }
     res.json({ ok: true });
   } catch (err) {
