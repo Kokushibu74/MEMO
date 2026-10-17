@@ -105,12 +105,6 @@
         </div>
       </div>
 
-      <!-- Mode Tabs: Pairing Code vs QR Code -->
-      <div class="liquid-pill rounded-2xl p-1 grid grid-cols-2 gap-1 text-xs font-bold">
-        <button id="login-tab-code" onclick="switchLoginTab('code')" class="py-2 rounded-xl liquid-btn">🔢 Pairing Code</button>
-        <button id="login-tab-qr" onclick="switchLoginTab('qr')" class="py-2 rounded-xl text-zinc-200">📷 QR Code</button>
-      </div>
-
       <!-- Universal Country Code (+88 Default) + Empty Phone Input -->
       <div class="space-y-1.5 text-left">
         <label class="text-[11px] font-bold text-zinc-200 block">ফোন নম্বর দিন (কান্ট্রি কোড + নম্বর):</label>
@@ -125,23 +119,9 @@
       <details id="gateway-setup-details" class="liquid-pill rounded-2xl p-3 text-left">
         <summary class="cursor-pointer text-[10px] font-bold text-zinc-200">⚙️ প্রথমবারের Gateway সেটআপ (একবারই)</summary>
         <div class="space-y-2 pt-3">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold text-zinc-200">WhatsApp Engine</span>
-            <select id="wa-conn-mode" onchange="onConnModeChange()" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2 py-1 rounded-lg border border-white/20 outline-none">
-              <option value="cloud_gateway">Cloud Baileys Gateway</option>
-              <option value="meta_cloud">Meta Official Cloud API</option>
-              <option value="inapp_web">In-App Web Bridge (not pairing)</option>
-            </select>
-          </div>
-          <div id="cfg-cloud-gateway" class="space-y-1.5">
-            <input id="wa-gateway-url" type="url" placeholder="Memo Gateway URL (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-            <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-            <p class="text-[9px] text-zinc-400">সার্ভার ডিপ্লয় করার পর URL ও Access Token একবার বসাও। এরপর শুধু নম্বর দিলেই কোড চাইতে পারবে। Token কাউকে দেবে না।</p>
-          </div>
-          <div id="cfg-meta-cloud" class="hidden space-y-1.5">
-            <input id="meta-phone-id" type="text" placeholder="Meta Phone Number ID" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-            <input id="meta-access-token" type="password" placeholder="Meta Permanent Access Token" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-          </div>
+          <input id="wa-gateway-url" type="url" placeholder="Memo Gateway URL (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+          <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+          <p class="text-[9px] text-zinc-400">সার্ভার ডিপ্লয় করার পর URL ও Access Token একবার বসাও। এরপর শুধু নম্বর দিলেই কোড চাইতে পারবে। Token কাউকে দেবে না।</p>
         </div>
       </details>
 
@@ -156,32 +136,12 @@
           <div id="pair-code-display" class="text-2xl font-black font-mono tracking-[0.2em] select-all" style="color: var(--accent);">--------</div>
           <div class="flex gap-2 justify-center pt-1">
             <button onclick="copyRealPairingCode()" class="px-3 py-1.5 rounded-xl bg-white/10 text-[10px] font-mono text-white">📋 Copy Code</button>
-            <button onclick="finalizeWhatsAppLogin('Pairing-Code')" class="px-3 py-1.5 rounded-xl bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 text-[10px] font-bold">✅ লিংক সম্পন্ন করেছি</button>
+            
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: QR CODE PANEL -->
-      <div id="login-panel-qr" class="hidden space-y-3 text-center">
-        <div id="qr-container-box" class="bg-white p-3 rounded-2xl inline-block shadow-xl">
-          <img id="wa-real-qr-img" src="" alt="QR Code" class="w-40 h-40 mx-auto rounded-lg object-contain" />
-        </div>
-        <p id="qr-status-msg" class="text-[10px] text-zinc-300">অন্য ফোনের WhatsApp ➔ Linked Devices থেকে স্ক্যান করুন অথবা নিচের In-App Web চালু করুন</p>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="loadRealQRCode()" class="py-2.5 rounded-xl liquid-pill text-xs font-bold text-white"><i class="fa-solid fa-rotate mr-1"></i>Refresh QR</button>
-          <button onclick="finalizeWhatsAppLogin('QR-Code')" class="py-2.5 rounded-xl liquid-btn text-xs font-bold">✅ QR Scanned</button>
-        </div>
-      </div>
 
-      <!-- Direct In-App Session Activation (When using Meta Cloud API or In-App Web Bridge) -->
-      <div class="pt-1 border-t border-white/10 flex items-center justify-between gap-2">
-        <button onclick="openWhatsAppWebPopup()" class="flex-1 py-2.5 rounded-xl liquid-pill text-[11px] font-bold text-cyan-300">
-          <i class="fa-solid fa-globe mr-1"></i> Open WhatsApp Web Inside App
-        </button>
-        <button onclick="finalizeWhatsAppLogin('In-App-Session')" class="flex-1 py-2.5 rounded-xl bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold">
-          <i class="fa-solid fa-check-double mr-1"></i> Activate Session
-        </button>
-      </div>
     </div>
   </div>
 
@@ -567,23 +527,6 @@
       return c + n;
     }
 
-    function switchLoginTab(tab) {
-      const isCode = tab === "code";
-      document.getElementById("login-panel-code").classList.toggle("hidden", !isCode);
-      document.getElementById("login-panel-qr").classList.toggle("hidden", isCode);
-      document.getElementById("login-tab-code").className = isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
-      document.getElementById("login-tab-qr").className = !isCode ? "py-2 rounded-xl liquid-btn" : "py-2 rounded-xl text-zinc-200";
-      if (!isCode) loadRealQRCode();
-    }
-
-    function onConnModeChange() {
-      const mode = document.getElementById("wa-conn-mode").value;
-      state.connMode = mode;
-      document.getElementById("cfg-cloud-gateway").classList.toggle("hidden", mode !== "cloud_gateway");
-      document.getElementById("cfg-meta-cloud").classList.toggle("hidden", mode !== "meta_cloud");
-      saveState();
-    }
-
     function gatewayHeaders(extra = {}) {
       const token = document.getElementById("wa-gateway-token")?.value.trim() || state.gatewayToken || "";
       return { ...extra, "X-MEMO-Token": token };
@@ -655,82 +598,10 @@
       btn.innerHTML = '<i class="fa-solid fa-key"></i> Generate Real Pairing Code';
     }
 
-    async function loadRealQRCode() {
-      const img = document.getElementById("wa-real-qr-img");
-      const msg = document.getElementById("qr-status-msg");
-      const gw = document.getElementById("wa-gateway-url").value.trim();
-      img.removeAttribute("src");
-      if (!gw) {
-        msg.textContent = "⚠️ আসল WhatsApp QR পেতে আগে একটি চালু Cloud Baileys Gateway URL দিতে হবে। ভুয়া QR দেখানো হবে না।";
-        return;
-      }
-      try {
-        const r = await fetch(gw.replace(/\/$/, "") + "/status", { headers: gatewayHeaders(), cache: "no-store" });
-        if (!r.ok) throw new Error("Gateway HTTP " + r.status);
-        const d = await r.json();
-        if (d && d.qr) {
-          img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(d.qr);
-          msg.textContent = "🟢 Live WhatsApp QR পাওয়া গেছে। WhatsApp > Linked Devices থেকে স্ক্যান করুন।";
-        } else if (d && d.waConnected) {
-          msg.textContent = "✅ Gateway-তে WhatsApp ইতিমধ্যে সংযুক্ত আছে।";
-        } else {
-          msg.textContent = "⏳ Gateway চালু, কিন্তু এখনো QR আসেনি। কিছুক্ষণ পরে Refresh QR চাপুন।";
-        }
-      } catch (e) {
-        msg.textContent = "❌ Gateway-তে সংযোগ হয়নি: " + e.message;
-      }
-    }
-
     function copyRealPairingCode() {
       const txt = document.getElementById("pair-code-display").textContent.trim();
       navigator.clipboard.writeText(txt);
       alert("Copied: " + txt);
-    }
-
-    function openWhatsAppWebPopup() {
-      window.open("https://web.whatsapp.com", "_blank");
-    }
-
-    async function finalizeWhatsAppLogin(method) {
-      const cc = document.getElementById("wa-country-code").value.trim() || "+88";
-      const rawNum = document.getElementById("wa-phone-number").value.trim();
-      if (!rawNum || rawNum.replace(/[^0-9]/g, "").length < 5) {
-        alert("⚠️ অনুগ্রহ করে আগে আপনার ফোন নম্বরটি লিখুন (যেমন: 01XXXXXXXXX)!");
-        document.getElementById("wa-phone-number").focus();
-        return;
-      }
-
-      const mode = document.getElementById("wa-conn-mode").value;
-      persistGatewaySettings();
-      const gateway = state.gatewayUrl;
-      if (mode !== "cloud_gateway") {
-        alert("এই মোডে ব্যক্তিগত WhatsApp Linked Devices pairing যাচাই করা যায় না। Cloud Baileys Gateway ব্যবহার করুন।");
-        return;
-      }
-      if (!gateway) {
-        alert("WhatsApp এখনো কানেক্ট হয়নি। আগে একটি চালু Cloud Baileys Gateway URL দিন, তারপর Pairing Code বা আসল QR দিয়ে লিংক করুন।");
-        return;
-      }
-
-      try {
-        const response = await fetch(gateway + "/status", { headers: gatewayHeaders(), cache: "no-store" });
-        if (!response.ok) throw new Error("Gateway HTTP " + response.status);
-        const status = await response.json();
-        if (!status || status.waConnected !== true) {
-          alert("WhatsApp সেশন এখনো কানেক্টেড নয়। Pairing Code/QR দিয়ে লিংক সম্পন্ন করে আবার চেষ্টা করুন।");
-          return;
-        }
-        state.countryCode = cc;
-        state.phoneNumber = rawNum;
-        state.fullPhone = status.phone ? "+" + String(status.phone).replace(/[^0-9]/g, "") : normalizeInternationalPhone(cc, rawNum);
-        state.gatewayUrl = gateway;
-        state.waLinked = true;
-        saveState();
-        hideLoginModal();
-        speakText("হোয়াটসঅ্যাপ সেশন যাচাই করে কানেক্ট হয়েছে");
-      } catch (error) {
-        alert("WhatsApp Gateway যাচাই করা যায়নি: " + error.message + "। সেশন Connected দেখানো হয়নি।");
-      }
     }
 
     function showLoginModal() {
