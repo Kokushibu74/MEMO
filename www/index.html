@@ -123,6 +123,7 @@
           <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
           <a href="https://render.com/deploy?repo=https://github.com/Kokushibu74/MEMO" target="_blank" rel="noopener noreferrer" class="block w-full text-center rounded-xl px-3 py-2.5 text-[11px] font-extrabold bg-emerald-500/15 border border-emerald-400/40 text-emerald-200">① একবার Gateway Deploy করো ↗</a>
           <p class="text-[9px] text-zinc-400">প্রথমবার শুধু একবার: উপরের বাটনে Render-এ লগইন করে Deploy শেষ করো। এটি Starter plan + persistent disk ব্যবহার করে (পেইড)। তারপর Render থেকে HTTPS URL ও MEMO_GATEWAY_TOKEN এখানে বসিয়ে রাখো। পরের বার শুধু নম্বর দিলেই আসল কোড আসবে। Token কাউকে দেবে না।</p>
+        </div>
       </details>
 
       <!-- TAB 1: PAIRING CODE PANEL -->
@@ -558,7 +559,9 @@
       const disp = document.getElementById("pair-code-display");
       const inst = document.getElementById("pair-code-instruction");
       if (!state.gatewayUrl || !state.gatewayToken) {
-        alert("প্রথমবার ব্যবহার করার আগে Memo Gateway URL এবং Access Token সেট করতে হবে।");
+        document.getElementById("gateway-setup-details").open = true;
+        document.getElementById("gateway-setup-details").scrollIntoView({ behavior: "smooth", block: "center" });
+        alert("প্রথমবার শুধু একবার Gateway deploy করে URL ও token বসাতে হবে। এরপর থেকে শুধু নম্বর দিলেই চলবে।");
         return;
       }
       saveState();
