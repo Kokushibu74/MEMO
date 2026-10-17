@@ -922,7 +922,10 @@
     }
 
     async function handleIncomingClientMessage(rawClientPhone, text, explicitMsgId = null) {
-      const clientPhone = normalizeInternationalPhone("+88", rawClientPhone.replace(/^\+88/, ""));
+      const incomingPhone = String(rawClientPhone || "").trim();
+      const clientPhone = incomingPhone.startsWith("+")
+        ? "+" + incomingPhone.replace(/[^0-9]/g, "")
+        : normalizeInternationalPhone("+88", incomingPhone);
       const cleanText = String(text || "").trim();
       if (!cleanText) return { status: "empty" };
 
