@@ -121,28 +121,29 @@
         <p class="text-[10px] text-zinc-400">💡 টিপস: বাংলাদেশের জন্য বাম ঘরে <b>+88</b> রেখে ডান ঘরে আপনার <b>01...</b> নম্বর লিখুন। অন্য দেশের জন্য কান্ট্রি কোড পরিবর্তন করুন।</p>
       </div>
 
-      <!-- Connection Engine Mode Selector (All inside Memo App, Zero Termux) -->
-      <div class="liquid-pill rounded-2xl p-3 space-y-2 text-left">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-bold text-zinc-200">🌐 WhatsApp Connection Mode (In-App):</span>
-          <select id="wa-conn-mode" onchange="onConnModeChange()" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2 py-1 rounded-lg border border-white/20 outline-none">
-            <option value="cloud_gateway">Cloud Baileys / WAHA Gateway</option>
-            <option value="meta_cloud">Meta Official Cloud API</option>
-            <option value="inapp_web">In-App WhatsApp Web Bridge</option>
-          </select>
+      <!-- One-time setup is collapsed so normal login only asks for the phone number. -->
+      <details id="gateway-setup-details" class="liquid-pill rounded-2xl p-3 text-left">
+        <summary class="cursor-pointer text-[10px] font-bold text-zinc-200">⚙️ প্রথমবারের Gateway সেটআপ (একবারই)</summary>
+        <div class="space-y-2 pt-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-zinc-200">WhatsApp Engine</span>
+            <select id="wa-conn-mode" onchange="onConnModeChange()" class="bg-slate-900 text-[10px] font-mono text-cyan-300 px-2 py-1 rounded-lg border border-white/20 outline-none">
+              <option value="cloud_gateway">Cloud Baileys Gateway</option>
+              <option value="meta_cloud">Meta Official Cloud API</option>
+              <option value="inapp_web">In-App Web Bridge (not pairing)</option>
+            </select>
+          </div>
+          <div id="cfg-cloud-gateway" class="space-y-1.5">
+            <input id="wa-gateway-url" type="url" placeholder="Memo Gateway URL (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+            <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
+            <p class="text-[9px] text-zinc-400">সার্ভার ডিপ্লয় করার পর URL ও Access Token একবার বসাও। এরপর শুধু নম্বর দিলেই কোড চাইতে পারবে। Token কাউকে দেবে না।</p>
+          </div>
+          <div id="cfg-meta-cloud" class="hidden space-y-1.5">
+            <input id="meta-phone-id" type="text" placeholder="Meta Phone Number ID" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
+            <input id="meta-access-token" type="password" placeholder="Meta Permanent Access Token" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
+          </div>
         </div>
-
-        <div id="cfg-cloud-gateway" class="space-y-1.5">
-          <input id="wa-gateway-url" type="url" placeholder="Memo Gateway URL (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-          <input id="wa-gateway-token" type="password" autocomplete="off" placeholder="Gateway access token (একবার সেটআপ)" class="w-full liquid-input rounded-xl px-3 py-2 text-[11px] font-mono" />
-          <p class="text-[9px] text-zinc-400">এগুলো একবার সেট করলেই পরে শুধু নম্বর দিয়ে Pairing Code নিতে পারবে। Token কাউকে দেবে না।</p>
-        </div>
-
-        <div id="cfg-meta-cloud" class="hidden space-y-1.5">
-          <input id="meta-phone-id" type="text" placeholder="Meta Phone Number ID" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-          <input id="meta-access-token" type="password" placeholder="Meta Permanent Access Token" class="w-full liquid-input rounded-xl px-3 py-1.5 text-[11px] font-mono" />
-        </div>
-      </div>
+      </details>
 
       <!-- TAB 1: PAIRING CODE PANEL -->
       <div id="login-panel-code" class="space-y-3">
@@ -496,6 +497,7 @@
       fullPhone: "",
       connMode: "cloud_gateway",
       gatewayUrl: "",
+      gatewayToken: "",
       metaPhoneId: "",
       metaToken: "",
       aiEnabled: true,
@@ -518,17 +520,7 @@
         { q: "ki kros|ki korcho|কি করছ|kemon aso|কেমন আছ", a: "আলহামদুলিল্লাহ, আমি ভালো আছি এবং আপনার মেসেজের অপেক্ষায় আছি! আপনার কী খবর?" }
       ],
       customModelName: "Memo-BuiltIn-Local-v2",
-      clients: {
-        "+8801700000001": {
-          phone: "+8801700000001",
-          name: "Demo Client 1",
-          lastStatus: "🤖 AI Auto-Replied",
-          messages: [
-            { id: "init_1", sender: "client", text: "সালাম ভাই, আপনাদের সার্ভিস কি চালু আছে?", time: "10:00", status: "Received" },
-            { id: "init_2", sender: "ai", text: "ওয়ালাইকুম আসসালাম! হ্যাঁ, আমাদের সার্ভিস চালু আছে। কীভাবে সাহায্য করতে পারি?", time: "10:00", status: "🤖 AI Auto-Replied" }
-          ]
-        }
-      },
+      clients: {},
       processedMsgIds: []
     };
 
