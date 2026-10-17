@@ -890,35 +890,31 @@
     // 3 & 5. CLIENT CHAT SYSTEM & STRICT DUPLICATE REPLY PREVENTION
     // =========================================================================
     async function dispatchOutgoingToWhatsApp(clientPhone, text, msgId) {
-      // 1. Try Cloud Baileys Gateway if configured
-      if (state.gatewayUrl) {
-        try {
-          const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
-            method: "POST",
-            headers: gatewayHeaders({ "Content-Type": "application/json" }),
-            body: JSON.stringify({ to: clientPhone, text, msgId })
-          });
-          if (!r.ok) throw new Error("WhatsApp send failed: HTTP " + r.status);
-        } catch (e) { console.error("MEMO gateway send error:", e.message); }
+      if (!state.gatewayUrl || !state.gatewayToken) {
+        throw new Error("Memo WhatsApp Gateway is not configured");
       }
-      // 2. Try Meta Official WhatsApp Cloud API if configured
-      if (state.metaPhoneId && state.metaToken) {
-        try {
-          await fetch(`https://graph.facebook.com/v19.0/${state.metaPhoneId}/messages`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${state.metaToken}`
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: clientPhone.replace(/[^0-9]/g, ""),
-              type: "text",
-              text: { body: text }
-            })
-          });
-        } catch (e) {}
+      const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/send", {
+        method: "POST",
+        headers: gatewayHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ to: clientPhone, text, msgId })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || data.ok !== true) {
+        throw new Error(data.error || ("WhatsApp send failed: HTTP " + r.status));
       }
+      return data;
+    }
+
+    async function acknowledgeIncomingMessage(msgId) {
+      if (!state.gatewayUrl || !state.gatewayToken || !msgId) throw new Error("Gateway is not configured");
+      const r = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/ack", {
+        method: "POST",
+        headers: gatewayHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ msgId })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || data.ok !== true) throw new Error(data.error || ("Message acknowledgement failed: HTTP " + r.status));
+      return data;
     }
 
     async function handleIncomingClientMessage(rawClientPhone, text, explicitMsgId = null) {
@@ -952,25 +948,43 @@
 
       const clientObj = state.clients[clientPhone];
       const nowTime = new Date().toTimeString().slice(0, 5);
-      const inMsgObj = {
-        id: dedupKey,
-        sender: "client",
-        text: cleanText,
-        time: nowTime,
-        status: state.aiEnabled ? "⏳ AI Processing..." : "⏳ Pending (AI OFF)"
-      };
-      clientObj.messages.push(inMsgObj);
+      let inMsgObj = clientObj.messages.find(m => m.id === dedupKey && m.sender === "client");
+      if (!inMsgObj) {
+        inMsgObj = {
+          id: dedupKey,
+          sender: "client",
+          text: cleanText,
+          time: nowTime,
+          status: state.aiEnabled ? "⏳ AI Processing..." : "⏳ Pending (AI OFF)"
+        };
+        clientObj.messages.push(inMsgObj);
+      } else {
+        inMsgObj.text = cleanText;
+        inMsgObj.status = state.aiEnabled ? "⏳ AI Processing..." : "⏳ Pending (AI OFF)";
+      }
       clientObj.lastStatus = inMsgObj.status;
       saveState();
 
-      // If AI Assistant is OFF, do not auto-reply; allow manual reply
+      // AI OFF: acknowledge receipt but leave the message pending for manual reply.
       if (!state.aiEnabled) {
-        inFlightLocks.delete(dedupKey);
-        return { status: "stored_manual_only" };
+        try {
+          await acknowledgeIncomingMessage(dedupKey);
+          inFlightLocks.delete(dedupKey);
+          return { status: "stored_manual_only" };
+        } catch (err) {
+          state.processedMsgIds = state.processedMsgIds.filter(id => id !== dedupKey);
+          inMsgObj.status = "⏳ Pending (manual reply)";
+          clientObj.lastStatus = inMsgObj.status;
+          saveState();
+          inFlightLocks.delete(dedupKey);
+          return { status: "ack_failed" };
+        }
       }
 
       try {
         const { reply, source } = await generateSmartReply(cleanText);
+        // Only display a successful reply after WhatsApp confirms the send.
+        await dispatchOutgoingToWhatsApp(clientPhone, reply, dedupKey);
         inMsgObj.status = "🤖 Replied";
         const replyObj = {
           id: "rep_" + Date.now(),
@@ -982,16 +996,17 @@
         clientObj.messages.push(replyObj);
         clientObj.lastStatus = "🤖 AI Auto-Replied";
         state.stats.autoReplies = (state.stats.autoReplies || 0) + 1;
-        await dispatchOutgoingToWhatsApp(clientPhone, reply, dedupKey);
         speakText(reply);
         saveState();
         inFlightLocks.delete(dedupKey);
         return { status: "replied", reply, source };
       } catch (err) {
-        inMsgObj.status = "❌ Failed";
-        clientObj.lastStatus = "❌ Error";
+        state.processedMsgIds = state.processedMsgIds.filter(id => id !== dedupKey);
+        inMsgObj.status = "⚠️ Send failed — retry pending";
+        clientObj.lastStatus = "⚠️ Retry pending";
         saveState();
         inFlightLocks.delete(dedupKey);
+        console.error("MEMO auto-reply failed:", err.message);
         return { status: "error" };
       }
     }
@@ -1011,22 +1026,26 @@
       }
 
       const clientObj = state.clients[clientPhone];
-      // Mark any pending client messages as answered
-      clientObj.messages.forEach(m => {
-        if (m.sender === "client" && m.status.includes("Pending")) m.status = "✅ Answered Manually";
-      });
-
-      clientObj.messages.push({
-        id: "man_" + Date.now(),
-        sender: "manual",
-        text: cleanText,
-        time: new Date().toTimeString().slice(0, 5),
-        status: "✍️ Manual Sent"
-      });
-      clientObj.lastStatus = "✍️ Manual Sent";
-      state.stats.manualSent = (state.stats.manualSent || 0) + 1;
-      await dispatchOutgoingToWhatsApp(clientPhone, cleanText, null);
-      saveState();
+      const manualId = "man_" + Date.now();
+      try {
+        await dispatchOutgoingToWhatsApp(clientPhone, cleanText, manualId);
+        clientObj.messages.forEach(m => {
+          if (m.sender === "client" && m.status.includes("Pending")) m.status = "✅ Answered Manually";
+        });
+        clientObj.messages.push({
+          id: manualId,
+          sender: "manual",
+          text: cleanText,
+          time: new Date().toTimeString().slice(0, 5),
+          status: "✍️ Manual Sent"
+        });
+        clientObj.lastStatus = "✍️ Manual Sent";
+        state.stats.manualSent = (state.stats.manualSent || 0) + 1;
+        saveState();
+      } catch (err) {
+        alert("WhatsApp-এ মেসেজ পাঠানো যায়নি: " + err.message);
+        console.error("MEMO manual send failed:", err.message);
+      }
     }
 
     function homeSendAction(mode) {
