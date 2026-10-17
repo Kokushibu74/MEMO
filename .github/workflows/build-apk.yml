@@ -38,8 +38,20 @@ jobs:
           assert 'memoWaFab' not in html, "Obsolete bottom-right WhatsApp floating button must be removed"
           assert 'MEMO_AI_2_0_CONNECTED' not in html, "Fake QR link must not exist"
           assert 'status.waConnected !== true' in html, "WhatsApp login must verify a real gateway session"
-          print("✅ UI, real-session and duplicate-widget checks passed!")
+          assert 'id="wa-gateway-token"' in html, "Gateway token field is required"
+          assert 'gatewayToken: ""' in html, "Gateway token state default is missing"
+          assert 'Demo Client 1' not in html, "Fake demo chats must not be shipped"
+          assert 'X-MEMO-Token' in open("server/index.js", encoding="utf-8").read(), "Gateway endpoints must require a token"
+          assert 'MEMO_GATEWAY_TOKEN' in open("render.yaml", encoding="utf-8").read(), "Render must configure gateway auth"
+          assert 'mountPath: /var/data' in open("render.yaml", encoding="utf-8").read(), "WhatsApp auth must use persistent storage"
+          import re
+          scripts = re.findall(r'<script>(.*?)</script>', html, re.S)
+          assert scripts, "Missing app JavaScript"
+          open('/tmp/memo-ui-check.js', 'w', encoding='utf-8').write(scripts[-1])
+          print("✅ UI, real-session, token-auth, persistent-disk and no-demo checks passed!")
           PYTEST
+          node --check /tmp/memo-ui-check.js
+          node --check server/index.js
 
       - name: Build Capacitor Android APK
         run: |
