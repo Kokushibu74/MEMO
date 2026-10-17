@@ -844,7 +844,7 @@
       }
 
       const clientObj = state.clients[clientPhone];
-      if (explicitJid && /^(\\d+@(s\\.whatsapp\\.net|lid))$/.test(explicitJid)) clientObj.jid = explicitJid;
+      if (explicitJid && /^(\d+@(s\.whatsapp\.net|lid))$/.test(explicitJid)) clientObj.jid = explicitJid;
       const nowTime = new Date().toTimeString().slice(0, 5);
       let inMsgObj = clientObj.messages.find(m => m.id === dedupKey && m.sender === "client");
       if (!inMsgObj) {
