@@ -40,8 +40,11 @@ jobs:
           assert 'status.waConnected !== true' in html, "WhatsApp login must verify a real gateway session"
           assert 'id="wa-gateway-token"' in html, "Gateway token field is required"
           assert 'gatewayToken: ""' in html, "Gateway token state default is missing"
-          assert 'Demo Client 1' not in html, "Fake demo chats must not be shipped"
-          assert 'X-MEMO-Token' in open("server/index.js", encoding="utf-8").read(), "Gateway endpoints must require a token"
+          assert 'clients: {\n        "+8801700000001": {' not in html, "Seeded demo chat must not be shipped"
+          server = open("server/index.js", encoding="utf-8").read()
+          assert 'X-MEMO-Token' in server, "Gateway endpoints must require a token"
+          assert "app.use('/ack', requireGatewayToken);" in server, "Message acknowledgement endpoint must be protected"
+          assert "app.post('/ack'" in server, "Manual mode acknowledgement endpoint is missing"
           assert 'MEMO_GATEWAY_TOKEN' in open("render.yaml", encoding="utf-8").read(), "Render must configure gateway auth"
           assert 'mountPath: /var/data' in open("render.yaml", encoding="utf-8").read(), "WhatsApp auth must use persistent storage"
           import re
