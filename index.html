@@ -617,7 +617,21 @@
       document.getElementById("wa-login-overlay").classList.add("hidden");
     }
 
-    function logoutWhatsAppSession() {
+    async function logoutWhatsAppSession() {
+      if (state.gatewayUrl && state.gatewayToken) {
+        try {
+          const response = await fetch(state.gatewayUrl.replace(/\/$/, "") + "/logout", {
+            method: "POST",
+            headers: gatewayHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify({})
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || data.ok !== true) throw new Error(data.error || ("HTTP " + response.status));
+        } catch (error) {
+          alert("WhatsApp থেকে লগআউট করা যায়নি: " + error.message);
+          return;
+        }
+      }
       state.waLinked = false;
       saveState();
       showLoginModal();
