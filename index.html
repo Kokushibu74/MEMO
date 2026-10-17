@@ -641,27 +641,29 @@
     }
 
     async function loadRealQRCode() {
-      const cc = document.getElementById("wa-country-code").value.trim() || "+88";
-      const rawNum = document.getElementById("wa-phone-number").value.trim();
-      const fullIntl = normalizeInternationalPhone(cc, rawNum || "01000000000");
       const img = document.getElementById("wa-real-qr-img");
       const msg = document.getElementById("qr-status-msg");
       const gw = document.getElementById("wa-gateway-url").value.trim();
-
-      if (gw) {
-        try {
-          const r = await fetch(gw.replace(/\/$/, "") + "/status");
-          const d = await r.json();
-          if (d && d.qr) {
-            img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(d.qr);
-            msg.textContent = "🟢 Live Baileys QR Ready! এখনই আপনার WhatsApp থেকে স্ক্যান করুন।";
-            return;
-          }
-        } catch (e) {}
+      img.removeAttribute("src");
+      if (!gw) {
+        msg.textContent = "⚠️ আসল WhatsApp QR পেতে আগে একটি চালু Cloud Baileys Gateway URL দিতে হবে। ভুয়া QR দেখানো হবে না।";
+        return;
       }
-      const qrData = `https://wa.me/${fullIntl.replace(/[^0-9]/g, "")}?text=MEMO_AI_2_0_CONNECTED`;
-      img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(qrData);
-      msg.textContent = `📱 QR Code Generated for ${fullIntl} — স্ক্যান করে বা নিচে QR Scanned চেপে কানেক্ট করুন।`;
+      try {
+        const r = await fetch(gw.replace(/\/$/, "") + "/status");
+        if (!r.ok) throw new Error("Gateway HTTP " + r.status);
+        const d = await r.json();
+        if (d && d.qr) {
+          img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(d.qr);
+          msg.textContent = "🟢 Live WhatsApp QR পাওয়া গেছে। WhatsApp > Linked Devices থেকে স্ক্যান করুন।";
+        } else if (d && d.waConnected) {
+          msg.textContent = "✅ Gateway-তে WhatsApp ইতিমধ্যে সংযুক্ত আছে।";
+        } else {
+          msg.textContent = "⏳ Gateway চালু, কিন্তু এখনো QR আসেনি। কিছুক্ষণ পরে Refresh QR চাপুন।";
+        }
+      } catch (e) {
+        msg.textContent = "❌ Gateway-তে সংযোগ হয়নি: " + e.message;
+      }
     }
 
     function copyRealPairingCode() {
@@ -674,7 +676,7 @@
       window.open("https://web.whatsapp.com", "_blank");
     }
 
-    function finalizeWhatsAppLogin(method) {
+    async function finalizeWhatsAppLogin(method) {
       const cc = document.getElementById("wa-country-code").value.trim() || "+88";
       const rawNum = document.getElementById("wa-phone-number").value.trim();
       if (!rawNum || rawNum.replace(/[^0-9]/g, "").length < 5) {
@@ -682,16 +684,37 @@
         document.getElementById("wa-phone-number").focus();
         return;
       }
-      state.countryCode = cc;
-      state.phoneNumber = rawNum;
-      state.fullPhone = normalizeInternationalPhone(cc, rawNum);
-      state.gatewayUrl = document.getElementById("wa-gateway-url").value.trim();
-      state.metaPhoneId = document.getElementById("meta-phone-id").value.trim();
-      state.metaToken = document.getElementById("meta-access-token").value.trim();
-      state.waLinked = true;
-      saveState();
-      hideLoginModal();
-      speakText("হোয়াটসঅ্যাপ সেশন সফলভাবে কানেক্ট হয়েছে");
+
+      const mode = document.getElementById("wa-conn-mode").value;
+      const gateway = document.getElementById("wa-gateway-url").value.trim().replace(/\/$/, "");
+      if (mode !== "cloud_gateway") {
+        alert("এই মোডে ব্যক্তিগত WhatsApp Linked Devices pairing যাচাই করা যায় না। Cloud Baileys Gateway ব্যবহার করুন।");
+        return;
+      }
+      if (!gateway) {
+        alert("WhatsApp এখনো কানেক্ট হয়নি। আগে একটি চালু Cloud Baileys Gateway URL দিন, তারপর Pairing Code বা আসল QR দিয়ে লিংক করুন।");
+        return;
+      }
+
+      try {
+        const response = await fetch(gateway + "/status", { cache: "no-store" });
+        if (!response.ok) throw new Error("Gateway HTTP " + response.status);
+        const status = await response.json();
+        if (!status || status.waConnected !== true) {
+          alert("WhatsApp সেশন এখনো কানেক্টেড নয়। Pairing Code/QR দিয়ে লিংক সম্পন্ন করে আবার চেষ্টা করুন।");
+          return;
+        }
+        state.countryCode = cc;
+        state.phoneNumber = rawNum;
+        state.fullPhone = status.phone ? "+" + String(status.phone).replace(/[^0-9]/g, "") : normalizeInternationalPhone(cc, rawNum);
+        state.gatewayUrl = gateway;
+        state.waLinked = true;
+        saveState();
+        hideLoginModal();
+        speakText("হোয়াটসঅ্যাপ সেশন যাচাই করে কানেক্ট হয়েছে");
+      } catch (error) {
+        alert("WhatsApp Gateway যাচাই করা যায়নি: " + error.message + "। সেশন Connected দেখানো হয়নি।");
+      }
     }
 
     function showLoginModal() {
@@ -1366,155 +1389,3 @@
   </script>
 </body>
 </html>
-<!-- MEMO_REAL_WA_START -->
-<style>
-  #memoWaFab { position:fixed; bottom:18px; right:18px; z-index:99998; background:#00a884; color:#000; font-weight:bold; border:none; border-radius:50px; padding:12px 18px; box-shadow:0 4px 15px rgba(0,0,0,0.5); cursor:pointer; font-size:13px; display:flex; align-items:center; gap:6px; }
-  #memoWaDot { width:9px; height:9px; border-radius:50%; background:#ef4444; display:inline-block; }
-  #memoWaDot.on { background:#fff; box-shadow:0 0 8px #fff; }
-  #memoWaModal { position:fixed; inset:0; background:rgba(0,0,0,0.82); z-index:99999; display:none; align-items:center; justify-content:center; padding:14px; font-family:sans-serif; }
-  .mwa-box { background:#111b21; color:#e9edef; width:100%; max-width:430px; max-height:90vh; overflow-y:auto; border-radius:14px; border:1px solid #222e35; padding:16px; box-sizing:border-box; }
-  .mwa-box input, .mwa-box textarea { width:100%; padding:10px; margin-top:6px; margin-bottom:10px; border-radius:8px; border:1px solid #2a3942; background:#202c33; color:#fff; font-size:13px; box-sizing:border-box; }
-  .mwa-btn { width:100%; padding:10px; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:6px; font-size:13px; }
-  .mwa-code { font-size:24px; font-weight:bold; color:#34d399; letter-spacing:4px; text-align:center; padding:12px; background:#0b141a; border:1px dashed #00a884; border-radius:8px; margin:8px 0; }
-  .mwa-chat { height:150px; overflow-y:auto; background:#0b141a; border:1px solid #222e35; border-radius:8px; padding:8px; font-size:12px; margin-bottom:8px; }
-  .mwa-msg { padding:6px 8px; border-radius:6px; margin-bottom:6px; background:#202c33; }
-  .mwa-msg.out { background:#005c4b; }
-</style>
-<button id="memoWaFab" onclick="document.getElementById('memoWaModal').style.display='flex'">
-  <span id="memoWaDot"></span> WhatsApp সেশন
-</button>
-<div id="memoWaModal">
-  <div class="mwa-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <strong style="color:#00a884;font-size:16px;">ইন-অ্যাপ WhatsApp রিয়েল লগইন</strong>
-      <button onclick="document.getElementById('memoWaModal').style.display='none'" style="background:none;border:none;color:#8696a0;font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div id="mwaStatusText" style="font-size:12px;color:#f87171;margin-bottom:10px;">অবস্থা: বিচ্ছিন্ন (Disconnected)</div>
-    <input id="mwaId" placeholder="Green-API Instance ID (যেমন: 7103XXXXXX)" />
-    <input id="mwaToken" type="password" placeholder="Green-API Token Instance" />
-    <input id="mwaPhone" type="tel" placeholder="আপনার WhatsApp নম্বর (8801XXXXXXXXX)" />
-    <div style="display:flex;gap:8px;">
-      <button class="mwa-btn" style="background:#00a884;color:#000;" onclick="mwaGetPairCode()">লিংক কোড (Pairing)</button>
-      <button class="mwa-btn" style="background:#2a3942;color:#fff;" onclick="mwaGetQR()">QR কোড</button>
-    </div>
-    <button class="mwa-btn" style="background:#1f2c34;color:#34d399;" onclick="mwaSaveAndCheck()">সেশন সেভ ও কানেক্ট করুন</button>
-    <div id="mwaPairArea" style="display:none;text-align:center;margin-top:10px;">
-      <div id="mwaHint" style="font-size:11px;color:#8696a0;"></div>
-      <div id="mwaCode" class="mwa-code" style="display:none;"></div>
-      <img id="mwaQr" style="max-width:200px;background:#fff;padding:8px;border-radius:8px;display:none;margin:8px auto;" />
-      <button id="mwaOpenBtn" class="mwa-btn" style="background:#005c4b;color:#fff;display:none;" onclick="mwaCopyOpen()">কোড কপি করে WhatsApp খুলুন</button>
-    </div>
-    <hr style="border:0;border-top:1px solid #222e35;margin:14px 0;" />
-    <strong style="color:#00a884;font-size:14px;display:block;margin-bottom:6px;">রিয়েল-টাইম মেসেজ (Inbox & Send)</strong>
-    <div id="mwaChat" class="mwa-chat">কোনো মেসেজ নেই...</div>
-    <input id="mwaTo" type="tel" placeholder="প্রাপকের নম্বর (8801XXXXXXXXX)" />
-    <textarea id="mwaMsg" rows="2" placeholder="মেসেজ লিখুন..."></textarea>
-    <button class="mwa-btn" style="background:#00a884;color:#000;" onclick="mwaSendFromUI()">অ্যাপ থেকেই মেসেজ পাঠান</button>
-  </div>
-</div>
-<script>
-(function(){
-  const seen = new Set();
-  let lastCode = "", connected = false;
-  const cfg = JSON.parse(localStorage.getItem("memo_real_wa") || "{}");
-  if(cfg.id) document.getElementById("mwaId").value = cfg.id;
-  if(cfg.token) document.getElementById("mwaToken").value = cfg.token;
-  if(cfg.phone) document.getElementById("mwaPhone").value = cfg.phone;
-  function saveCfg(){
-    const c = { id: document.getElementById("mwaId").value.trim(), token: document.getElementById("mwaToken").value.trim(), phone: document.getElementById("mwaPhone").value.replace(/\D/g,"") };
-    localStorage.setItem("memo_real_wa", JSON.stringify(c));
-    return c;
-  }
-  function setStatus(ok, txt){
-    connected = ok;
-    const st = document.getElementById("mwaStatusText"), dot = document.getElementById("memoWaDot");
-    st.innerText = ok ? "অবস্থা: সংযুক্ত (Real Session Active)" : ("অবস্থা: " + (txt || "বিচ্ছিন্ন"));
-    st.style.color = ok ? "#34d399" : "#f87171";
-    dot.className = ok ? "on" : "";
-    if(ok) document.getElementById("mwaPairArea").style.display = "none";
-  }
-  window.mwaGetPairCode = async function(){
-    const c = saveCfg();
-    if(!c.id || !c.token || c.phone.length < 10) return alert("Instance ID, API Token এবং সঠিক ফোন নম্বর দিন");
-    const area = document.getElementById("mwaPairArea"), codeEl = document.getElementById("mwaCode"), qrEl = document.getElementById("mwaQr");
-    area.style.display = "block"; qrEl.style.display = "none"; codeEl.style.display = "block"; codeEl.innerText = "লোড হচ্ছে...";
-    document.getElementById("mwaHint").innerText = "WhatsApp > Linked Devices > Link with phone number-এ কোডটি দিন:";
-    try {
-      const r = await fetch(`https://api.green-api.com/waInstance${c.id}/getAuthorizationCode/${c.token}`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({phoneNumber: Number(c.phone)}) }).then(x=>x.json());
-      if(r.code){ lastCode = r.code; codeEl.innerText = r.code; document.getElementById("mwaOpenBtn").style.display = "block"; }
-      else { codeEl.innerText = "ব্যর্থ! Key চেক করুন"; }
-    } catch(e){ codeEl.innerText = "নেটওয়ার্ক ত্রুটি"; }
-  };
-  window.mwaGetQR = async function(){
-    const c = saveCfg();
-    if(!c.id || !c.token) return alert("Instance ID ও API Token দিন");
-    const area = document.getElementById("mwaPairArea"), codeEl = document.getElementById("mwaCode"), qrEl = document.getElementById("mwaQr");
-    area.style.display = "block"; codeEl.style.display = "none"; qrEl.style.display = "none";
-    document.getElementById("mwaHint").innerText = "QR কোড তৈরি হচ্ছে...";
-    try {
-      const r = await fetch(`https://api.green-api.com/waInstance${c.id}/qr/${c.token}`).then(x=>x.json());
-      if(r.type === "qrCode" && r.message){ qrEl.src = "data:image/png;base64," + r.message; qrEl.style.display = "block"; document.getElementById("mwaHint").innerText = "WhatsApp Linked Devices থেকে স্ক্যান করুন:"; }
-      else if(r.type === "alreadyLogged"){ setStatus(true); }
-      else { document.getElementById("mwaHint").innerText = "QR পাওয়া যায়নি, আবার চেষ্টা করুন।"; }
-    } catch(e){ document.getElementById("mwaHint").innerText = "ত্রুটি: " + e.message; }
-  };
-  window.mwaCopyOpen = function(){
-    if(lastCode && navigator.clipboard) navigator.clipboard.writeText(lastCode);
-    window.location.href = "whatsapp://";
-  };
-  window.mwaSaveAndCheck = async function(){
-    const c = saveCfg();
-    if(!c.id || !c.token) return;
-    try {
-      const r = await fetch(`https://api.green-api.com/waInstance${c.id}/getStateInstance/${c.token}`).then(x=>x.json());
-      setStatus(r.stateInstance === "authorized", r.stateInstance);
-    } catch(e){ setStatus(false); }
-  };
-  window.sendRealWhatsApp = async function(phone, text){
-    const c = saveCfg(), clean = String(phone).replace(/\D/g,"");
-    if(!c.id || !c.token || !clean || !text) return false;
-    try {
-      const r = await fetch(`https://api.green-api.com/waInstance${c.id}/sendMessage/${c.token}`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({chatId: clean + "@c.us", message: text}) }).then(x=>x.json());
-      if(r.idMessage){ addChat("আমি -> " + clean, text, true); return true; }
-    } catch(e){}
-    return false;
-  };
-  window.mwaSendFromUI = async function(){
-    const to = document.getElementById("mwaTo").value, msg = document.getElementById("mwaMsg").value.trim();
-    if(!to || !msg) return alert("নম্বর ও মেসেজ দিন");
-    const ok = await window.sendRealWhatsApp(to, msg);
-    if(ok) document.getElementById("mwaMsg").value = "";
-    else alert("মেসেজ যায়নি! সেশন সংযুক্ত আছে কিনা দেখুন।");
-  };
-  function addChat(who, text, out){
-    const box = document.getElementById("mwaChat");
-    if(box.innerText === "কোনো মেসেজ নেই...") box.innerHTML = "";
-    const d = document.createElement("div");
-    d.className = "mwa-msg" + (out ? " out" : "");
-    d.innerHTML = `<small style="color:#8696a0">${who} • ${new Date().toLocaleTimeString()}</small><br>${text.replace(/</g,"&lt;")}`;
-    box.prepend(d);
-  }
-  setInterval(async ()=>{
-    const c = saveCfg();
-    if(!c.id || !c.token) return;
-    try {
-      const r = await fetch(`https://api.green-api.com/waInstance${c.id}/receiveNotification/${c.token}`).then(x=>x.json());
-      if(!r || !r.receiptId) return;
-      const b = r.body || {};
-      if(b.typeWebhook === "incomingMessageReceived"){
-        const id = b.idMessage, from = (b.senderData?.sender || "").replace("@c.us","");
-        const txt = b.messageData?.textMessageData?.textMessage || b.messageData?.extendedTextMessageData?.text || "";
-        if(txt && !seen.has(id)){
-          seen.add(id); setStatus(true); addChat("প্রেরক: " + from, txt, false);
-          if(!document.getElementById("mwaTo").value) document.getElementById("mwaTo").value = from;
-        }
-      } else if(b.typeWebhook === "stateInstanceChanged"){
-        setStatus(b.stateInstance === "authorized", b.stateInstance);
-      }
-      await fetch(`https://api.green-api.com/waInstance${c.id}/deleteNotification/${c.token}/${r.receiptId}`, {method:"DELETE"});
-    } catch(e){}
-  }, 3500);
-  if(cfg.id && cfg.token) window.mwaSaveAndCheck();
-})();
-</script>
-<!-- MEMO_REAL_WA_END -->
