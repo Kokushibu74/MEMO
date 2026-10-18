@@ -1,0 +1,174 @@
+openapi: 3.1.0
+info:
+  title: MEMO WhatsApp Gateway
+  version: 1.0.0
+  description: Authenticated actions for the user's MEMO WhatsApp gateway. Can inspect connection status, request a WhatsApp pairing code, send a WhatsApp message, acknowledge an incoming message, and log out the linked WhatsApp session. This API does not itself toggle AI inside the Android APK.
+servers:
+  - url: https://memo-wa-bridge.onrender.com
+    description: MEMO gateway on Render
+security:
+  - MemoGatewayToken: []
+components:
+  securitySchemes:
+    MemoGatewayToken:
+      type: apiKey
+      in: header
+      name: X-MEMO-Token
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    Status:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        ready:
+          type: boolean
+        registered:
+          type: boolean
+        connectionState:
+          type: string
+        waConnected:
+          type: boolean
+        phone:
+          type: string
+        qr:
+          type: string
+        messages:
+          type: array
+          items:
+            type: object
+        outgoing:
+          type: array
+          items:
+            type: object
+paths:
+  /health:
+    get:
+      operationId: checkMemoGatewayHealth
+      summary: Check whether the MEMO gateway is running
+      security: []
+      responses:
+        '200':
+          description: Gateway health
+          content:
+            application/json:
+              schema:
+                type: object
+  /status:
+    get:
+      operationId: getMemoWhatsAppStatus
+      summary: Get WhatsApp connection and recent message status
+      responses:
+        '200':
+          description: Current gateway and WhatsApp state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '401':
+          description: Invalid gateway token
+  /pair:
+    post:
+      operationId: requestMemoWhatsAppPairingCode
+      summary: Request a WhatsApp pairing code for a phone number
+      description: Use a full international phone number including country code. Only call when the user explicitly asks to pair a number.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone:
+                  type: string
+                  description: International phone number digits including country code, e.g. 8801XXXXXXXXX
+      responses:
+        '200':
+          description: Pairing code requested
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid phone number
+        '401':
+          description: Invalid gateway token
+        '409':
+          description: A WhatsApp account is already linked
+        '429':
+          description: Pairing rate limit
+  /send:
+    post:
+      operationId: sendMemoWhatsAppMessage
+      summary: Send a WhatsApp message through the linked MEMO gateway
+      description: Only send messages to recipients and with content the user explicitly authorized.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to, text]
+              properties:
+                to:
+                  type: string
+                  description: Recipient international phone number or WhatsApp JID
+                text:
+                  type: string
+                  description: Message text to send
+                msgId:
+                  type: string
+                  description: Optional idempotency identifier
+      responses:
+        '200':
+          description: Message accepted by WhatsApp socket; this does not guarantee delivery
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Invalid gateway token
+        '422':
+          description: Recipient is not registered on WhatsApp
+        '503':
+          description: WhatsApp is not connected
+  /ack:
+    post:
+      operationId: acknowledgeMemoIncomingMessage
+      summary: Mark an incoming WhatsApp message as handled
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [msgId]
+              properties:
+                msgId:
+                  type: string
+      responses:
+        '200':
+          description: Message acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+  /logout:
+    post:
+      operationId: disconnectMemoWhatsApp
+      summary: Log out and clear the linked WhatsApp session
+      description: Destructive action. Only call when the user explicitly asks to disconnect or log out WhatsApp.
+      responses:
+        '200':
+          description: Logout requested and local session cleared
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Invalid gateway token
