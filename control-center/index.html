@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07111f"><title>MEMO Control Center</title>
+<style>
+:root{color-scheme:dark;--bg:#07111f;--panel:#101e30;--line:#263b52;--text:#edf6ff;--muted:#a5b8ca;--cyan:#63e6e2;--green:#7ce2a5;--amber:#ffd27a;--red:#ff9090}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#14344a 0,transparent 45%),var(--bg);color:var(--text);font:16px system-ui,-apple-system,sans-serif;min-height:100vh}
+main{max-width:850px;margin:auto;padding:22px 15px 50px}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#63e6e2,#76a9ff);display:grid;place-items:center;color:#061421;font-weight:900;font-size:20px}.muted{color:var(--muted)}h1{font-size:25px;margin:0}h2{font-size:17px;margin:0 0 12px}.sub{margin:5px 0 22px;color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{background:#101e30eF;border:1px solid var(--line);border-radius:18px;padding:17px;margin:12px 0}.stat{font-size:22px;font-weight:800;margin:8px 0}.label{font-size:12px;color:var(--muted)}input,button{font:inherit;border-radius:11px;padding:12px;border:1px solid var(--line);width:100%;background:#071421;color:var(--text)}button{background:var(--cyan);color:#061421;font-weight:800;border:0;cursor:pointer;margin-top:10px}button.secondary{background:#22364b;color:var(--text)}.row{display:flex;gap:8px;align-items:center}.row input{min-width:0}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:12px}.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}.small{font-size:12px;line-height:1.6}.hide{display:none}.statusline{margin-top:10px;min-height:20px;font-size:13px;overflow-wrap:anywhere}a{color:var(--cyan)}footer{font-size:12px;color:var(--muted);margin-top:18px}@media(max-width:480px){h1{font-size:21px}.card{padding:14px}}
+</style></head>
+<body><main>
+<header class="brand"><div class="logo">M</div><div><h1>MEMO Control Center</h1><div class="muted" style="font-size:12px">Free • WhatsApp Bridge Monitor</div></div></header>
+<p class="sub">WhatsApp সেশন না মুছে নিরাপদে সংযোগ ও Gateway-এর অবস্থা দেখুন।</p>
+<section class="grid">
+<div class="card"><div class="label">GATEWAY HEALTH</div><div class="stat" id="health">Checking…</div><div class="small muted" id="healthDetail">শুধু public health endpoint পরীক্ষা হচ্ছে।</div></div>
+<div class="card"><div class="label">WHATSAPP LINK</div><div class="stat" id="wa">Unknown</div><div class="small muted" id="waDetail">Token দিয়ে status যাচাই হয়নি।</div></div>
+<div class="card"><div class="label">SOCKET STATE</div><div class="stat" id="socket">—</div><div class="small muted">এটি connection state; মেসেজ পৌঁছানোর নিশ্চয়তা নয়।</div></div>
+</section>
+<section class="card"><h2>১. Gateway URL</h2><input id="url" type="url" value="https://memo-wa-bridge.onrender.com" autocomplete="url" spellcheck="false"><p class="small muted">URL তোমার MEMO gateway-এর। Public health check-এর জন্য token লাগে না।</p><button id="healthBtn" class="secondary">Check Health</button><div id="healthMsg" class="statusline" role="status"></div></section>
+<section class="card"><h2>২. Secure Status Check</h2><label class="small muted" for="token">MEMO Gateway Token (এই ট্যাবে সাময়িকভাবে থাকবে)</label><input id="token" type="password" autocomplete="off" placeholder="Token এখানে নিজে লিখুন"><div class="row"><button id="statusBtn">Check WhatsApp Status</button><button id="clearBtn" class="secondary">Clear</button></div><div id="statusMsg" class="statusline" role="status"></div><p class="small muted">Token browser storage-এ save হয় না, কোনো log-এ দেখানো হয় না। কাউকে token পাঠাবেন না।</p></section>
+<section class="card"><h2>এখন কী করতে পারবে?</h2><ul class="small muted"><li>Gateway live কি না পরীক্ষা</li><li>WhatsApp socket linked/open কি না যাচাই</li><li>নতুন করে pairing/logout না করেই সমস্যা আলাদা করা</li><li>ফলাফল দেখে পরবর্তী code fix পরিকল্পনা</li></ul><p class="small warn">ChatGPT-এর এই কথোপকথন থেকে MEMO-তে সরাসরি স্বয়ংক্রিয় command পাঠাতে আলাদা অনুমোদিত integration লাগবে। এই monitor নিজে থেকে মেসেজ পাঠায় না, session পরিবর্তন করে না, deploy চালায় না।</p></section>
+<footer>Privacy: status output-এ ফোন নম্বর, chat content বা token দেখানো হয় না।</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let healthTimer;
+function base(){return $('url').value.trim().replace(/\/+$/,'')}
+function setText(id,text,cls){const e=$(id);e.textContent=text;e.className='stat '+(cls||'')}
+async function checkHealth(){
+ setText('health','Checking…','');$('healthMsg').textContent='';
+ try{const r=await fetch(base()+'/health',{cache:'no-store'});const d=await r.json();
+ if(!r.ok||!d.ok)throw Error('Gateway health endpoint returned '+r.status);
+ setText('health','ONLINE','good');$('healthDetail').textContent='Service responds normally.';$('healthMsg').textContent='Health check successful.';
+ setText('socket',d.connectionState||'unknown','');return d;
+ }catch(e){setText('health','UNREACHABLE','bad');$('healthDetail').textContent='URL/network/Render sleep may be the cause.';$('healthMsg').textContent='Health check failed. URL ও নেটওয়ার্ক যাচাই করুন।';return null}
+}
+async function checkStatus(){
+ $('statusMsg').textContent='Checking…';const token=$('token').value.trim();
+ if(!token){$('statusMsg').textContent='আগে নিজের Gateway Token লিখুন।';return}
+ try{const r=await fetch(base()+'/status',{headers:{'X-MEMO-Token':token},cache:'no-store'});
+ if(r.status===401){setText('wa','TOKEN REJECTED','bad');$('waDetail').textContent='Gateway rejected the supplied token.';$('statusMsg').textContent='401: token mismatch বা server config issue. Token প্রকাশ করবেন না।';return}
+ if(r.status===503){setText('wa','NOT CONFIGURED','bad');$('statusMsg').textContent='Gateway token server-এ configured নয় বলে API জানিয়েছে।';return}
+ if(!r.ok)throw Error('status '+r.status);
+ const d=await r.json();const connected=d.waConnected===true;
+ setText('wa',connected?'LINK OPEN':'NOT OPEN',connected?'good':'warn');
+ $('waDetail').textContent='Registered: '+(d.registered?'yes':'no')+' • Ready: '+(d.ready?'yes':'no');
+ setText('socket',String(d.connectionState||'unknown'),connected?'good':'warn');
+ $('statusMsg').textContent='Status read successful. Message contents and phone number are hidden.';
+ }catch(e){$('statusMsg').textContent='Status request failed. Gateway reachable কি না এবং token ঠিক কি না যাচাই করুন।'}
+}
+$('healthBtn').addEventListener('click',checkHealth);$('statusBtn').addEventListener('click',checkStatus);
+$('clearBtn').addEventListener('click',()=>{$('token').value='';$('statusMsg').textContent='Token cleared from this page.';setText('wa','Unknown','');$('waDetail').textContent='Status not checked.'});
+$('url').addEventListener('change',checkHealth);window.addEventListener('pagehide',()=>$('token').value='');checkHealth();
+</script></body></html>
