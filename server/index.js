@@ -104,6 +104,31 @@ app.post('/control', (req, res) => {
   res.status(202).json({ ok: true, queued: true, command, note: 'APK polling is required for this command to take effect.' });
 });
 
+app.get('/commands/next', (req, res) => {
+  const now = Date.now();
+  for (let i = controlCommands.length - 1; i >= 0; i--) {
+    if (now - controlCommands[i].createdAt > 15 * 60 * 1000 || controlCommands[i].status === 'done') controlCommands.splice(i, 1);
+  }
+  const deviceId = String(req.query.deviceId || 'memo-apk').slice(0, 100);
+  const command = controlCommands.find(c => c.status === 'pending' || (c.status === 'processing' && now - c.claimedAt > 30000));
+  if (!command) return res.json({ ok: true, command: null });
+  command.status = 'processing';
+  command.claimedAt = now;
+  command.claimedBy = deviceId;
+  res.json({ ok: true, command });
+});
+
+app.post('/commands/ack', (req, res) => {
+  const commandId = String(req.body?.commandId || '');
+  const success = req.body?.success === true;
+  if (!commandId) return res.status(400).json({ error: 'commandId is required' });
+  const command = controlCommands.find(c => c.id === commandId);
+  if (!command) return res.status(404).json({ error: 'Command not found or expired' });
+  command.status = success ? 'done' : 'pending';
+  command.result = { success, message: String(req.body?.message || '').slice(0, 300), acknowledgedAt: Date.now() };
+  res.json({ ok: true, commandId, status: command.status });
+});
+
 async function initWhatsApp() {
   if (initInProgress) return;
   initInProgress = true;
