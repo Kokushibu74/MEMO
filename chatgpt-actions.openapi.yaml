@@ -102,10 +102,10 @@ paths:
                   enum: [AI_ON, AI_OFF, SET_MODE]
                 chatId:
                   type: string
-                  description: Not used by currently supported commands.
+                  description: Reserved for future chat-specific controls; omit for now.
                 mode:
                   type: string
-                  enum: [hybrid, local_only]
+                  enum: [auto, offline]
                   description: Required for SET_MODE.
       responses:
         '202':
