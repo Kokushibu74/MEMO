@@ -71,6 +71,53 @@ paths:
                 $ref: '#/components/schemas/Status'
         '401':
           description: Invalid gateway token
+  /control/status:
+    get:
+      operationId: getMemoControlStatus
+      summary: Check MEMO control state and pending commands
+      responses:
+        '200':
+          description: Control queue state
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Invalid gateway token
+  /control:
+    post:
+      operationId: controlMemoAssistant
+      summary: Queue an AI or chat control command for the MEMO APK
+      description: This only queues a command. The installed APK must poll /commands/next and apply/acknowledge it. Do not claim success until the APK integration is installed and verified.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  enum: [AI_ON, AI_OFF, PAUSE_CHAT, RESUME_CHAT, SET_MODE]
+                chatId:
+                  type: string
+                  description: Required for PAUSE_CHAT and RESUME_CHAT.
+                mode:
+                  type: string
+                  enum: [auto, manual, offline]
+                  description: Required for SET_MODE.
+      responses:
+        '202':
+          description: Command queued, not necessarily applied by the APK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid command
+        '401':
+          description: Invalid gateway token
   /pair:
     post:
       operationId: requestMemoWhatsAppPairingCode
