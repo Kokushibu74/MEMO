@@ -82,6 +82,27 @@ app.use('/pair', requireGatewayToken);
 app.use('/send', requireGatewayToken);
 app.use('/ack', requireGatewayToken);
 app.use('/logout', requireGatewayToken);
+app.use('/control', requireGatewayToken);
+app.use('/commands', requireGatewayToken);
+
+app.get('/control/status', (_req, res) => {
+  res.json({ ok: true, desiredAIState, pendingCommands: controlCommands.filter(c => c.status !== 'done').length, apkMustPoll: true });
+});
+
+app.post('/control', (req, res) => {
+  const action = String(req.body?.action || '').toUpperCase();
+  const allowed = ['AI_ON', 'AI_OFF', 'PAUSE_CHAT', 'RESUME_CHAT', 'SET_MODE'];
+  if (!allowed.includes(action)) return res.status(400).json({ error: 'Unsupported action', allowed });
+  const chatId = String(req.body?.chatId || '').trim();
+  const mode = String(req.body?.mode || '').trim().toLowerCase();
+  if (['PAUSE_CHAT', 'RESUME_CHAT'].includes(action) && !chatId) return res.status(400).json({ error: 'chatId is required' });
+  if (action === 'SET_MODE' && !['auto', 'manual', 'offline'].includes(mode)) return res.status(400).json({ error: 'mode must be auto, manual, or offline' });
+  if (action === 'AI_ON') desiredAIState = 'on';
+  if (action === 'AI_OFF') desiredAIState = 'off';
+  const command = { id: crypto.randomUUID(), action, ...(chatId ? { chatId } : {}), ...(action === 'SET_MODE' ? { mode } : {}), status: 'pending', createdAt: Date.now() };
+  controlCommands.push(command);
+  res.status(202).json({ ok: true, queued: true, command, note: 'APK polling is required for this command to take effect.' });
+});
 
 async function initWhatsApp() {
   if (initInProgress) return;
