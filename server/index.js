@@ -39,6 +39,8 @@ const sentMsgIds = new Set();
 const messagesStore = [];
 const outgoingStore = new Map();
 const pairAttempts = new Map();
+const controlCommands = [];
+let desiredAIState = 'unknown';
 
 function secureEqual(a, b) {
   const left = Buffer.from(String(a || ''), 'utf8');
