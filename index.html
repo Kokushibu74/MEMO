@@ -1318,6 +1318,62 @@
       } catch (e) {}
     }, 3000);
 
+    // Poll authenticated control commands from ChatGPT/bridge and apply them locally.
+    let memoControlPollBusy = false;
+    setInterval(async () => {
+      if (memoControlPollBusy || !state.gatewayUrl || !state.gatewayToken) return;
+      memoControlPollBusy = true;
+      let commandId = "";
+      try {
+        const base = state.gatewayUrl.replace(/\/$/, "");
+        const response = await fetch(base + "/commands/next?deviceId=memo-apk", {
+          headers: gatewayHeaders(), cache: "no-store"
+        });
+        if (!response.ok) return;
+        const payload = await response.json();
+        const command = payload.command;
+        if (!command || !command.id) return;
+        commandId = command.id;
+        let success = true;
+        let message = "Applied";
+        if (command.action === "AI_ON") {
+          state.aiEnabled = true;
+          saveState();
+          speakText("ChatGPT নির্দেশে Memo AI চালু হয়েছে");
+        } else if (command.action === "AI_OFF") {
+          state.aiEnabled = false;
+          saveState();
+          speakText("ChatGPT নির্দেশে Memo AI বন্ধ হয়েছে");
+        } else if (command.action === "SET_MODE" && ["hybrid", "local_only"].includes(command.mode)) {
+          state.brainMode = command.mode;
+          saveState();
+          const selector = document.getElementById("brain-routing-mode");
+          if (selector) selector.value = command.mode;
+          speakText("Memo AI mode পরিবর্তন করা হয়েছে");
+        } else {
+          success = false;
+          message = "This APK build does not support command: " + String(command.action || "unknown");
+        }
+        await fetch(base + "/commands/ack", {
+          method: "POST",
+          headers: gatewayHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify({ commandId, success, message })
+        });
+      } catch (e) {
+        if (commandId) {
+          try {
+            await fetch(state.gatewayUrl.replace(/\/$/, "") + "/commands/ack", {
+              method: "POST",
+              headers: gatewayHeaders({ "Content-Type": "application/json" }),
+              body: JSON.stringify({ commandId, success: false, message: String(e.message || e) })
+            });
+          } catch (_) {}
+        }
+      } finally {
+        memoControlPollBusy = false;
+      }
+    }, 3000);
+
     // Boot
     renderAllUI();
     if (!state.waLinked) {
