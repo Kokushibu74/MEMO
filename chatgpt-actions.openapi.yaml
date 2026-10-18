@@ -99,13 +99,13 @@ paths:
               properties:
                 action:
                   type: string
-                  enum: [AI_ON, AI_OFF, PAUSE_CHAT, RESUME_CHAT, SET_MODE]
+                  enum: [AI_ON, AI_OFF, SET_MODE]
                 chatId:
                   type: string
-                  description: Required for PAUSE_CHAT and RESUME_CHAT.
+                  description: Not used by currently supported commands.
                 mode:
                   type: string
-                  enum: [auto, manual, offline]
+                  enum: [hybrid, local_only]
                   description: Required for SET_MODE.
       responses:
         '202':
