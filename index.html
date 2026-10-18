@@ -1344,11 +1344,11 @@
           state.aiEnabled = false;
           saveState();
           speakText("ChatGPT নির্দেশে Memo AI বন্ধ হয়েছে");
-        } else if (command.action === "SET_MODE" && ["hybrid", "local_only"].includes(command.mode)) {
-          state.brainMode = command.mode;
+        } else if (command.action === "SET_MODE" && ["auto", "offline"].includes(command.mode)) {
+          state.brainMode = command.mode === "auto" ? "hybrid" : "local_only";
           saveState();
           const selector = document.getElementById("brain-routing-mode");
-          if (selector) selector.value = command.mode;
+          if (selector) selector.value = state.brainMode;
           speakText("Memo AI mode পরিবর্তন করা হয়েছে");
         } else {
           success = false;
