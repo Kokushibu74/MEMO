@@ -72,6 +72,9 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'memo-wa-bridge', connectionState });
 });
 
+// Free read-only Control Center UI; this does not touch WhatsApp auth/session state.
+app.use('/control-center', express.static(path.join(__dirname, '..', 'control-center'), { index: 'index.html', etag: true, maxAge: '5m' }));
+
 app.use('/status', requireGatewayToken);
 app.use('/pair', requireGatewayToken);
 app.use('/send', requireGatewayToken);
