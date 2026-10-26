@@ -13,6 +13,13 @@ const {
 
 const app = express();
 app.disable('x-powered-by');
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
 app.use(cors({
   origin: true,
   methods: ['GET', 'POST', 'OPTIONS'],
@@ -70,8 +77,9 @@ function pairRateLimited(ip) {
   return false;
 }
 
+// Keep the unauthenticated health endpoint intentionally low-information.
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'memo-wa-bridge', connectionState });
+  res.json({ ok: true, service: 'memo-wa-bridge' });
 });
 
 // Free read-only Control Center UI; this does not touch WhatsApp auth/session state.
@@ -287,7 +295,7 @@ app.post('/pair', async (req, res) => {
   } catch (err) {
     pairingRequestedAt = 0;
     console.error('Pairing code request failed:', err.message || err);
-    res.status(502).json({ error: err.message || 'Failed to request a real WhatsApp pairing code' });
+    res.status(502).json({ error: 'Failed to request a WhatsApp pairing code. Check server logs for details.' });
   }
 });
 
@@ -370,7 +378,7 @@ app.post('/send', async (req, res) => {
     res.json({ ok: true, status: 'accepted', delivered: false, messageId: sent.key.id, recipientJid });
   } catch (err) {
     console.error('WhatsApp send failed:', err.message || err);
-    res.status(502).json({ error: err.message || 'WhatsApp send failed' });
+    res.status(502).json({ error: 'WhatsApp send failed. Check server logs for details.' });
   }
 });
 
