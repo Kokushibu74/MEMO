@@ -86,7 +86,7 @@ jobs:
           ./gradlew assembleDebug --no-daemon
 
       - name: Upload Installable APK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Memo-WhatsApp-AI-2.0-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
