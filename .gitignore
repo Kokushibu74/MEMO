@@ -10,3 +10,8 @@ secrets.json
 local_models/*.bin
 node_modules/
 android/
+
+# Local backups and generated snapshots
+.backup/
+*.bak
+*.bak-*
